@@ -1,0 +1,39 @@
+<h1>✈️ SmartTrip</h1>
+
+<p>Votre assistant de voyage IA</p>
+
+<hr>
+
+@for (message of messages(); track $index) {
+  <div>
+    @if (message.role === 'user') {
+      <strong>Vous :</strong>
+    } @else {
+      <strong>SmartTrip :</strong>
+    }
+
+    <p>{{ message.content }}</p>
+  </div>
+}
+
+<hr>
+
+<textarea
+  placeholder="Posez votre question..."
+  [value]="message()"
+  (input)="message.set($any($event.target).value)"
+  (keydown.enter)="onEnter($event)"
+></textarea>
+
+<br>
+
+<button
+  (click)="sendStreamMessage()"
+  [disabled]="!message().trim() || isStreaming()"
+>
+  @if (isStreaming()) {
+    Envoi en cours...
+  } @else {
+    Envoyer
+  }
+</button>
