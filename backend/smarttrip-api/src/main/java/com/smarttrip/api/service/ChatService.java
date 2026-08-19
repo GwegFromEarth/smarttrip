@@ -1,7 +1,7 @@
 package com.smarttrip.api.service;
 
-import com.smarttrip.api.model.ChatMessage;
-import com.smarttrip.api.model.ChatRequest;
+import com.smarttrip.api.dto.ChatMessage;
+import com.smarttrip.api.dto.ChatRequest;
 import com.smarttrip.api.model.Conversation;
 import com.smarttrip.api.model.Message;
 import com.smarttrip.api.repository.ConversationRepository;

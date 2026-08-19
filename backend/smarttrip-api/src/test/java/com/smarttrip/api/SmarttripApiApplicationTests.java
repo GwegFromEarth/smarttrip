@@ -1,4 +1,4 @@
-package com.smarttrip.smarttrip_api;
+package com.smarttrip.api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

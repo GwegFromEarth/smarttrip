@@ -1,6 +1,6 @@
 package com.smarttrip.api.controller;
 
-import com.smarttrip.api.model.ChatRequest;
+import com.smarttrip.api.dto.ChatRequest;
 import com.smarttrip.api.model.Conversation;
 import com.smarttrip.api.service.ChatService;
 import org.springframework.ai.chat.client.ChatClient;
