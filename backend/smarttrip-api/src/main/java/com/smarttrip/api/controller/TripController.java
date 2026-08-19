@@ -7,6 +7,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.smarttrip.api.dto.Itinerary;
+import com.smarttrip.api.service.ItineraryService;
+
 import java.util.List;
 
 @RestController
@@ -14,9 +17,14 @@ import java.util.List;
 public class TripController {
 
     private final TripService tripService;
+    private final ItineraryService itineraryService;
 
-    public TripController(TripService tripService) {
+    public TripController(
+            TripService tripService,
+            ItineraryService itineraryService) {
+
         this.tripService = tripService;
+        this.itineraryService = itineraryService;
     }
 
     @PostMapping
@@ -34,5 +42,14 @@ public class TripController {
     @GetMapping("/{id}")
     public ResponseEntity<TripResponse> getTrip(@PathVariable Long id) {
         return ResponseEntity.ok(tripService.getTrip(id));
+    }
+
+    @PostMapping("/{id}/itinerary")
+    public ResponseEntity<Itinerary> generateItinerary(
+            @PathVariable Long id) {
+
+        return ResponseEntity.ok(
+                itineraryService.generateItinerary(id)
+        );
     }
 }

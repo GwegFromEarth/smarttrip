@@ -5,13 +5,29 @@ import com.smarttrip.api.model.Trip;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import com.smarttrip.api.repository.TripRepository;
+import com.smarttrip.api.exception.TripNotFoundException;
+
 @Service
 public class ItineraryService {
 
     private final ChatClient chatClient;
+    private final TripRepository tripRepository;
 
-    public ItineraryService(ChatClient chatClient) {
+    public ItineraryService(
+            ChatClient chatClient,
+            TripRepository tripRepository) {
+
         this.chatClient = chatClient;
+        this.tripRepository = tripRepository;
+    }
+
+    public Itinerary generateItinerary(Long tripId) {
+
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new TripNotFoundException(tripId));
+
+        return generateItinerary(trip);
     }
 
     public Itinerary generateItinerary(Trip trip) {

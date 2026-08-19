@@ -1,9 +1,11 @@
 package com.smarttrip.api.controller;
 
 import com.smarttrip.api.dto.CreateTripRequest;
+import com.smarttrip.api.dto.Itinerary;
 import com.smarttrip.api.dto.TripResponse;
 import com.smarttrip.api.exception.InvalidTripException;
 import com.smarttrip.api.exception.TripNotFoundException;
+import com.smarttrip.api.service.ItineraryService;
 import com.smarttrip.api.service.TripService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ class TripControllerTest {
 
     @MockitoBean
     private TripService tripService;
+
+    @MockitoBean
+    private ItineraryService itineraryService;
 
     @Test
     void createTrip_shouldReturnCreatedTrip() throws Exception {
@@ -125,5 +130,23 @@ class TripControllerTest {
                                 }
                                 """))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void generateItinerary_shouldReturnItinerary() throws Exception {
+
+        Itinerary itinerary = new Itinerary(
+                1L,
+                "Rome",
+                List.of()
+        );
+
+        given(itineraryService.generateItinerary(1L))
+                .willReturn(itinerary);
+
+        mockMvc.perform(post("/api/trips/1/itinerary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tripId").value(1))
+                .andExpect(jsonPath("$.destination").value("Rome"));
     }
 }
