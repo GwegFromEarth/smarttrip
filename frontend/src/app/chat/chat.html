@@ -4,36 +4,55 @@
 
 <hr>
 
-@for (message of messages(); track $index) {
-  <div>
-    @if (message.role === 'user') {
-      <strong>Vous :</strong>
-    } @else {
-      <strong>SmartTrip :</strong>
-    }
+<div class="input-area">
 
-    <p>{{ message.content }}</p>
-  </div>
-}
+  <textarea
+    placeholder="Posez votre question..."
+    [value]="message()"
+    (input)="message.set($any($event.target).value)"
+    (keydown.enter)="onEnter($event)"
+  ></textarea>
+
+  <button
+    type="button"
+    (click)="sendStreamMessage()"
+    [disabled]="!message().trim() || isStreaming()"
+  >
+    @if (isStreaming()) {
+      Envoi en cours...
+    } @else {
+      Envoyer
+    }
+  </button>
+
+</div>
 
 <hr>
 
-<textarea
-  placeholder="Posez votre question..."
-  [value]="message()"
-  (input)="message.set($any($event.target).value)"
-  (keydown.enter)="onEnter($event)"
-></textarea>
+<div class="conversation" #conversation>
 
-<br>
+  @for (message of messages(); track $index) {
 
-<button
-  (click)="sendStreamMessage()"
-  [disabled]="!message().trim() || isStreaming()"
->
-  @if (isStreaming()) {
-    Envoi en cours...
-  } @else {
-    Envoyer
+    <div
+      class="message"
+      [class.user-message]="message.role === 'user'"
+      [class.assistant-message]="message.role === 'assistant'"
+    >
+
+      <div class="message-author">
+        @if (message.role === 'user') {
+          Vous
+        } @else {
+          SmartTrip
+        }
+      </div>
+
+      <div class="message-content">
+        <markdown [data]="message.content"></markdown>
+      </div>
+
+    </div>
+
   }
-</button>
+
+</div>

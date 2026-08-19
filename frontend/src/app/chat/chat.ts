@@ -1,4 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component,
+  ElementRef,
+  effect,
+  inject,
+  signal,
+  viewChild } from '@angular/core';
+import { MarkdownComponent } from 'ngx-markdown';
+
 import { ChatService } from './chat.service';
 
 interface ChatMessage {
@@ -8,7 +15,7 @@ interface ChatMessage {
 
 @Component({
   selector: 'app-chat',
-  imports: [],
+  imports: [MarkdownComponent],
   templateUrl: './chat.html',
   styleUrl: './chat.css'
 })
@@ -27,6 +34,29 @@ export class Chat {
   messages = signal<ChatMessage[]>([]);
 
   isStreaming = signal(false);
+
+  conversationElement = viewChild<ElementRef<HTMLDivElement>>('conversation');
+
+  constructor() {
+    effect(() => {
+      this.streamResponse();
+      this.messages();
+
+      requestAnimationFrame(() => {
+        this.scrollConversationToBottom();
+      });
+    });
+  }
+
+  private scrollConversationToBottom(): void {
+    const element = this.conversationElement()?.nativeElement;
+
+    if (!element) {
+      return;
+    }
+
+    element.scrollTop = element.scrollHeight;
+  }
 
   sendMessage(): void {
     const message = this.message().trim();

@@ -91,11 +91,6 @@ export class ChatService {
                 continue;
               }
 
-              console.log(
-                'ÉVÉNEMENT SSE REÇU :',
-                JSON.stringify(event)
-              );
-
               let eventType = 'content';
               let data = '';
 
@@ -110,9 +105,11 @@ export class ChatService {
                 }
 
                 if (line.startsWith('data:')) {
-                  data += line
-                    .substring(5)
-                    .trim();
+                  const rawData = line.substring(5);
+
+                  data += rawData.startsWith(' ')
+                    ? rawData.substring(1)
+                    : rawData;
                 }
               }
 
@@ -149,9 +146,11 @@ export class ChatService {
               }
 
               if (line.startsWith('data:')) {
-                data += line
-                  .substring(5)
-                  .trim();
+                const rawData = line.substring(5);
+
+                data += rawData.startsWith(' ')
+                  ? rawData.substring(1)
+                  : rawData;
               }
             }
 
