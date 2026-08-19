@@ -1,12 +1,5 @@
 package com.smarttrip.api.controller;
 
-import com.smarttrip.api.dto.CreateTripRequest;
-import com.smarttrip.api.dto.ItineraryDto;
-import com.smarttrip.api.dto.TripResponse;
-import com.smarttrip.api.exception.InvalidTripException;
-import com.smarttrip.api.exception.TripNotFoundException;
-import com.smarttrip.api.service.ItineraryService;
-import com.smarttrip.api.service.TripService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -14,15 +7,24 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDate;
-import java.util.List;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.smarttrip.api.dto.CreateTripRequest;
+import com.smarttrip.api.dto.ItineraryDto;
+import com.smarttrip.api.dto.TripResponse;
+import com.smarttrip.api.exception.InvalidTripException;
+import com.smarttrip.api.exception.ItineraryNotFoundException;
+import com.smarttrip.api.exception.TripNotFoundException;
+import com.smarttrip.api.service.ItineraryService;
+import com.smarttrip.api.service.TripService;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @WebMvcTest(TripController.class)
 class TripControllerTest {
@@ -148,5 +150,33 @@ class TripControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tripId").value(1))
                 .andExpect(jsonPath("$.destination").value("Rome"));
+    }
+
+    @Test
+    void getItinerary_shouldReturnItinerary() throws Exception {
+
+        ItineraryDto itineraryDto = new ItineraryDto(
+                1L,
+                "Rome",
+                List.of()
+        );
+
+        given(itineraryService.getItinerary(1L))
+                .willReturn(itineraryDto);
+
+        mockMvc.perform(get("/api/trips/1/itinerary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tripId").value(1))
+                .andExpect(jsonPath("$.destination").value("Rome"));
+    }
+
+    @Test
+    void getItinerary_shouldReturnNotFoundWhenItineraryDoesNotExist() throws Exception {
+
+        given(itineraryService.getItinerary(999L))
+                .willThrow(new ItineraryNotFoundException(999L));
+
+        mockMvc.perform(get("/api/trips/999/itinerary"))
+                .andExpect(status().isNotFound());
     }
 }

@@ -35,4 +35,19 @@ public class GlobalExceptionHandler {
 
         return problemDetail;
     }
+
+    @ExceptionHandler(ItineraryNotFoundException.class)
+    public ProblemDetail handleItineraryNotFound(
+            ItineraryNotFoundException exception) {
+
+        ProblemDetail problemDetail =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.NOT_FOUND,
+                        exception.getMessage()
+                );
+
+        problemDetail.setTitle("Itinerary not found");
+
+        return problemDetail;
+    }
 }

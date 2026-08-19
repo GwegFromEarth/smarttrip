@@ -1,12 +1,12 @@
 package com.smarttrip.api.controller;
 
-import com.smarttrip.api.dto.CreateTripRequest;
-import com.smarttrip.api.dto.TripResponse;
-import com.smarttrip.api.service.TripService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.smarttrip.api.dto.CreateTripRequest;
+import com.smarttrip.api.dto.TripResponse;
+import com.smarttrip.api.service.TripService;
 import com.smarttrip.api.dto.ItineraryDto;
 import com.smarttrip.api.service.ItineraryService;
 
@@ -51,5 +51,10 @@ public class TripController {
         return ResponseEntity.ok(
                 itineraryService.generateItinerary(id)
         );
+    }
+
+    @GetMapping("/{id}/itinerary")
+    public ResponseEntity<ItineraryDto> getItinerary(@PathVariable Long id) {
+        return ResponseEntity.ok(itineraryService.getItinerary(id));
     }
 }

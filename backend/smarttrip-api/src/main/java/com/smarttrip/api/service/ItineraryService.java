@@ -3,6 +3,7 @@ package com.smarttrip.api.service;
 import com.smarttrip.api.dto.ActivityDto;
 import com.smarttrip.api.dto.ItineraryDayDto;
 import com.smarttrip.api.dto.ItineraryDto;
+import com.smarttrip.api.exception.ItineraryNotFoundException;
 import com.smarttrip.api.exception.TripNotFoundException;
 import com.smarttrip.api.model.Activity;
 import com.smarttrip.api.model.Itinerary;
@@ -69,6 +70,15 @@ public class ItineraryService {
         Itinerary savedItinerary = itineraryRepository.save(itinerary);
 
         return toDto(savedItinerary);
+    }
+
+    @Transactional(readOnly = true)
+    public ItineraryDto getItinerary(Long tripId) {
+
+        Itinerary itinerary = itineraryRepository.findByTripId(tripId)
+                .orElseThrow(() -> new ItineraryNotFoundException(tripId));
+
+        return toDto(itinerary);
     }
 
     private ItineraryDto generateItineraryFromAi(Trip trip) {
