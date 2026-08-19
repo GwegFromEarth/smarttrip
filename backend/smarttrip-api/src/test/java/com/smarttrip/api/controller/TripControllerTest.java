@@ -1,7 +1,7 @@
 package com.smarttrip.api.controller;
 
 import com.smarttrip.api.dto.CreateTripRequest;
-import com.smarttrip.api.dto.Itinerary;
+import com.smarttrip.api.dto.ItineraryDto;
 import com.smarttrip.api.dto.TripResponse;
 import com.smarttrip.api.exception.InvalidTripException;
 import com.smarttrip.api.exception.TripNotFoundException;
@@ -135,14 +135,14 @@ class TripControllerTest {
     @Test
     void generateItinerary_shouldReturnItinerary() throws Exception {
 
-        Itinerary itinerary = new Itinerary(
+        ItineraryDto itineraryDto = new ItineraryDto(
                 1L,
                 "Rome",
                 List.of()
         );
 
         given(itineraryService.generateItinerary(1L))
-                .willReturn(itinerary);
+                .willReturn(itineraryDto);
 
         mockMvc.perform(post("/api/trips/1/itinerary"))
                 .andExpect(status().isOk())

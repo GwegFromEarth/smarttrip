@@ -2,9 +2,9 @@ package com.smarttrip.api.dto;
 
 import java.util.List;
 
-public record Itinerary(
+public record ItineraryDto(
         Long tripId,
         String destination,
-        List<ItineraryDay> days
+        List<ItineraryDayDto> days
 ) {
 }

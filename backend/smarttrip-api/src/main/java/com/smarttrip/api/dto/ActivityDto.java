@@ -1,6 +1,6 @@
 package com.smarttrip.api.dto;
 
-public record Activity(
+public record ActivityDto(
         String time,
         String title,
         String description,

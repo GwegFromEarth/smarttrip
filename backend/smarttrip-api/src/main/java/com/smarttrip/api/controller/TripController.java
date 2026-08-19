@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.smarttrip.api.dto.Itinerary;
+import com.smarttrip.api.dto.ItineraryDto;
 import com.smarttrip.api.service.ItineraryService;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public class TripController {
     }
 
     @PostMapping("/{id}/itinerary")
-    public ResponseEntity<Itinerary> generateItinerary(
+    public ResponseEntity<ItineraryDto> generateItinerary(
             @PathVariable Long id) {
 
         return ResponseEntity.ok(
