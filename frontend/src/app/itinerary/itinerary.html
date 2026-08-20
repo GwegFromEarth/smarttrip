@@ -8,6 +8,34 @@
     Impossible de charger l'itinéraire.
   </p>
 
+} @else if (needsGeneration()) {
+
+  <main>
+
+    <h1>✈️ Votre itinéraire</h1>
+
+    @if (generating()) {
+
+      <p>
+        Génération de votre itinéraire...
+      </p>
+
+    } @else {
+
+      <p>
+        Aucun itinéraire n'a encore été généré pour ce voyage.
+      </p>
+
+      <button
+        type="button"
+        (click)="generateItinerary()">
+        Générer mon itinéraire
+      </button>
+
+    }
+
+  </main>
+
 } @else if (itinerary(); as trip) {
 
   <main>
