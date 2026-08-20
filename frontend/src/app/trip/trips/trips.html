@@ -1,44 +1,41 @@
 <h1>✈️ Mes voyages</h1>
 
 @if (isLoading()) {
-
   <p>Chargement des voyages...</p>
+}
 
-} @else if (error()) {
-
+@if (error()) {
   <p>{{ error() }}</p>
+}
 
-} @else if (trips().length === 0) {
-
+@if (!isLoading() && !error() && trips().length === 0) {
   <p>Aucun voyage enregistré.</p>
+}
 
-} @else {
+@if (trips().length > 0) {
+  @for (trip of trips(); track trip.id) {
+    <article class="trip-card">
 
-  <div class="trips">
+      <h2>{{ trip.destination }}</h2>
 
-    @for (trip of trips(); track trip.id) {
+      <p>
+        Du {{ trip.startDate }} au {{ trip.endDate }}
+      </p>
 
-      <article class="trip-card">
+      <p>
+        {{ trip.travelers }} voyageur(s)
+      </p>
 
-        <h2>{{ trip.destination }}</h2>
-
+      @if (trip.preferences) {
         <p>
-          {{ trip.startDate }} → {{ trip.endDate }}
+          Préférences : {{ trip.preferences }}
         </p>
+      }
 
-        <p>
-          {{ trip.travelers }}
-          {{ trip.travelers === 1 ? 'voyageur' : 'voyageurs' }}
-        </p>
+      <a [routerLink]="['/trips', trip.id, 'itinerary']">
+        Voir l'itinéraire
+      </a>
 
-        @if (trip.preferences) {
-          <p>{{ trip.preferences }}</p>
-        }
-
-      </article>
-
-    }
-
-  </div>
-
+    </article>
+  }
 }

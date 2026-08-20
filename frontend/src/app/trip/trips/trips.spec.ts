@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
 import {
   HttpTestingController,
   provideHttpClientTesting
@@ -20,7 +21,8 @@ describe('Trips', () => {
       imports: [Trips],
       providers: [
         provideHttpClient(),
-        provideHttpClientTesting()
+        provideHttpClientTesting(),
+        provideRouter([])
       ]
     }).compileComponents();
 
@@ -81,5 +83,37 @@ describe('Trips', () => {
     expect(compiled.textContent).toContain('2026-09-17');
     expect(compiled.textContent).toContain('2');
     expect(compiled.textContent).toContain('culture, histoire');
+  });
+
+  it('should display itinerary link', async () => {
+    const trips = [
+      {
+        id: 1,
+        destination: 'Rome',
+        startDate: '2026-09-12',
+        endDate: '2026-09-17',
+        travelers: 2,
+        preferences: 'culture, histoire'
+      }
+    ];
+
+    fixture.detectChanges();
+
+    const request = httpTesting.expectOne(
+      'http://localhost:8080/api/trips'
+    );
+
+    request.flush(trips);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector(
+      'a'
+    ) as HTMLAnchorElement;
+
+    expect(link).not.toBeNull();
+    expect(link.textContent).toContain('Voir l\'itinéraire');
+    expect(link.getAttribute('href')).toBe('/trips/1/itinerary');
   });
 });
