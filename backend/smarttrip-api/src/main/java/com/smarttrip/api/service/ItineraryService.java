@@ -84,26 +84,37 @@ public class ItineraryService {
     private ItineraryDto generateItineraryFromAi(Trip trip) {
 
         String prompt = """
-            Génère un itinéraire de voyage pour les informations suivantes :
-
+            Génère un itinéraire de voyage réaliste pour les informations suivantes :
+        
             Destination : %s
             Date de début : %s
             Date de fin : %s
             Nombre de voyageurs : %d
             Préférences : %s
-
-            Pour ce test, génère uniquement les 2 premiers jours du voyage.
-            Propose exactement 2 activités par jour.
-            Les descriptions doivent être courtes, avec une ou deux phrases maximum.
-
-            Respecte strictement la structure JSON demandée.
+        
+            Règles obligatoires :
+        
+            - Génère uniquement les 2 premiers jours du voyage pour ce test.
+            - Génère exactement 2 activités par jour.
+            - Utilise uniquement des lieux, monuments, musées ou quartiers qui existent réellement.
+            - N'invente jamais de lieu, de monument, de musée, de restaurant ou d'attraction.
+            - Utilise les noms officiels ou les noms touristiques couramment utilisés.
+            - Les activités doivent être réellement accessibles dans la destination indiquée.
+            - Regroupe autant que possible les activités proches géographiquement le même jour.
+            - Propose des horaires réalistes et cohérents avec les activités.
+            - Évite de programmer deux activités qui se chevauchent.
+            - Les descriptions doivent être courtes : une ou deux phrases maximum.
+            - Ne mentionne pas d'informations dont tu n'es pas suffisamment certain.
+            - Respecte strictement la destination, les dates, le nombre de voyageurs et les préférences fournies.
+        
+            Réponds uniquement avec les données correspondant à la structure JSON demandée.
             Ne génère aucun texte avant ou après le JSON.
             """.formatted(
-                trip.getDestination(),
-                trip.getStartDate(),
-                trip.getEndDate(),
-                trip.getTravelers(),
-                trip.getPreferences()
+                        trip.getDestination(),
+                        trip.getStartDate(),
+                        trip.getEndDate(),
+                        trip.getTravelers(),
+                        trip.getPreferences()
         );
 
         return chatClient.prompt()
