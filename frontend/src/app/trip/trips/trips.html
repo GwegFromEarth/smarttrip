@@ -1,45 +1,85 @@
-<h1>Mes voyages</h1>
+<section class="trips-page">
 
-<a routerLink="/trips/create">
-  ➕ Créer un voyage
-</a>
+  <header class="page-header">
+    <div>
+      <h1>Mes voyages</h1>
+      <p>Retrouvez vos voyages et leurs itinéraires.</p>
+    </div>
 
-@if (isLoading()) {
-  <p>Chargement des voyages...</p>
-}
+    <a routerLink="/trips/create" class="create-button">
+      ➕ Créer un voyage
+    </a>
+  </header>
 
-@if (error()) {
-  <p>{{ error() }}</p>
-}
+  @if (isLoading()) {
+    <div class="state-message">
+      Chargement des voyages...
+    </div>
+  } @else if (error()) {
+    <div class="state-message error">
+      {{ error() }}
+    </div>
+  } @else {
 
-@if (!isLoading() && !error() && trips().length === 0) {
-  <p>Aucun voyage enregistré.</p>
-}
+    @if (trips().length > 0) {
 
-@if (trips().length > 0) {
-  @for (trip of trips(); track trip.id) {
-    <article class="trip-card">
+      <div class="trips-grid">
 
-      <h2>{{ trip.destination }}</h2>
+        @for (trip of trips(); track trip.id) {
 
-      <p>
-        Du {{ trip.startDate }} au {{ trip.endDate }}
-      </p>
+          <article class="trip-card">
 
-      <p>
-        {{ trip.travelers }} voyageur(s)
-      </p>
+            <div class="trip-card-content">
 
-      @if (trip.preferences) {
-        <p>
-          Préférences : {{ trip.preferences }}
-        </p>
-      }
+              <h2>{{ trip.destination }}</h2>
 
-      <a [routerLink]="['/trips', trip.id, 'itinerary']">
-        Voir l'itinéraire
-      </a>
+              <p class="trip-dates">
+                📅 {{ trip.startDate }} → {{ trip.endDate }}
+              </p>
 
-    </article>
+              <p class="trip-travelers">
+                👥 {{ trip.travelers }}
+                {{ trip.travelers === 1 ? 'voyageur' : 'voyageurs' }}
+              </p>
+
+              @if (trip.preferences) {
+                <p class="trip-preferences">
+                  <strong>Préférences :</strong>
+                  {{ trip.preferences }}
+                </p>
+              }
+
+            </div>
+
+            <div class="trip-card-actions">
+
+              <a
+                [routerLink]="['/trips', trip.id, 'itinerary']"
+                class="itinerary-button">
+                Voir l'itinéraire
+              </a>
+
+            </div>
+
+          </article>
+
+        }
+
+      </div>
+
+    } @else {
+
+      <div class="empty-state">
+        <h2>Aucun voyage</h2>
+        <p>Vous n'avez encore créé aucun voyage.</p>
+
+        <a routerLink="/trips/create" class="create-button">
+          ➕ Créer mon premier voyage
+        </a>
+      </div>
+
+    }
+
   }
-}
+
+</section>

@@ -1,15 +1,93 @@
-.trips {
+.trips-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.page-header p {
+  margin: 0.5rem 0 0;
+  color: #666;
+}
+
+.create-button,
+.itinerary-button {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.create-button {
+  background: #2563eb;
+  color: white;
+}
+
+.itinerary-button {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.trips-grid {
   display: grid;
-  gap: 1rem;
-  max-width: 800px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
 }
 
 .trip-card {
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .trip-card h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.trip-dates,
+.trip-travelers,
+.trip-preferences {
+  margin: 0.6rem 0;
+  color: #475569;
+}
+
+.trip-card-actions {
+  margin-top: 1.5rem;
+}
+
+.state-message,
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.error {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.empty-state h2 {
   margin-top: 0;
 }
