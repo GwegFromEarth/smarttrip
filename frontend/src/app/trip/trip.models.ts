@@ -1,3 +1,11 @@
+export interface CreateTripRequest {
+  destination: string;
+  startDate: string;
+  endDate: string;
+  travelers: number;
+  preferences: string;
+}
+
 export interface TripResponse {
   id: number;
   destination: string;

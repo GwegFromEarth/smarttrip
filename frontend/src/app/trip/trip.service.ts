@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
+  CreateTripRequest,
   ItineraryDto,
   TripResponse
 } from './trip.models';
@@ -40,4 +41,11 @@ export class TripService {
       `${this.apiUrl}/${tripId}/itinerary`
     );
   }
+
+  createTrip(request: CreateTripRequest): Observable<TripResponse> {
+  return this.http.post<TripResponse>(
+    this.apiUrl,
+    request
+  );
+}
 }

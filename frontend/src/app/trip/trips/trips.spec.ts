@@ -85,17 +85,7 @@ describe('Trips', () => {
     expect(compiled.textContent).toContain('culture, histoire');
   });
 
-  it('should display itinerary link', async () => {
-    const trips = [
-      {
-        id: 1,
-        destination: 'Rome',
-        startDate: '2026-09-12',
-        endDate: '2026-09-17',
-        travelers: 2,
-        preferences: 'culture, histoire'
-      }
-    ];
+  it('should display create trip link', async () => {
 
     fixture.detectChanges();
 
@@ -103,17 +93,18 @@ describe('Trips', () => {
       'http://localhost:8080/api/trips'
     );
 
-    request.flush(trips);
+    expect(request.request.method).toBe('GET');
+
+    request.flush([]);
 
     await fixture.whenStable();
-    fixture.detectChanges();
 
     const link = fixture.nativeElement.querySelector(
-      'a'
-    ) as HTMLAnchorElement;
+      'a[routerLink="/trips/create"]'
+    ) as HTMLAnchorElement | null;
 
     expect(link).not.toBeNull();
-    expect(link.textContent).toContain('Voir l\'itinéraire');
-    expect(link.getAttribute('href')).toBe('/trips/1/itinerary');
+    expect(link?.textContent).toContain('Créer un voyage');
+    expect(link?.getAttribute('href')).toBe('/trips/create');
   });
 });

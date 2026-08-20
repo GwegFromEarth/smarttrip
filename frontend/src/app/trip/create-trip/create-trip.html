@@ -1,0 +1,95 @@
+<h1>Créer un voyage</h1>
+
+<form [formGroup]="tripForm" (ngSubmit)="submit()">
+
+  <div>
+    <label for="destination">Destination</label>
+    <input
+      id="destination"
+      type="text"
+      formControlName="destination"
+      placeholder="Ex. Rome"
+    >
+
+    @if (
+      tripForm.controls.destination.invalid &&
+      tripForm.controls.destination.touched
+    ) {
+      <p>La destination est obligatoire.</p>
+    }
+  </div>
+
+  <div>
+    <label for="startDate">Date de début</label>
+    <input
+      id="startDate"
+      type="date"
+      formControlName="startDate"
+    >
+
+    @if (
+      tripForm.controls.startDate.invalid &&
+      tripForm.controls.startDate.touched
+    ) {
+      <p>La date de début est obligatoire.</p>
+    }
+  </div>
+
+  <div>
+    <label for="endDate">Date de fin</label>
+    <input
+      id="endDate"
+      type="date"
+      formControlName="endDate"
+    >
+
+    @if (
+      tripForm.controls.endDate.invalid &&
+      tripForm.controls.endDate.touched
+    ) {
+      <p>La date de fin est obligatoire.</p>
+    }
+  </div>
+
+  <div>
+    <label for="travelers">Nombre de voyageurs</label>
+    <input
+      id="travelers"
+      type="number"
+      min="1"
+      formControlName="travelers"
+    >
+
+    @if (
+      tripForm.controls.travelers.invalid &&
+      tripForm.controls.travelers.touched
+    ) {
+      <p>Le nombre de voyageurs doit être au moins égal à 1.</p>
+    }
+  </div>
+
+  <div>
+    <label for="preferences">Préférences</label>
+    <textarea
+      id="preferences"
+      formControlName="preferences"
+      placeholder="Ex. culture, histoire, gastronomie..."
+    ></textarea>
+  </div>
+
+  @if (error()) {
+    <p>{{ error() }}</p>
+  }
+
+  <button
+    type="submit"
+    [disabled]="isSubmitting()"
+  >
+    @if (isSubmitting()) {
+      Création en cours...
+    } @else {
+      Créer le voyage
+    }
+  </button>
+
+</form>
