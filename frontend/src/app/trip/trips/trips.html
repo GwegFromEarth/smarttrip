@@ -1,0 +1,44 @@
+<h1>✈️ Mes voyages</h1>
+
+@if (isLoading()) {
+
+  <p>Chargement des voyages...</p>
+
+} @else if (error()) {
+
+  <p>{{ error() }}</p>
+
+} @else if (trips().length === 0) {
+
+  <p>Aucun voyage enregistré.</p>
+
+} @else {
+
+  <div class="trips">
+
+    @for (trip of trips(); track trip.id) {
+
+      <article class="trip-card">
+
+        <h2>{{ trip.destination }}</h2>
+
+        <p>
+          {{ trip.startDate }} → {{ trip.endDate }}
+        </p>
+
+        <p>
+          {{ trip.travelers }}
+          {{ trip.travelers === 1 ? 'voyageur' : 'voyageurs' }}
+        </p>
+
+        @if (trip.preferences) {
+          <p>{{ trip.preferences }}</p>
+        }
+
+      </article>
+
+    }
+
+  </div>
+
+}

@@ -1,3 +1,12 @@
+export interface TripResponse {
+  id: number;
+  destination: string;
+  startDate: string;
+  endDate: string;
+  travelers: number;
+  preferences: string;
+}
+
 export interface ActivityDto {
   time: string;
   title: string;

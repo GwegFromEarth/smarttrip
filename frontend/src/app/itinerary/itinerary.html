@@ -1,19 +1,51 @@
-@if (itinerary(); as currentItinerary) {
-  <h1>✈️ {{ currentItinerary.destination }}</h1>
+@if (loading()) {
 
-  @for (day of currentItinerary.days; track day.dayNumber) {
-    <section>
-      <h2>Jour {{ day.dayNumber }} — {{ day.date }}</h2>
-
-      @for (activity of day.activities; track activity.title) {
-        <article>
-          <h3>{{ activity.time }} — {{ activity.title }}</h3>
-          <p>{{ activity.description }}</p>
-          <p>{{ activity.location }}</p>
-        </article>
-      }
-    </section>
-  }
-} @else {
   <p>Chargement de l'itinéraire...</p>
+
+} @else if (error()) {
+
+  <p>
+    Impossible de charger l'itinéraire.
+  </p>
+
+} @else if (itinerary(); as trip) {
+
+  <main>
+
+    <h1>✈️ {{ trip.destination }}</h1>
+
+    @for (day of trip.days; track day.dayNumber) {
+
+      <section>
+
+        <h2>
+          Jour {{ day.dayNumber }} — {{ day.date }}
+        </h2>
+
+        @for (activity of day.activities; track activity.title) {
+
+          <article>
+
+            <h3>
+              {{ activity.time }} — {{ activity.title }}
+            </h3>
+
+            <p>
+              {{ activity.description }}
+            </p>
+
+            <p>
+              {{ activity.location }}
+            </p>
+
+          </article>
+
+        }
+
+      </section>
+
+    }
+
+  </main>
+
 }

@@ -1,14 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal
+} from '@angular/core';
+
 import { ActivatedRoute } from '@angular/router';
 
-import { ItineraryDto } from '../trip/trip.models';
 import { TripService } from '../trip/trip.service';
+
+import { ItineraryDto } from '../trip/trip.models';
 
 @Component({
   selector: 'app-itinerary',
   imports: [],
   templateUrl: './itinerary.html',
-  styleUrl: './itinerary.css',
+  styleUrl: './itinerary.css'
 })
 export class Itinerary {
 
@@ -16,29 +22,31 @@ export class Itinerary {
   private readonly tripService = inject(TripService);
 
   itinerary = signal<ItineraryDto | null>(null);
+  loading = signal(true);
+  error = signal(false);
 
   constructor() {
-    this.route.paramMap.subscribe(params => {
 
-      const id = params.get('id');
+    const tripId = Number(
+      this.route.snapshot.paramMap.get('id')
+    );
 
-      if (!id) {
-        return;
-      }
+    this.tripService
+      .getItinerary(tripId)
+      .subscribe({
+        next: itinerary => {
+          this.itinerary.set(itinerary);
+          this.loading.set(false);
+        },
+        error: error => {
+          console.error(
+            'Erreur lors du chargement de l’itinéraire :',
+            error
+          );
 
-      this.tripService
-        .getItinerary(Number(id))
-        .subscribe({
-          next: itinerary => {
-            this.itinerary.set(itinerary);
-          },
-          error: error => {
-            console.error(
-              'Erreur lors de la récupération de l’itinéraire :',
-              error
-            );
-          }
-        });
-    });
+          this.error.set(true);
+          this.loading.set(false);
+        }
+      });
   }
 }

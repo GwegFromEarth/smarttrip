@@ -1,0 +1,15 @@
+.trips {
+  display: grid;
+  gap: 1rem;
+  max-width: 800px;
+}
+
+.trip-card {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.trip-card h2 {
+  margin-top: 0;
+}

@@ -2,7 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { ItineraryDto } from './trip.models';
+import {
+  ItineraryDto,
+  TripResponse
+} from './trip.models';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +15,18 @@ export class TripService {
   private readonly http = inject(HttpClient);
 
   private readonly apiUrl = 'http://localhost:8080/api/trips';
+
+  getTrips(): Observable<TripResponse[]> {
+    return this.http.get<TripResponse[]>(
+      this.apiUrl
+    );
+  }
+
+  getTrip(tripId: number): Observable<TripResponse> {
+    return this.http.get<TripResponse>(
+      `${this.apiUrl}/${tripId}`
+    );
+  }
 
   generateItinerary(tripId: number): Observable<ItineraryDto> {
     return this.http.post<ItineraryDto>(
