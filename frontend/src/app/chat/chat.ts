@@ -1,9 +1,12 @@
-import { Component,
+import {
+  Component,
   ElementRef,
   effect,
   inject,
   signal,
-  viewChild } from '@angular/core';
+  viewChild
+} from '@angular/core';
+
 import { MarkdownComponent } from 'ngx-markdown';
 
 import { ChatService } from './chat.service';
@@ -11,6 +14,7 @@ import { ChatService } from './chat.service';
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  streaming?: boolean;
 }
 
 @Component({
@@ -26,7 +30,6 @@ export class Chat {
   message = signal('');
   response = signal('');
 
-  streamMessage = signal('');
   streamResponse = signal('');
 
   conversationId = signal<number | null>(null);
@@ -35,21 +38,27 @@ export class Chat {
 
   isStreaming = signal(false);
 
-  conversationElement = viewChild<ElementRef<HTMLDivElement>>('conversation');
+  conversationElement =
+    viewChild<ElementRef<HTMLDivElement>>('conversation');
 
   constructor() {
+
     effect(() => {
+
       this.streamResponse();
       this.messages();
 
       requestAnimationFrame(() => {
         this.scrollConversationToBottom();
       });
+
     });
   }
 
   private scrollConversationToBottom(): void {
-    const element = this.conversationElement()?.nativeElement;
+
+    const element =
+      this.conversationElement()?.nativeElement;
 
     if (!element) {
       return;
@@ -58,21 +67,8 @@ export class Chat {
     element.scrollTop = element.scrollHeight;
   }
 
-  sendMessage(): void {
-    const message = this.message().trim();
-
-    if (!message) {
-      return;
-    }
-
-    this.response.set('Réflexion en cours...');
-
-    // Ancienne méthode conservée pour le moment.
-    // Elle pourra être supprimée lorsque nous aurons
-    // complètement migré vers le streaming.
-  }
-
   sendStreamMessage(): void {
+
     const message = this.message().trim();
 
     if (!message || this.isStreaming()) {
@@ -81,9 +77,9 @@ export class Chat {
 
     this.isStreaming.set(true);
 
-    this.response.set('');
+    this.streamResponse.set('');
 
-    // Ajouter le message utilisateur à l'affichage
+    // Ajouter le message utilisateur
     this.messages.update(current => [
       ...current,
       {
@@ -92,16 +88,14 @@ export class Chat {
       }
     ]);
 
-    // Préparer la réponse de l'assistant
-    this.streamResponse.set('');
-
-    // Ajouter immédiatement une réponse assistant vide.
-    // Elle sera remplie progressivement pendant le streaming.
+    // Ajouter une réponse assistant vide.
+    // Pendant le streaming, elle sera affichée en texte brut.
     this.messages.update(current => [
       ...current,
       {
         role: 'assistant',
-        content: ''
+        content: '',
+        streaming: true
       }
     ]);
 
@@ -113,23 +107,32 @@ export class Chat {
 
           if (event.type === 'conversation') {
 
-            const conversationId = Number(event.data);
+            const conversationId =
+              Number(event.data);
 
             this.conversationId.set(conversationId);
 
             return;
           }
 
+          console.log(
+            'CHUNK SSE :',
+            JSON.stringify(event.data)
+          );
+
           this.streamResponse.update(
             current => current + event.data
           );
 
           this.messages.update(current => {
+
             const updated = [...current];
 
-            const lastMessage = updated[updated.length - 1];
+            const lastMessage =
+              updated[updated.length - 1];
 
             if (lastMessage?.role === 'assistant') {
+
               updated[updated.length - 1] = {
                 ...lastMessage,
                 content: this.streamResponse()
@@ -141,6 +144,7 @@ export class Chat {
         },
 
         error: error => {
+
           console.error(
             'Erreur lors du streaming :',
             error
@@ -150,6 +154,35 @@ export class Chat {
         },
 
         complete: () => {
+
+          /*
+           * Le streaming est terminé.
+           *
+           * On passe le dernier message assistant
+           * de streaming=true à streaming=false.
+           *
+           * Le template va alors remplacer le texte brut
+           * par ngx-markdown.
+           */
+          this.messages.update(current => {
+
+            const updated = [...current];
+
+            const lastMessage =
+              updated[updated.length - 1];
+
+            if (lastMessage?.role === 'assistant') {
+
+              updated[updated.length - 1] = {
+                ...lastMessage,
+                content: this.streamResponse(),
+                streaming: false
+              };
+            }
+
+            return updated;
+          });
+
           this.isStreaming.set(false);
           this.message.set('');
         }
@@ -157,7 +190,9 @@ export class Chat {
   }
 
   onEnter(event: Event): void {
-    const keyboardEvent = event as KeyboardEvent;
+
+    const keyboardEvent =
+      event as KeyboardEvent;
 
     if (keyboardEvent.shiftKey) {
       return;

@@ -107,13 +107,16 @@ export class ChatService {
                 if (line.startsWith('data:')) {
                   const rawData = line.substring(5);
 
-                  data += rawData.startsWith(' ')
-                    ? rawData.substring(1)
-                    : rawData;
+                  data += rawData;
                 }
               }
 
               if (data) {
+
+                console.log(
+                  'DATA SSE AVANT ENVOI AU COMPONENT :',
+                  JSON.stringify(data)
+                );
 
                 subscriber.next({
                   type: eventType === 'conversation'
@@ -148,13 +151,17 @@ export class ChatService {
               if (line.startsWith('data:')) {
                 const rawData = line.substring(5);
 
-                data += rawData.startsWith(' ')
-                  ? rawData.substring(1)
-                  : rawData;
+                data += rawData;
               }
             }
 
             if (data) {
+
+              console.log(
+                'DATA SSE AVANT ENVOI AU COMPONENT :',
+                JSON.stringify(data)
+              );
+
               subscriber.next({
                 type: eventType === 'conversation'
                   ? 'conversation'

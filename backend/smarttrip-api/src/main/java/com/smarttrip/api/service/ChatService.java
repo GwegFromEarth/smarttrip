@@ -97,11 +97,25 @@ public class ChatService {
                 .findByConversationIdOrderByCreatedAtAsc(conversationId);
     }
 
+    public List<Message> getRecentMessages(Long conversationId) {
+
+        List<Message> messages =
+                messageRepository
+                        .findTop20ByConversationIdOrderByCreatedAtDesc(conversationId);
+
+        List<Message> chronologicalMessages =
+                new ArrayList<>(messages);
+
+        java.util.Collections.reverse(chronologicalMessages);
+
+        return chronologicalMessages;
+    }
+
     public List<org.springframework.ai.chat.messages.Message> buildChatHistory(
             Long conversationId
     ) {
 
-        List<Message> history = getMessages(conversationId);
+        List<Message> history = getRecentMessages(conversationId);
 
         List<org.springframework.ai.chat.messages.Message> messages =
                 new ArrayList<>();

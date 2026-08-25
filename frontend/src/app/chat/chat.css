@@ -126,3 +126,9 @@ markdown ol {
 markdown li {
   overflow-wrap: anywhere;
 }
+
+.streaming-content {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

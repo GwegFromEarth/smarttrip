@@ -40,15 +40,39 @@
     >
 
       <div class="message-author">
+
         @if (message.role === 'user') {
           Vous
         } @else {
           SmartTrip
         }
+
       </div>
 
       <div class="message-content">
-        <markdown [data]="message.content"></markdown>
+
+        @if (message.streaming) {
+
+          <!--
+            Pendant le streaming :
+            affichage texte brut.
+            ngx-markdown n'analyse donc pas
+            le Markdown incomplet.
+          -->
+          <div class="streaming-content">
+            {{ message.content }}
+          </div>
+
+        } @else {
+
+          <!--
+            Une fois le streaming terminé :
+            rendu Markdown complet.
+          -->
+          <markdown [data]="message.content"></markdown>
+
+        }
+
       </div>
 
     </div>
