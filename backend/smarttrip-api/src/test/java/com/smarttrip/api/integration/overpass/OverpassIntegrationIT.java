@@ -5,7 +5,7 @@ import org.springframework.web.client.RestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class OverpassIntegrationTest {
+class OverpassIntegrationIT {
 
     @Test
     void shouldCallRealOverpassApi() {
