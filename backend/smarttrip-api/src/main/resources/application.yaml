@@ -28,3 +28,6 @@ server:
       charset: UTF-8
       enabled: true
       force: true
+
+geoapify:
+  api-key: ${GEOAPIFY_API_KEY}
