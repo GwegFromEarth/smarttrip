@@ -53,11 +53,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(
-            IllegalArgumentException exception
-    ) {
-        return ResponseEntity
-                .badRequest()
-                .body(exception.getMessage());
+    public ProblemDetail handleIllegalArgumentException(
+            IllegalArgumentException exception) {
+
+        ProblemDetail problemDetail =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.BAD_REQUEST,
+                        exception.getMessage()
+                );
+
+        problemDetail.setTitle("Invalid request");
+
+        return problemDetail;
     }
 }
