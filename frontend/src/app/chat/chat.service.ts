@@ -113,11 +113,6 @@ export class ChatService {
 
               if (data) {
 
-                console.log(
-                  'DATA SSE AVANT ENVOI AU COMPONENT :',
-                  JSON.stringify(data)
-                );
-
                 subscriber.next({
                   type: eventType === 'conversation'
                     ? 'conversation'
@@ -156,11 +151,6 @@ export class ChatService {
             }
 
             if (data) {
-
-              console.log(
-                'DATA SSE AVANT ENVOI AU COMPONENT :',
-                JSON.stringify(data)
-              );
 
               subscriber.next({
                 type: eventType === 'conversation'

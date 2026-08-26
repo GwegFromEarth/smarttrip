@@ -53,23 +53,13 @@
 
         @if (message.streaming) {
 
-          <!--
-            Pendant le streaming :
-            affichage texte brut.
-            ngx-markdown n'analyse donc pas
-            le Markdown incomplet.
-          -->
-          <div class="streaming-content">
-            {{ message.content }}
-          </div>
+          {{ message.content }}
 
         } @else {
 
-          <!--
-            Une fois le streaming terminé :
-            rendu Markdown complet.
-          -->
-          <markdown [data]="message.content"></markdown>
+          <markdown
+            [data]="message.content">
+          </markdown>
 
         }
 

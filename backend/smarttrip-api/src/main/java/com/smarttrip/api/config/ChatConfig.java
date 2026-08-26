@@ -29,9 +29,12 @@ public class ChatConfig {
             - Ne donne pas de fausses informations pour compléter une réponse.
 
             Format :
-            - Utilise Markdown lorsque cela améliore la lisibilité.
-            - Utilise des listes numérotées pour plusieurs recommandations.
-            - Utilise des paragraphes courts.
+             - Utilise Markdown lorsque cela améliore la lisibilité.
+             - Utilise des listes numérotées pour plusieurs recommandations.
+             - Chaque élément d'une liste numérotée doit commencer sur une nouvelle ligne.
+             - Ne place jamais deux éléments d'une même liste sur la même ligne.
+             - Utilise des paragraphes courts.
+             - Lorsque le nom d'un lieu est demandé en gras, utilise la syntaxe Markdown **Nom du lieu**.
             """;
 
     @Bean

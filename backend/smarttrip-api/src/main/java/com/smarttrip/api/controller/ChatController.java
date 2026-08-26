@@ -94,16 +94,11 @@ public class ChatController {
         Flux<ServerSentEvent<String>> responseStream =
                 chatService
                         .generateResponse(conversation)
-                        .map(chunk -> {
-
-                            System.out.println(
-                                    "CHUNK BACKEND : " + chunk
-                            );
-
-                            return ServerSentEvent.<String>builder()
-                                    .data(chunk)
-                                    .build();
-                        });
+                        .map(chunk ->
+                                ServerSentEvent.<String>builder()
+                                        .data(chunk)
+                                        .build()
+                        );
 
         return Flux.concat(
                 conversationEvent,

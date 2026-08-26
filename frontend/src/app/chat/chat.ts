@@ -67,6 +67,30 @@ export class Chat {
     element.scrollTop = element.scrollHeight;
   }
 
+  /**
+   * Normalise certaines listes Markdown générées
+   * sans retour à la ligne entre les éléments.
+   *
+   * Exemple :
+   *
+   * 1. **Colisée** ... Rome.2. **Panthéon** ... romaine.3. **Forum**
+   *
+   * devient :
+   *
+   * 1. **Colisée** ... Rome.
+   *
+   * 2. **Panthéon** ... romaine.
+   *
+   * 3. **Forum**
+   */
+  private formatMarkdown(content: string): string {
+
+    return content.replace(
+      /([.!?])\s*(?=\d+\.\s+\*\*)/g,
+      '$1\n\n'
+    );
+  }
+
   sendStreamMessage(): void {
 
     const message = this.message().trim();
@@ -88,8 +112,8 @@ export class Chat {
       }
     ]);
 
-    // Ajouter une réponse assistant vide.
-    // Pendant le streaming, elle sera affichée en texte brut.
+    // Ajouter immédiatement une réponse assistant vide.
+    // Pendant le streaming, elle est affichée en texte brut.
     this.messages.update(current => [
       ...current,
       {
@@ -105,6 +129,8 @@ export class Chat {
 
         next: event => {
 
+          // Premier événement envoyé par le backend :
+          // récupération de l'identifiant de conversation.
           if (event.type === 'conversation') {
 
             const conversationId =
@@ -115,15 +141,12 @@ export class Chat {
             return;
           }
 
-          console.log(
-            'CHUNK SSE :',
-            JSON.stringify(event.data)
-          );
-
+          // Ajouter le chunk reçu à la réponse complète.
           this.streamResponse.update(
             current => current + event.data
           );
 
+          // Mettre à jour le dernier message assistant.
           this.messages.update(current => {
 
             const updated = [...current];
@@ -158,12 +181,14 @@ export class Chat {
           /*
            * Le streaming est terminé.
            *
-           * On passe le dernier message assistant
-           * de streaming=true à streaming=false.
-           *
-           * Le template va alors remplacer le texte brut
-           * par ngx-markdown.
+           * On normalise le Markdown uniquement maintenant.
+           * Cela évite de modifier le contenu à chaque chunk.
            */
+          const formattedResponse =
+            this.formatMarkdown(
+              this.streamResponse()
+            );
+
           this.messages.update(current => {
 
             const updated = [...current];
@@ -175,7 +200,7 @@ export class Chat {
 
               updated[updated.length - 1] = {
                 ...lastMessage,
-                content: this.streamResponse(),
+                content: formattedResponse,
                 streaming: false
               };
             }
