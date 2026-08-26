@@ -7,8 +7,10 @@ import {
 import { ActivatedRoute } from '@angular/router';
 
 import { TripService } from '../trip/trip.service';
-
 import { ItineraryDto } from '../trip/trip.models';
+
+import { PlaceService } from '../place/place.service';
+import { Place } from '../place/place.models';
 
 @Component({
   selector: 'app-itinerary',
@@ -20,12 +22,15 @@ export class Itinerary {
 
   private readonly route = inject(ActivatedRoute);
   private readonly tripService = inject(TripService);
+  private readonly placeService = inject(PlaceService);
 
   private readonly tripId = Number(
     this.route.snapshot.paramMap.get('id')
   );
 
   itinerary = signal<ItineraryDto | null>(null);
+  places = signal<Place[]>([]);
+
   loading = signal(true);
   generating = signal(false);
   needsGeneration = signal(false);
@@ -46,6 +51,8 @@ export class Itinerary {
         next: itinerary => {
           this.itinerary.set(itinerary);
           this.loading.set(false);
+
+          this.loadPlaces(itinerary.destination);
         },
         error: error => {
           console.error(
@@ -64,6 +71,27 @@ export class Itinerary {
       });
   }
 
+  private loadPlaces(destination: string): void {
+    this.placeService
+      .searchByDestination(
+        destination,
+        'tourism.attraction',
+        1000,
+        10
+      )
+      .subscribe({
+        next: places => {
+          this.places.set(places);
+        },
+        error: error => {
+          console.error(
+            'Erreur lors du chargement des lieux :',
+            error
+          );
+        }
+      });
+  }
+
   generateItinerary(): void {
     this.generating.set(true);
     this.error.set(false);
@@ -75,6 +103,8 @@ export class Itinerary {
           this.itinerary.set(itinerary);
           this.needsGeneration.set(false);
           this.generating.set(false);
+
+          this.loadPlaces(itinerary.destination);
         },
         error: error => {
           console.error(

@@ -7,6 +7,8 @@ import { vi } from 'vitest';
 import { Itinerary } from './itinerary';
 import { TripService } from '../trip/trip.service';
 import { ItineraryDto } from '../trip/trip.models';
+import { PlaceService } from '../place/place.service';
+import { Place } from '../place/place.models';
 
 describe('Itinerary', () => {
 
@@ -29,10 +31,36 @@ describe('Itinerary', () => {
     ]
   };
 
-  function configureTestBed(tripService: {
-    getItinerary: ReturnType<typeof vi.fn>;
-    generateItinerary: ReturnType<typeof vi.fn>;
-  }) {
+  const places: Place[] = [
+    {
+      placeId: 'colosseum-test-id',
+      name: 'Colosseum',
+      description: 'Ancient Roman amphitheatre',
+      latitude: 41.8902,
+      longitude: 12.4922,
+      category: 'tourism.attraction',
+      address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy'
+    },
+    {
+      placeId: 'pantheon-test-id',
+      name: 'Pantheon',
+      description: 'Ancient Roman temple',
+      latitude: 41.8986,
+      longitude: 12.4769,
+      category: 'tourism.attraction',
+      address: 'Piazza della Rotonda, 00186 Roma RM, Italy'
+    }
+  ];
+
+  function configureTestBed(
+    tripService: {
+      getItinerary: ReturnType<typeof vi.fn>;
+      generateItinerary: ReturnType<typeof vi.fn>;
+    },
+    placeService: {
+      searchByDestination: ReturnType<typeof vi.fn>;
+    }
+  ) {
     TestBed.configureTestingModule({
       imports: [Itinerary],
       providers: [
@@ -45,6 +73,10 @@ describe('Itinerary', () => {
         {
           provide: TripService,
           useValue: tripService
+        },
+        {
+          provide: PlaceService,
+          useValue: placeService
         }
       ]
     });
@@ -57,7 +89,14 @@ describe('Itinerary', () => {
       generateItinerary: vi.fn()
     };
 
-    configureTestBed(tripService);
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(of([]))
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
 
     const harness = await RouterTestingHarness.create();
 
@@ -86,7 +125,14 @@ describe('Itinerary', () => {
       generateItinerary: vi.fn()
     };
 
-    configureTestBed(tripService);
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(of([]))
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
 
     const harness = await RouterTestingHarness.create();
 
@@ -115,7 +161,14 @@ describe('Itinerary', () => {
       )
     };
 
-    configureTestBed(tripService);
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(of([]))
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
 
     const harness = await RouterTestingHarness.create();
 
@@ -144,5 +197,39 @@ describe('Itinerary', () => {
 
     expect(component.generating())
       .toBe(false);
+  });
+
+  it('should load places for the itinerary destination', async () => {
+
+    const tripService = {
+      getItinerary: vi.fn().mockReturnValue(of(itinerary)),
+      generateItinerary: vi.fn()
+    };
+
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(
+        of(places)
+      )
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
+
+    const harness = await RouterTestingHarness.create();
+
+    const component = await harness.navigateByUrl(
+      '/trips/4/itinerary',
+      Itinerary
+    );
+
+    expect(placeService.searchByDestination)
+      .toHaveBeenCalledWith(
+        'Rome',
+        'tourism.attraction',
+        1000,
+        10
+      );
   });
 });
