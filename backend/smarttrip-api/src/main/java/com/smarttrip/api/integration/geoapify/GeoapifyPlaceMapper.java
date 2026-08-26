@@ -25,14 +25,8 @@ public class GeoapifyPlaceMapper {
 
         String category = properties.categories() != null
                 ? properties.categories().stream()
-                .filter(cat -> cat.startsWith("entertainment."))
                 .findFirst()
-                .orElseGet(() ->
-                        properties.categories().stream()
-                                .filter(cat -> cat.startsWith("tourism"))
-                                .findFirst()
-                                .orElse(null)
-                )
+                .orElse(null)
                 : null;
 
         return new PlaceDto(

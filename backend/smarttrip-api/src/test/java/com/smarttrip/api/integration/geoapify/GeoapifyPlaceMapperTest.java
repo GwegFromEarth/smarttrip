@@ -49,7 +49,7 @@ class GeoapifyPlaceMapperTest {
     }
 
     @Test
-    void shouldReturnNullCategoryWhenNoEntertainmentCategoryExists() {
+    void shouldReturnFirstCategory() {
 
         var properties = new GeoapifyProperties(
                 "supermarket-test-id",
@@ -57,7 +57,59 @@ class GeoapifyPlaceMapperTest {
                 "Supermarket in Paris",
                 48.8606,
                 2.3376,
-                List.of("commercial.supermarket"),
+                List.of(
+                        "commercial.supermarket",
+                        "commercial"
+                ),
+                "Paris, France"
+        );
+
+        var feature = new GeoapifyFeature(
+                "Feature",
+                properties
+        );
+
+        var result = mapper.toPlaceDto(feature);
+
+        assertEquals(
+                "commercial.supermarket",
+                result.category()
+        );
+    }
+
+    @Test
+    void shouldReturnNullCategoryWhenCategoriesAreNull() {
+
+        var properties = new GeoapifyProperties(
+                "no-category-test-id",
+                "Unknown Place",
+                "Place without categories",
+                48.8566,
+                2.3522,
+                null,
+                "Paris, France"
+        );
+
+        var feature = new GeoapifyFeature(
+                "Feature",
+                properties
+        );
+
+        var result = mapper.toPlaceDto(feature);
+
+        assertNull(result.category());
+    }
+
+    @Test
+    void shouldReturnNullCategoryWhenCategoriesAreEmpty() {
+
+        var properties = new GeoapifyProperties(
+                "empty-category-test-id",
+                "Unknown Place",
+                "Place without categories",
+                48.8566,
+                2.3522,
+                List.of(),
                 "Paris, France"
         );
 
@@ -114,7 +166,8 @@ class GeoapifyPlaceMapperTest {
         );
 
         assertEquals(
-                "Geoapify feature has no coordinates: Lieu sans coordonnées",
+                "Geoapify feature has no coordinates: "
+                        + "Lieu sans coordonnées",
                 exception.getMessage()
         );
     }
