@@ -258,4 +258,48 @@ class PlaceControllerTest {
                 .andExpect(jsonPath("$.detail")
                         .value("Radius must be at least 1 meter"));
     }
+
+    @Test
+    void shouldReturnBadRequestWithMessageWhenLimitIsInvalid()
+            throws Exception {
+
+        when(placeService.search(
+                48.8606,
+                2.3376,
+                1000,
+                "tourism.attraction",
+                101
+        )).thenThrow(
+                new IllegalArgumentException(
+                        "Limit must be between 1 and 100"
+                )
+        );
+
+        mockMvc.perform(
+                        get("/api/places")
+                                .param("latitude", "48.8606")
+                                .param("longitude", "2.3376")
+                                .param("radius", "1000")
+                                .param("category", "tourism.attraction")
+                                .param("limit", "101")
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.title").value("Invalid request"))
+                .andExpect(jsonPath("$.detail")
+                        .value("Limit must be between 1 and 100"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenDestinationIsNull()
+            throws Exception {
+
+        mockMvc.perform(
+                        get("/api/places/by-destination")
+                                .param("radius", "1000")
+                                .param("category", "tourism.attraction")
+                                .param("limit", "10")
+                )
+                .andExpect(status().isBadRequest());
+    }
 }
