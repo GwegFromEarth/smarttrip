@@ -2,6 +2,7 @@ package com.smarttrip.api.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -49,5 +50,14 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Itinerary not found");
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(
+            IllegalArgumentException exception
+    ) {
+        return ResponseEntity
+                .badRequest()
+                .body(exception.getMessage());
     }
 }
