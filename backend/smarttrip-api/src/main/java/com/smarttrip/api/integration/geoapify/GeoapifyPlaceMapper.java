@@ -25,7 +25,6 @@ public class GeoapifyPlaceMapper {
 
         String category = properties.categories() != null
                 ? properties.categories().stream()
-                .filter(cat -> cat.startsWith("entertainment."))
                 .findFirst()
                 .orElse(null)
                 : null;

@@ -39,14 +39,17 @@ class GeoapifyPlaceMapperTest {
     }
 
     @Test
-    void shouldReturnNullCategoryWhenNoEntertainmentCategoryExists() {
+    void shouldReturnFirstCategoryWhenNoEntertainmentCategoryExists() {
 
         var properties = new GeoapifyProperties(
-                "Un lieu",
-                "Description",
-                48.8566,
-                2.3522,
-                List.of("commercial.supermarket")
+                "Supermarket",
+                "Supermarket in Paris",
+                48.8500,
+                2.3500,
+                List.of(
+                        "commercial.supermarket",
+                        "commercial"
+                )
         );
 
         var feature = new GeoapifyFeature(
@@ -56,8 +59,10 @@ class GeoapifyPlaceMapperTest {
 
         var result = mapper.toPlaceDto(feature);
 
-        assertEquals("Un lieu", result.name());
-        assertNull(result.category());
+        assertEquals(
+                "commercial.supermarket",
+                result.category()
+        );
     }
 
     @Test

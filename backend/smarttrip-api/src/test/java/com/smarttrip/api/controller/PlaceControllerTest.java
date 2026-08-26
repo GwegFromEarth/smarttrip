@@ -101,4 +101,62 @@ class PlaceControllerTest {
                 10
         );
     }
+
+    @Test
+    void shouldSearchPlacesByDestination() throws Exception {
+
+        var place = new PlaceDto(
+                "Colosseum",
+                "Ancient Roman amphitheatre",
+                41.8902,
+                12.4922,
+                "tourism.attraction"
+        );
+
+        when(placeService.searchByDestination(
+                "Rome",
+                1000,
+                "tourism.attraction",
+                10
+        )).thenReturn(List.of(place));
+
+        mockMvc.perform(
+                        get("/api/places/by-destination")
+                                .param("destination", "Rome")
+                                .param("radius", "1000")
+                                .param("category", "tourism.attraction")
+                                .param("limit", "10")
+                )
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(
+                        "application/json"
+                ))
+                .andExpect(jsonPath("$[0].name")
+                        .value("Colosseum"))
+                .andExpect(jsonPath("$[0].latitude")
+                        .value(41.8902))
+                .andExpect(jsonPath("$[0].longitude")
+                        .value(12.4922))
+                .andExpect(jsonPath("$[0].category")
+                        .value("tourism.attraction"));
+    }
+
+    @Test
+    void shouldUseDefaultRadiusAndLimitForDestination() throws Exception {
+
+        when(placeService.searchByDestination(
+                "Rome",
+                1000,
+                "entertainment.museum",
+                10
+        )).thenReturn(List.of());
+
+        mockMvc.perform(
+                        get("/api/places/by-destination")
+                                .param("destination", "Rome")
+                                .param("category", "entertainment.museum")
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
 }

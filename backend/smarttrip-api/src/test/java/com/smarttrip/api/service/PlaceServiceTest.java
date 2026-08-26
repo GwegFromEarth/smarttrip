@@ -3,6 +3,7 @@ package com.smarttrip.api.service;
 import com.smarttrip.api.dto.PlaceDto;
 import com.smarttrip.api.integration.geoapify.GeoapifyClient;
 import com.smarttrip.api.integration.geoapify.GeoapifyFeature;
+import com.smarttrip.api.integration.geoapify.GeoapifyGeocodingResult;
 import com.smarttrip.api.integration.geoapify.GeoapifyPlaceMapper;
 import com.smarttrip.api.integration.geoapify.GeoapifyProperties;
 import com.smarttrip.api.integration.geoapify.GeoapifyResponse;
@@ -16,12 +17,21 @@ import static org.mockito.Mockito.when;
 
 class PlaceServiceTest {
 
-    private final GeoapifyClient geoapifyClient = mock(GeoapifyClient.class);
+    private final GeoapifyClient geoapifyClient =
+            mock(GeoapifyClient.class);
+
+    private final GeocodingService geocodingService =
+            mock(GeocodingService.class);
+
     private final GeoapifyPlaceMapper geoapifyPlaceMapper =
             mock(GeoapifyPlaceMapper.class);
 
     private final PlaceService placeService =
-            new PlaceService(geoapifyClient, geoapifyPlaceMapper);
+            new PlaceService(
+                    geoapifyClient,
+                    geocodingService,
+                    geoapifyPlaceMapper
+            );
 
     @Test
     void shouldSearchPlaces() {
@@ -106,5 +116,75 @@ class PlaceServiceTest {
         );
 
         assertEquals(List.of(), result);
+    }
+
+    @Test
+    void shouldSearchPlacesByDestination() {
+
+        var location = new GeoapifyGeocodingResult(
+                "Rome",
+                "Rome",
+                "Italy",
+                "it",
+                41.8933,
+                12.4829,
+                "Rome, Italy"
+        );
+
+        var properties = new GeoapifyProperties(
+                "Colosseum",
+                "Ancient Roman amphitheatre",
+                41.8902,
+                12.4922,
+                List.of("entertainment.museum")
+        );
+
+        var feature = new GeoapifyFeature(
+                "Feature",
+                properties
+        );
+
+        var response = new GeoapifyResponse(
+                "FeatureCollection",
+                List.of(feature)
+        );
+
+        var place = new PlaceDto(
+                "Colosseum",
+                "Ancient Roman amphitheatre",
+                41.8902,
+                12.4922,
+                "entertainment.museum"
+        );
+
+        when(geocodingService.geocode("Rome"))
+                .thenReturn(location);
+
+        when(geoapifyClient.search(
+                41.8933,
+                12.4829,
+                1000,
+                "entertainment.museum",
+                10
+        )).thenReturn(response);
+
+        when(geoapifyPlaceMapper.toPlaceDto(feature))
+                .thenReturn(place);
+
+        var result = placeService.searchByDestination(
+                "Rome",
+                1000,
+                "entertainment.museum",
+                10
+        );
+
+        assertEquals(1, result.size());
+        assertEquals("Colosseum", result.get(0).name());
+        assertEquals(41.8902, result.get(0).latitude());
+        assertEquals(12.4922, result.get(0).longitude());
+        assertEquals(
+                "entertainment.museum",
+                result.get(0).category()
+        );
     }
 }

@@ -11,13 +11,16 @@ import java.util.List;
 public class PlaceService {
 
     private final GeoapifyClient geoapifyClient;
+    private final GeocodingService geocodingService;
     private final GeoapifyPlaceMapper geoapifyPlaceMapper;
 
     public PlaceService(
             GeoapifyClient geoapifyClient,
+            GeocodingService geocodingService,
             GeoapifyPlaceMapper geoapifyPlaceMapper
     ) {
         this.geoapifyClient = geoapifyClient;
+        this.geocodingService = geocodingService;
         this.geoapifyPlaceMapper = geoapifyPlaceMapper;
     }
 
@@ -43,5 +46,22 @@ public class PlaceService {
         return response.features().stream()
                 .map(geoapifyPlaceMapper::toPlaceDto)
                 .toList();
+    }
+
+    public List<PlaceDto> searchByDestination(
+            String destination,
+            int radius,
+            String category,
+            int limit
+    ) {
+        var location = geocodingService.geocode(destination);
+
+        return search(
+                location.lat(),
+                location.lon(),
+                radius,
+                category,
+                limit
+        );
     }
 }

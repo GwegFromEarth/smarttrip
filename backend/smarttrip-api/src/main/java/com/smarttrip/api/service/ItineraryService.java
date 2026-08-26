@@ -21,15 +21,18 @@ public class ItineraryService {
     private final ChatClient chatClient;
     private final TripRepository tripRepository;
     private final ItineraryRepository itineraryRepository;
+    private final PlaceService placeService;
 
     public ItineraryService(
             ChatClient chatClient,
             TripRepository tripRepository,
-            ItineraryRepository itineraryRepository) {
+            ItineraryRepository itineraryRepository,
+            PlaceService placeService) {
 
         this.chatClient = chatClient;
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
+        this.placeService = placeService;
     }
 
     @Transactional

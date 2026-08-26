@@ -85,4 +85,42 @@ public class PlaceController {
                 limit
         );
     }
+
+    @GetMapping("/by-destination")
+    @Operation(
+            summary = "Rechercher des lieux par destination",
+            description = "Géocode une destination puis recherche les lieux touristiques correspondants"
+    )
+    public List<PlaceDto> searchByDestination(
+            @Parameter(
+                    description = "Nom de la destination",
+                    example = "Rome"
+            )
+            @RequestParam String destination,
+
+            @Parameter(
+                    description = "Rayon de recherche en mètres",
+                    example = "1000"
+            )
+            @RequestParam(defaultValue = "1000") int radius,
+
+            @Parameter(
+                    description = "Catégorie Geoapify",
+                    example = "entertainment.museum"
+            )
+            @RequestParam String category,
+
+            @Parameter(
+                    description = "Nombre maximum de résultats",
+                    example = "10"
+            )
+            @RequestParam(defaultValue = "10") int limit
+    ) {
+        return placeService.searchByDestination(
+                destination,
+                radius,
+                category,
+                limit
+        );
+    }
 }
