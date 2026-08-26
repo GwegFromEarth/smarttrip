@@ -28,11 +28,13 @@ class PlaceControllerTest {
     void shouldSearchPlaces() throws Exception {
 
         var place = new PlaceDto(
+                "louvre-test-id",
                 "Louvre Museum",
                 "Museum in Paris",
                 48.8606,
                 2.3376,
-                "entertainment.museum"
+                "entertainment.museum",
+                "Rue de Rivoli, 75001 Paris, France"
         );
 
         when(placeService.search(
@@ -106,11 +108,13 @@ class PlaceControllerTest {
     void shouldSearchPlacesByDestination() throws Exception {
 
         var place = new PlaceDto(
+                "colosseum-test-id",
                 "Colosseum",
                 "Ancient Roman amphitheatre",
                 41.8902,
                 12.4922,
-                "tourism.attraction"
+                "tourism.attraction",
+                "Piazza del Colosseo, 1, 00184 Roma RM, Italy"
         );
 
         when(placeService.searchByDestination(

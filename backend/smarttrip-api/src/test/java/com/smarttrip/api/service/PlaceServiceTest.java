@@ -37,11 +37,13 @@ class PlaceServiceTest {
     void shouldSearchPlaces() {
 
         var properties = new GeoapifyProperties(
+                "louvre-test-id",
                 "Louvre Museum",
                 "Museum in Paris",
                 48.8606,
                 2.3376,
-                List.of("entertainment.museum")
+                List.of("entertainment.museum"),
+                "Rue de Rivoli, 75001 Paris, France"
         );
 
         var feature = new GeoapifyFeature(
@@ -55,11 +57,13 @@ class PlaceServiceTest {
         );
 
         var place = new PlaceDto(
+                "louvre-test-id",
                 "Louvre Museum",
                 "Museum in Paris",
                 48.8606,
                 2.3376,
-                "entertainment.museum"
+                "entertainment.museum",
+                "Rue de Rivoli, 75001 Paris, France"
         );
 
         when(geoapifyClient.search(
@@ -132,11 +136,13 @@ class PlaceServiceTest {
         );
 
         var properties = new GeoapifyProperties(
+                "colosseum-test-id",
                 "Colosseum",
                 "Ancient Roman amphitheatre",
                 41.8902,
                 12.4922,
-                List.of("entertainment.museum")
+                List.of("entertainment.museum"),
+                "Piazza del Colosseo, 1, 00184 Roma RM, Italy"
         );
 
         var feature = new GeoapifyFeature(
@@ -150,11 +156,13 @@ class PlaceServiceTest {
         );
 
         var place = new PlaceDto(
+                "colosseum-test-id",
                 "Colosseum",
                 "Ancient Roman amphitheatre",
                 41.8902,
                 12.4922,
-                "entertainment.museum"
+                "entertainment.museum",
+                "Piazza del Colosseo, 1, 00184 Roma RM, Italy"
         );
 
         when(geocodingService.geocode("Rome"))

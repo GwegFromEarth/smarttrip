@@ -25,16 +25,24 @@ public class GeoapifyPlaceMapper {
 
         String category = properties.categories() != null
                 ? properties.categories().stream()
+                .filter(cat -> cat.startsWith("entertainment."))
                 .findFirst()
-                .orElse(null)
+                .orElseGet(() ->
+                        properties.categories().stream()
+                                .filter(cat -> cat.startsWith("tourism"))
+                                .findFirst()
+                                .orElse(null)
+                )
                 : null;
 
         return new PlaceDto(
+                properties.placeId(),
                 properties.name(),
                 properties.description(),
                 properties.lat(),
                 properties.lon(),
-                category
+                category,
+                properties.formatted()
         );
     }
 }
