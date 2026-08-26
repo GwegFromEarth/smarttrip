@@ -75,8 +75,10 @@ class PlaceServiceTest {
                 10
         )).thenReturn(response);
 
-        when(geoapifyPlaceMapper.toPlaceDto(feature))
-                .thenReturn(place);
+        when(geoapifyPlaceMapper.toPlaceDto(
+                feature,
+                "entertainment.museum"
+        )).thenReturn(place);
 
         var result = placeService.search(
                 48.8606,
@@ -177,8 +179,10 @@ class PlaceServiceTest {
                 10
         )).thenReturn(response);
 
-        when(geoapifyPlaceMapper.toPlaceDto(feature))
-                .thenReturn(place);
+        when(geoapifyPlaceMapper.toPlaceDto(
+                feature,
+                "entertainment.museum"
+        )).thenReturn(place);
 
         var result = placeService.searchByDestination(
                 "Rome",

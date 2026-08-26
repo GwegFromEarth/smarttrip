@@ -54,7 +54,10 @@ public class PlaceService {
         }
 
         return response.features().stream()
-                .map(geoapifyPlaceMapper::toPlaceDto)
+                .map(feature -> geoapifyPlaceMapper.toPlaceDto(
+                        feature,
+                        category
+                ))
                 .toList();
     }
 
