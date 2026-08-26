@@ -187,7 +187,13 @@ class PlaceControllerTest {
                                 .param("category", "tourism.attraction")
                                 .param("limit", "10")
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title")
+                        .value("Invalid request"))
+                .andExpect(jsonPath("$.status")
+                        .value(400))
+                .andExpect(jsonPath("$.detail")
+                        .value("Radius must be at least 1 meter"));
     }
 
     @Test
@@ -213,6 +219,12 @@ class PlaceControllerTest {
                                 .param("category", "tourism.attraction")
                                 .param("limit", "101")
                 )
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.title")
+                        .value("Invalid request"))
+                .andExpect(jsonPath("$.status")
+                        .value(400))
+                .andExpect(jsonPath("$.detail")
+                        .value("Limit must be between 1 and 100"));
     }
 }
