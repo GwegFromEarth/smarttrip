@@ -27,51 +27,6 @@ class FoursquareClientTest {
         assertNotNull(response);
         assertNotNull(response.results());
         assertFalse(response.results().isEmpty());
-
-        System.out.println();
-        System.out.println("========== FOURSQUARE RESULTS ==========");
-
-        response.results().forEach(place -> {
-
-            System.out.println();
-            System.out.println("Name       : " + place.name());
-            System.out.println("ID         : " + place.fsq_id());
-            System.out.println("Distance   : " + place.distance() + " m");
-
-            System.out.println("Latitude   : " + place.latitude());
-            System.out.println("Longitude  : " + place.longitude());
-
-            System.out.println("Categories : " + place.categories());
-
-            if (place.location() != null) {
-                System.out.println(
-                        "Address    : "
-                                + place.location().address()
-                );
-                System.out.println(
-                        "Locality   : "
-                                + place.location().locality()
-                );
-                System.out.println(
-                        "Region     : "
-                                + place.location().region()
-                );
-                System.out.println(
-                        "Postcode   : "
-                                + place.location().postcode()
-                );
-                System.out.println(
-                        "Country    : "
-                                + place.location().country()
-                );
-            } else {
-                System.out.println("Location   : null");
-            }
-        });
-
-        System.out.println();
-        System.out.println("=========================================");
-        System.out.println();
     }
 
     @Test
@@ -87,48 +42,5 @@ class FoursquareClientTest {
         assertNotNull(response);
         assertNotNull(response.results());
         assertFalse(response.results().isEmpty());
-
-        System.out.println();
-        System.out.println("====== FOURSQUARE DESTINATION RESULTS ======");
-
-        response.results().forEach(place -> {
-
-            System.out.println();
-            System.out.println("Name       : " + place.name());
-            System.out.println("ID         : " + place.fsq_id());
-            System.out.println("Distance   : " + place.distance() + " m");
-            System.out.println("Latitude   : " + place.latitude());
-            System.out.println("Longitude  : " + place.longitude());
-            System.out.println("Categories : " + place.categories());
-
-            if (place.location() != null) {
-                System.out.println(
-                        "Address    : "
-                                + place.location().address()
-                );
-                System.out.println(
-                        "Locality   : "
-                                + place.location().locality()
-                );
-                System.out.println(
-                        "Region     : "
-                                + place.location().region()
-                );
-                System.out.println(
-                        "Postcode   : "
-                                + place.location().postcode()
-                );
-                System.out.println(
-                        "Country    : "
-                                + place.location().country()
-                );
-            } else {
-                System.out.println("Location   : null");
-            }
-        });
-
-        System.out.println();
-        System.out.println("============================================");
-        System.out.println();
     }
 }
