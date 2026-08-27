@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+import { PlaceCategory } from './place-category';
 import { Place } from './place.models';
 
 @Injectable({
@@ -15,7 +16,7 @@ export class PlaceService {
 
   searchByDestination(
     destination: string,
-    category: string,
+    category: PlaceCategory,
     radius = 1000,
     limit = 10
   ): Observable<Place[]> {

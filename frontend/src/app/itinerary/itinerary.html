@@ -80,23 +80,43 @@
 
         <h2>📍 Lieux à découvrir</h2>
 
-        @for (place of places(); track place.placeId) {
+        @if (places().length > 0) {
 
-          <article>
+          @for (place of places(); track place.placeId) {
 
-            <h3>
-              {{ place.name }}
-            </h3>
+            <article>
 
-            <p>
-              {{ place.description }}
-            </p>
+              <h3>
+                {{ place.name }}
+              </h3>
 
-            <p>
-              {{ place.address }}
-            </p>
+              @if (place.description) {
+                <p>
+                  {{ place.description }}
+                </p>
+              }
 
-          </article>
+              @if (place.address) {
+                <p>
+                  {{ place.address }}
+                </p>
+              }
+
+              @if (place.distance !== null) {
+                <p>
+                  {{ place.distance }} m
+                </p>
+              }
+
+            </article>
+
+          }
+
+        } @else {
+
+          <p>
+            Aucun lieu touristique trouvé à proximité.
+          </p>
 
         }
 

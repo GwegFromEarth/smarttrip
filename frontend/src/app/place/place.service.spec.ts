@@ -7,6 +7,7 @@ import { provideHttpClient } from '@angular/common/http';
 
 import { PlaceService } from './place.service';
 import { Place } from './place.models';
+import { PLACE_CATEGORIES } from './place-category';
 
 describe('PlaceService', () => {
   let service: PlaceService;
@@ -19,8 +20,9 @@ describe('PlaceService', () => {
       description: 'Ancient Roman amphitheatre',
       latitude: 41.8902,
       longitude: 12.4922,
-      category: 'tourism.attraction',
-      address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy'
+      category: PLACE_CATEGORIES.TOURIST_ATTRACTION,
+      address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy',
+      distance: 500
     }
   ];
 
@@ -48,7 +50,7 @@ describe('PlaceService', () => {
   it('should search places by destination', () => {
     service.searchByDestination(
       'Rome',
-      'tourism.attraction',
+      PLACE_CATEGORIES.TOURIST_ATTRACTION,
       1000,
       10
     ).subscribe(result => {
@@ -66,7 +68,7 @@ describe('PlaceService', () => {
       .toBe('Rome');
 
     expect(request.request.params.get('category'))
-      .toBe('tourism.attraction');
+      .toBe('TOURIST_ATTRACTION');
 
     expect(request.request.params.get('radius'))
       .toBe('1000');
@@ -80,7 +82,7 @@ describe('PlaceService', () => {
   it('should use default radius and limit', () => {
     service.searchByDestination(
       'Rome',
-      'tourism.attraction'
+      PLACE_CATEGORIES.TOURIST_ATTRACTION
     ).subscribe(result => {
       expect(result).toEqual([]);
     });
@@ -96,7 +98,7 @@ describe('PlaceService', () => {
       .toBe('Rome');
 
     expect(request.request.params.get('category'))
-      .toBe('tourism.attraction');
+      .toBe('TOURIST_ATTRACTION');
 
     expect(request.request.params.get('radius'))
       .toBe('1000');
@@ -110,7 +112,7 @@ describe('PlaceService', () => {
   it('should propagate HTTP errors', () => {
     service.searchByDestination(
       'Rome',
-      'tourism.attraction'
+      PLACE_CATEGORIES.TOURIST_ATTRACTION
     ).subscribe({
       next: () => expect.fail('Expected an HTTP error'),
       error: error => {

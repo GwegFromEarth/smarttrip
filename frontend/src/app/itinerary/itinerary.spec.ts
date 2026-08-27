@@ -9,6 +9,7 @@ import { TripService } from '../trip/trip.service';
 import { ItineraryDto } from '../trip/trip.models';
 import { PlaceService } from '../place/place.service';
 import { Place } from '../place/place.models';
+import { PLACE_CATEGORIES } from '../place/place-category';
 
 describe('Itinerary', () => {
 
@@ -38,8 +39,9 @@ describe('Itinerary', () => {
       description: 'Ancient Roman amphitheatre',
       latitude: 41.8902,
       longitude: 12.4922,
-      category: 'tourism.attraction',
-      address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy'
+      category: PLACE_CATEGORIES.TOURIST_ATTRACTION,
+      address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy',
+      distance: null
     },
     {
       placeId: 'pantheon-test-id',
@@ -47,8 +49,9 @@ describe('Itinerary', () => {
       description: 'Ancient Roman temple',
       latitude: 41.8986,
       longitude: 12.4769,
-      category: 'tourism.attraction',
-      address: 'Piazza della Rotonda, 00186 Roma RM, Italy'
+      category: PLACE_CATEGORIES.TOURIST_ATTRACTION,
+      address: 'Piazza della Rotonda, 00186 Roma RM, Italy',
+      distance: null
     }
   ];
 
@@ -227,9 +230,9 @@ describe('Itinerary', () => {
     expect(placeService.searchByDestination)
       .toHaveBeenCalledWith(
         'Rome',
-        'tourism.attraction',
-        1000,
-        10
+        PLACE_CATEGORIES.TOURIST_ATTRACTION,
+        3000,
+        50
       );
   });
 

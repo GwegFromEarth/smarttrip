@@ -11,6 +11,7 @@ import { ItineraryDto } from '../trip/trip.models';
 
 import { PlaceService } from '../place/place.service';
 import { Place } from '../place/place.models';
+import { PLACE_CATEGORIES } from '../place/place-category';
 
 @Component({
   selector: 'app-itinerary',
@@ -75,7 +76,7 @@ export class Itinerary {
     this.placeService
       .searchByDestination(
         destination,
-        'tourism.sights',
+        PLACE_CATEGORIES.TOURIST_ATTRACTION,
         3000,
         50
       )

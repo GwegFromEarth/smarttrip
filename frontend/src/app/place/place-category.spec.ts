@@ -1,24 +1,36 @@
-import { describe, expect, it } from 'vitest';
-
 import {
-  PLACE_CATEGORIES
+  PLACE_CATEGORIES,
+  PlaceCategory
 } from './place-category';
 
 describe('PLACE_CATEGORIES', () => {
 
-  it('should define the attraction category', () => {
-    expect(PLACE_CATEGORIES.ATTRACTION)
-      .toBe('tourism.attraction');
-  });
+  it('should contain all supported place categories', () => {
+    expect(PLACE_CATEGORIES.TOURIST_ATTRACTION)
+      .toBe('TOURIST_ATTRACTION');
 
-  it('should define the museum category', () => {
     expect(PLACE_CATEGORIES.MUSEUM)
-      .toBe('entertainment.museum');
-  });
+      .toBe('MUSEUM');
 
-  it('should define the restaurant category', () => {
     expect(PLACE_CATEGORIES.RESTAURANT)
-      .toBe('catering.restaurant');
+      .toBe('RESTAURANT');
+
+    expect(PLACE_CATEGORIES.CAFE)
+      .toBe('CAFE');
+
+    expect(PLACE_CATEGORIES.PARK)
+      .toBe('PARK');
   });
 
+  it('should expose valid PlaceCategory values', () => {
+    const categories: PlaceCategory[] = [
+      PLACE_CATEGORIES.TOURIST_ATTRACTION,
+      PLACE_CATEGORIES.MUSEUM,
+      PLACE_CATEGORIES.RESTAURANT,
+      PLACE_CATEGORIES.CAFE,
+      PLACE_CATEGORIES.PARK
+    ];
+
+    expect(categories.length).toBe(5);
+  });
 });

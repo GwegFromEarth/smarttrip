@@ -1,7 +1,9 @@
 export const PLACE_CATEGORIES = {
-  ATTRACTION: 'tourism.attraction',
-  MUSEUM: 'entertainment.museum',
-  RESTAURANT: 'catering.restaurant'
+  TOURIST_ATTRACTION: 'TOURIST_ATTRACTION',
+  MUSEUM: 'MUSEUM',
+  RESTAURANT: 'RESTAURANT',
+  CAFE: 'CAFE',
+  PARK: 'PARK'
 } as const;
 
 export type PlaceCategory =
