@@ -44,7 +44,8 @@ class PlaceServiceTest {
                 48.8606,
                 2.3376,
                 List.of("entertainment.museum"),
-                "Rue de Rivoli, 75001 Paris, France"
+                "Rue de Rivoli, 75001 Paris, France",
+                null
         );
 
         var feature = new GeoapifyFeature(
@@ -64,7 +65,8 @@ class PlaceServiceTest {
                 48.8606,
                 2.3376,
                 "entertainment.museum",
-                "Rue de Rivoli, 75001 Paris, France"
+                "Rue de Rivoli, 75001 Paris, France",
+                null
         );
 
         when(geoapifyClient.search(
@@ -72,7 +74,7 @@ class PlaceServiceTest {
                 2.3376,
                 1000,
                 "entertainment.museum",
-                10
+                50
         )).thenReturn(response);
 
         when(geoapifyPlaceMapper.toPlaceDto(
@@ -145,7 +147,8 @@ class PlaceServiceTest {
                 41.8902,
                 12.4922,
                 List.of("entertainment.museum"),
-                "Piazza del Colosseo, 1, 00184 Roma RM, Italy"
+                "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
+                null
         );
 
         var feature = new GeoapifyFeature(
@@ -165,7 +168,8 @@ class PlaceServiceTest {
                 41.8902,
                 12.4922,
                 "entertainment.museum",
-                "Piazza del Colosseo, 1, 00184 Roma RM, Italy"
+                "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
+                null
         );
 
         when(geocodingService.geocode("Rome"))
@@ -176,7 +180,7 @@ class PlaceServiceTest {
                 12.4829,
                 1000,
                 "entertainment.museum",
-                10
+                50
         )).thenReturn(response);
 
         when(geoapifyPlaceMapper.toPlaceDto(
@@ -226,8 +230,8 @@ class PlaceServiceTest {
                 41.8933,
                 12.4829,
                 1000,
-                "tourism",
-                10
+                "tourism.sights",
+                50
         )).thenReturn(response);
 
         var result = placeService.searchByDestination(

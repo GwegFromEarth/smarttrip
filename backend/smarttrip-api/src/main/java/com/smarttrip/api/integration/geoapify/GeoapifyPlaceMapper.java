@@ -42,7 +42,8 @@ public class GeoapifyPlaceMapper {
                 properties.lat(),
                 properties.lon(),
                 category,
-                properties.formatted()
+                properties.formatted(),
+                properties.distance()
         );
     }
 

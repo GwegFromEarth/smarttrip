@@ -9,10 +9,17 @@ public record GeoapifyProperties(
         String placeId,
 
         String name,
+
         String description,
+
         Double lat,
+
         Double lon,
+
         List<String> categories,
-        String formatted
+
+        String formatted,
+
+        Double distance
 ) {
 }

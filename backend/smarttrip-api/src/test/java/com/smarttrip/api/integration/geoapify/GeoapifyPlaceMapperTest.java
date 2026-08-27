@@ -26,7 +26,8 @@ class GeoapifyPlaceMapperTest {
                         "entertainment.museum",
                         "tourism"
                 ),
-                "Rue de Rivoli, 75001 Paris, France"
+                "Rue de Rivoli, 75001 Paris, France",
+                null
         );
 
         var feature = new GeoapifyFeature(
@@ -61,7 +62,8 @@ class GeoapifyPlaceMapperTest {
                         "commercial.supermarket",
                         "commercial"
                 ),
-                "Paris, France"
+                "Paris, France",
+                null
         );
 
         var feature = new GeoapifyFeature(
@@ -87,7 +89,8 @@ class GeoapifyPlaceMapperTest {
                 48.8566,
                 2.3522,
                 null,
-                "Paris, France"
+                "Paris, France",
+                null
         );
 
         var feature = new GeoapifyFeature(
@@ -110,7 +113,8 @@ class GeoapifyPlaceMapperTest {
                 48.8566,
                 2.3522,
                 List.of(),
-                "Paris, France"
+                "Paris, France",
+                null
         );
 
         var feature = new GeoapifyFeature(
@@ -152,7 +156,8 @@ class GeoapifyPlaceMapperTest {
                 null,
                 null,
                 List.of("entertainment.museum"),
-                "Paris, France"
+                "Paris, France",
+                null
         );
 
         var feature = new GeoapifyFeature(

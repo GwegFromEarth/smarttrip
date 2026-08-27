@@ -14,6 +14,7 @@ public class PlaceService {
     private static final int MIN_RADIUS_METERS = 1;
     private static final int MIN_LIMIT = 1;
     private static final int MAX_LIMIT = 100;
+    private static final int SEARCH_LIMIT = 50;
 
     private final GeoapifyClient geoapifyClient;
     private final GeocodingService geocodingService;
@@ -46,7 +47,7 @@ public class PlaceService {
                 longitude,
                 radiusMeters,
                 category,
-                limit
+                SEARCH_LIMIT
         );
 
         if (response == null || response.features() == null) {

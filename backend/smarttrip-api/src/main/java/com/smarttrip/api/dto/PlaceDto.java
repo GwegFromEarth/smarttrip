@@ -7,6 +7,7 @@ public record PlaceDto(
         double latitude,
         double longitude,
         String category,
-        String address
+        String address,
+        Double distance
 ) {
 }

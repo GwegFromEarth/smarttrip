@@ -34,7 +34,8 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 "entertainment.museum",
-                "Rue de Rivoli, 75001 Paris, France"
+                "Rue de Rivoli, 75001 Paris, France",
+                null
         );
 
         when(placeService.search(
@@ -114,7 +115,8 @@ class PlaceControllerTest {
                 41.8902,
                 12.4922,
                 "tourism.attraction",
-                "Piazza del Colosseo, 1, 00184 Roma RM, Italy"
+                "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
+                null
         );
 
         when(placeService.searchByDestination(

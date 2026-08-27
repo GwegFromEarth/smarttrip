@@ -50,6 +50,7 @@ public class GeoapifyClient {
                                                 latitude
                                         )
                         )
+                        .queryParam("lang", "fr")
                         .queryParam("limit", limit)
                         .queryParam("apiKey", apiKey)
                         .build()

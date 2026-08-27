@@ -75,9 +75,9 @@ export class Itinerary {
     this.placeService
       .searchByDestination(
         destination,
-        'tourism.attraction',
-        1000,
-        10
+        'tourism.sights',
+        3000,
+        50
       )
       .subscribe({
         next: places => {
