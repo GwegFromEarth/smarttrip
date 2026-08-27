@@ -1,5 +1,6 @@
 package com.smarttrip.api.controller;
 
+import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
 import com.smarttrip.api.service.PlaceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,10 +67,10 @@ public class PlaceController {
             @RequestParam(defaultValue = "1000") int radius,
 
             @Parameter(
-                    description = "Catégorie Geoapify",
-                    example = "entertainment.museum"
+                    description = "Catégorie SmartTrip",
+                    example = "MUSEUM"
             )
-            @RequestParam String category,
+            @RequestParam PlaceCategory category,
 
             @Parameter(
                     description = "Nombre maximum de résultats",
@@ -89,7 +90,7 @@ public class PlaceController {
     @GetMapping("/by-destination")
     @Operation(
             summary = "Rechercher des lieux par destination",
-            description = "Géocode une destination puis recherche les lieux touristiques correspondants"
+            description = "Recherche des lieux dans une destination donnée"
     )
     public List<PlaceDto> searchByDestination(
             @Parameter(
@@ -105,10 +106,10 @@ public class PlaceController {
             @RequestParam(defaultValue = "1000") int radius,
 
             @Parameter(
-                    description = "Catégorie Geoapify",
-                    example = "entertainment.museum"
+                    description = "Catégorie SmartTrip",
+                    example = "MUSEUM"
             )
-            @RequestParam String category,
+            @RequestParam PlaceCategory category,
 
             @Parameter(
                     description = "Nombre maximum de résultats",

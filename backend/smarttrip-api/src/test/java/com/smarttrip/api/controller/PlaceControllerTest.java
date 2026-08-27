@@ -2,6 +2,8 @@ package com.smarttrip.api.controller;
 
 import com.smarttrip.api.dto.PlaceDto;
 import com.smarttrip.api.service.PlaceService;
+import com.smarttrip.api.dto.PlaceCategory;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -33,7 +35,7 @@ class PlaceControllerTest {
                 "Museum in Paris",
                 48.8606,
                 2.3376,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 "Rue de Rivoli, 75001 Paris, France",
                 null
         );
@@ -42,7 +44,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         )).thenReturn(List.of(place));
 
@@ -51,7 +53,7 @@ class PlaceControllerTest {
                                 .param("latitude", "48.8606")
                                 .param("longitude", "2.3376")
                                 .param("radius", "1000")
-                                .param("category", "entertainment.museum")
+                                .param("category", "MUSEUM")
                                 .param("limit", "10")
                 )
                 .andExpect(status().isOk())
@@ -65,13 +67,13 @@ class PlaceControllerTest {
                 .andExpect(jsonPath("$[0].longitude")
                         .value(2.3376))
                 .andExpect(jsonPath("$[0].category")
-                        .value("entertainment.museum"));
+                        .value("MUSEUM"));
 
         verify(placeService).search(
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         );
     }
@@ -83,7 +85,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         )).thenReturn(List.of());
 
@@ -91,7 +93,7 @@ class PlaceControllerTest {
                         get("/api/places")
                                 .param("latitude", "48.8606")
                                 .param("longitude", "2.3376")
-                                .param("category", "entertainment.museum")
+                                .param("category", "MUSEUM")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
@@ -100,7 +102,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         );
     }
@@ -114,7 +116,7 @@ class PlaceControllerTest {
                 "Ancient Roman amphitheatre",
                 41.8902,
                 12.4922,
-                "tourism.attraction",
+                PlaceCategory.TOURIST_ATTRACTION,
                 "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
                 null
         );
@@ -122,7 +124,7 @@ class PlaceControllerTest {
         when(placeService.searchByDestination(
                 "Rome",
                 1000,
-                "tourism.attraction",
+                PlaceCategory.TOURIST_ATTRACTION,
                 10
         )).thenReturn(List.of(place));
 
@@ -130,7 +132,7 @@ class PlaceControllerTest {
                         get("/api/places/by-destination")
                                 .param("destination", "Rome")
                                 .param("radius", "1000")
-                                .param("category", "tourism.attraction")
+                                .param("category", "TOURIST_ATTRACTION")
                                 .param("limit", "10")
                 )
                 .andExpect(status().isOk())
@@ -144,7 +146,7 @@ class PlaceControllerTest {
                 .andExpect(jsonPath("$[0].longitude")
                         .value(12.4922))
                 .andExpect(jsonPath("$[0].category")
-                        .value("tourism.attraction"));
+                        .value("TOURIST_ATTRACTION"));
     }
 
     @Test
@@ -153,14 +155,14 @@ class PlaceControllerTest {
         when(placeService.searchByDestination(
                 "Rome",
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         )).thenReturn(List.of());
 
         mockMvc.perform(
                         get("/api/places/by-destination")
                                 .param("destination", "Rome")
-                                .param("category", "entertainment.museum")
+                                .param("category", "MUSEUM")
                 )
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
@@ -173,7 +175,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 0,
-                "tourism.attraction",
+                PlaceCategory.TOURIST_ATTRACTION,
                 10
         )).thenThrow(
                 new IllegalArgumentException(
@@ -186,7 +188,7 @@ class PlaceControllerTest {
                                 .param("latitude", "48.8606")
                                 .param("longitude", "2.3376")
                                 .param("radius", "0")
-                                .param("category", "tourism.attraction")
+                                .param("category", "TOURIST_ATTRACTION")
                                 .param("limit", "10")
                 )
                 .andExpect(status().isBadRequest())
@@ -205,7 +207,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 1000,
-                "tourism.attraction",
+                PlaceCategory.TOURIST_ATTRACTION,
                 101
         )).thenThrow(
                 new IllegalArgumentException(
@@ -218,7 +220,7 @@ class PlaceControllerTest {
                                 .param("latitude", "48.8606")
                                 .param("longitude", "2.3376")
                                 .param("radius", "1000")
-                                .param("category", "tourism.attraction")
+                                .param("category", "TOURIST_ATTRACTION")
                                 .param("limit", "101")
                 )
                 .andExpect(status().isBadRequest())
@@ -238,7 +240,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 0,
-                "tourism.attraction",
+                PlaceCategory.TOURIST_ATTRACTION,
                 10
         )).thenThrow(
                 new IllegalArgumentException(
@@ -251,7 +253,7 @@ class PlaceControllerTest {
                                 .param("latitude", "48.8606")
                                 .param("longitude", "2.3376")
                                 .param("radius", "0")
-                                .param("category", "tourism.attraction")
+                                .param("category", "TOURIST_ATTRACTION")
                                 .param("limit", "10")
                 )
                 .andExpect(status().isBadRequest())
@@ -269,7 +271,7 @@ class PlaceControllerTest {
                 48.8606,
                 2.3376,
                 1000,
-                "tourism.attraction",
+                PlaceCategory.TOURIST_ATTRACTION,
                 101
         )).thenThrow(
                 new IllegalArgumentException(
@@ -282,7 +284,7 @@ class PlaceControllerTest {
                                 .param("latitude", "48.8606")
                                 .param("longitude", "2.3376")
                                 .param("radius", "1000")
-                                .param("category", "tourism.attraction")
+                                .param("category", "TOURIST_ATTRACTION")
                                 .param("limit", "101")
                 )
                 .andExpect(status().isBadRequest())
@@ -299,7 +301,7 @@ class PlaceControllerTest {
         mockMvc.perform(
                         get("/api/places/by-destination")
                                 .param("radius", "1000")
-                                .param("category", "tourism.attraction")
+                                .param("category", "TOURIST_ATTRACTION")
                                 .param("limit", "10")
                 )
                 .andExpect(status().isBadRequest());

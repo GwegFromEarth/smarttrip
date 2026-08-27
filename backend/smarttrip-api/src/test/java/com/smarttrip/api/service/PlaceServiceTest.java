@@ -2,91 +2,57 @@ package com.smarttrip.api.service;
 
 import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
-import com.smarttrip.api.integration.geoapify.GeoapifyClient;
-import com.smarttrip.api.integration.geoapify.GeoapifyFeature;
-import com.smarttrip.api.integration.geoapify.GeoapifyGeocodingResult;
-import com.smarttrip.api.integration.geoapify.GeoapifyPlaceMapper;
-import com.smarttrip.api.integration.geoapify.GeoapifyProperties;
-import com.smarttrip.api.integration.geoapify.GeoapifyResponse;
+import com.smarttrip.api.integration.foursquare.FoursquarePlaceService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class PlaceServiceTest {
 
-    private final GeoapifyClient geoapifyClient =
-            mock(GeoapifyClient.class);
+    private final FoursquarePlaceService foursquarePlaceService =
+            mock(FoursquarePlaceService.class);
 
-    private final GeocodingService geocodingService =
-            mock(GeocodingService.class);
-
-    private final GeoapifyPlaceMapper geoapifyPlaceMapper =
-            mock(GeoapifyPlaceMapper.class);
+    private final PlaceRankingService placeRankingService =
+            new PlaceRankingService();
 
     private final PlaceService placeService =
             new PlaceService(
-                    geoapifyClient,
-                    geocodingService,
-                    geoapifyPlaceMapper
+                    foursquarePlaceService,
+                    placeRankingService
             );
 
     @Test
     void shouldSearchPlaces() {
 
-        var properties = new GeoapifyProperties(
-                "louvre-test-id",
-                "Louvre Museum",
-                "Museum in Paris",
-                48.8606,
-                2.3376,
-                List.of("entertainment.museum"),
-                "Rue de Rivoli, 75001 Paris, France",
-                null
-        );
-
-        var feature = new GeoapifyFeature(
-                "Feature",
-                properties
-        );
-
-        var response = new GeoapifyResponse(
-                "FeatureCollection",
-                List.of(feature)
-        );
-
         var place = new PlaceDto(
                 "louvre-test-id",
                 "Louvre Museum",
-                "Museum in Paris",
+                null,
                 48.8606,
                 2.3376,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 "Rue de Rivoli, 75001 Paris, France",
-                null
+                100.0
         );
 
-        when(geoapifyClient.search(
+        when(foursquarePlaceService.searchPlaces(
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 50
-        )).thenReturn(response);
-
-        when(geoapifyPlaceMapper.toPlaceDto(
-                feature,
-                "entertainment.museum"
-        )).thenReturn(place);
+        )).thenReturn(List.of(place));
 
         var result = placeService.search(
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         );
 
@@ -94,33 +60,25 @@ class PlaceServiceTest {
         assertEquals("Louvre Museum", result.get(0).name());
         assertEquals(48.8606, result.get(0).latitude());
         assertEquals(2.3376, result.get(0).longitude());
-        assertEquals(
-                "entertainment.museum",
-                result.get(0).category()
-        );
+        assertEquals(PlaceCategory.MUSEUM, result.get(0).category());
     }
 
     @Test
-    void shouldReturnEmptyListWhenGeoapifyReturnsNoFeatures() {
+    void shouldReturnEmptyListWhenFoursquareReturnsNoPlaces() {
 
-        var response = new GeoapifyResponse(
-                "FeatureCollection",
-                null
-        );
-
-        when(geoapifyClient.search(
+        when(foursquarePlaceService.searchPlaces(
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
-                10
-        )).thenReturn(response);
+                PlaceCategory.MUSEUM,
+                50
+        )).thenReturn(List.of());
 
         var result = placeService.search(
                 48.8606,
                 2.3376,
                 1000,
-                "entertainment.museum",
+                PlaceCategory.MUSEUM,
                 10
         );
 
@@ -130,68 +88,27 @@ class PlaceServiceTest {
     @Test
     void shouldSearchPlacesByDestination() {
 
-        var location = new GeoapifyGeocodingResult(
-                "Rome",
-                "Rome",
-                "Italy",
-                "it",
-                41.8933,
-                12.4829,
-                "Rome, Italy"
-        );
-
-        var properties = new GeoapifyProperties(
-                "colosseum-test-id",
-                "Colosseum",
-                "Ancient Roman amphitheatre",
-                41.8902,
-                12.4922,
-                List.of("entertainment.museum"),
-                "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
-                null
-        );
-
-        var feature = new GeoapifyFeature(
-                "Feature",
-                properties
-        );
-
-        var response = new GeoapifyResponse(
-                "FeatureCollection",
-                List.of(feature)
-        );
-
         var place = new PlaceDto(
                 "colosseum-test-id",
                 "Colosseum",
-                "Ancient Roman amphitheatre",
+                null,
                 41.8902,
                 12.4922,
-                "entertainment.museum",
-                "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
-                null
+                PlaceCategory.TOURIST_ATTRACTION,
+                "Piazza del Colosseo, 1, Rome, Italy",
+                500.0
         );
 
-        when(geocodingService.geocode("Rome"))
-                .thenReturn(location);
-
-        when(geoapifyClient.search(
-                41.8933,
-                12.4829,
-                1000,
-                "entertainment.museum",
+        when(foursquarePlaceService.searchByDestination(
+                "Rome",
+                PlaceCategory.TOURIST_ATTRACTION,
                 50
-        )).thenReturn(response);
-
-        when(geoapifyPlaceMapper.toPlaceDto(
-                feature,
-                "entertainment.museum"
-        )).thenReturn(place);
+        )).thenReturn(List.of(place));
 
         var result = placeService.searchByDestination(
                 "Rome",
                 1000,
-                "entertainment.museum",
+                PlaceCategory.TOURIST_ATTRACTION,
                 10
         );
 
@@ -200,44 +117,24 @@ class PlaceServiceTest {
         assertEquals(41.8902, result.get(0).latitude());
         assertEquals(12.4922, result.get(0).longitude());
         assertEquals(
-                "entertainment.museum",
+                PlaceCategory.TOURIST_ATTRACTION,
                 result.get(0).category()
         );
     }
 
     @Test
-    void shouldSearchPlacesByDestinationUsingPlaceCategory() {
+    void shouldReturnEmptyListWhenFoursquareReturnsNoPlacesByDestination() {
 
-        var location = new GeoapifyGeocodingResult(
+        when(foursquarePlaceService.searchByDestination(
                 "Rome",
-                "Rome",
-                "Italy",
-                "it",
-                41.8933,
-                12.4829,
-                "Rome, Italy"
-        );
-
-        var response = new GeoapifyResponse(
-                "FeatureCollection",
-                List.of()
-        );
-
-        when(geocodingService.geocode("Rome"))
-                .thenReturn(location);
-
-        when(geoapifyClient.search(
-                41.8933,
-                12.4829,
-                1000,
-                "tourism.sights",
+                PlaceCategory.MUSEUM,
                 50
-        )).thenReturn(response);
+        )).thenReturn(List.of());
 
         var result = placeService.searchByDestination(
                 "Rome",
                 1000,
-                PlaceCategory.TOURIST_ATTRACTION,
+                PlaceCategory.MUSEUM,
                 10
         );
 
@@ -247,13 +144,13 @@ class PlaceServiceTest {
     @Test
     void shouldRejectInvalidLatitude() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         91.0,
                         2.3376,
                         1000,
-                        "tourism",
+                        PlaceCategory.MUSEUM,
                         10
                 )
         );
@@ -267,13 +164,13 @@ class PlaceServiceTest {
     @Test
     void shouldRejectInvalidLongitude() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
                         181.0,
                         1000,
-                        "tourism",
+                        PlaceCategory.MUSEUM,
                         10
                 )
         );
@@ -287,13 +184,13 @@ class PlaceServiceTest {
     @Test
     void shouldRejectInvalidRadius() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
                         2.3376,
                         0,
-                        "tourism",
+                        PlaceCategory.MUSEUM,
                         10
                 )
         );
@@ -307,13 +204,13 @@ class PlaceServiceTest {
     @Test
     void shouldRejectInvalidLimit() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
                         2.3376,
                         1000,
-                        "tourism",
+                        PlaceCategory.MUSEUM,
                         101
                 )
         );
@@ -325,21 +222,21 @@ class PlaceServiceTest {
     }
 
     @Test
-    void shouldRejectBlankCategory() {
+    void shouldRejectNullCategory() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
                         2.3376,
                         1000,
-                        " ",
+                        null,
                         10
                 )
         );
 
         assertEquals(
-                "Category must not be blank",
+                "Category must not be null",
                 exception.getMessage()
         );
     }
@@ -347,12 +244,12 @@ class PlaceServiceTest {
     @Test
     void shouldRejectBlankDestination() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         " ",
                         1000,
-                        "tourism",
+                        PlaceCategory.MUSEUM,
                         10
                 )
         );
@@ -364,20 +261,20 @@ class PlaceServiceTest {
     }
 
     @Test
-    void shouldRejectNullCategory() {
+    void shouldRejectNullCategoryByDestination() {
 
-        var exception = org.junit.jupiter.api.Assertions.assertThrows(
+        var exception = assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         "Rome",
                         1000,
-                        (String) null,
+                        null,
                         10
                 )
         );
 
         assertEquals(
-                "Category must not be blank",
+                "Category must not be null",
                 exception.getMessage()
         );
     }

@@ -1,0 +1,75 @@
+package com.smarttrip.api.integration.foursquare;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+
+@Component
+public class FoursquareClient {
+
+    private static final String API_VERSION = "2025-06-17";
+
+    private final RestClient restClient;
+
+    public FoursquareClient(
+            RestClient.Builder restClientBuilder,
+            @Value("${foursquare.api-key}") String apiKey
+    ) {
+        this.restClient = restClientBuilder
+                .baseUrl("https://places-api.foursquare.com")
+                .defaultHeader(
+                        HttpHeaders.AUTHORIZATION,
+                        "Bearer " + apiKey
+                )
+                .defaultHeader(
+                        "X-Places-Api-Version",
+                        API_VERSION
+                )
+                .build();
+    }
+
+    public FoursquareResponse search(
+            double latitude,
+            double longitude,
+            int radiusMeters,
+            String query,
+            int limit
+    ) {
+        return restClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/places/search")
+                        .queryParam(
+                                "ll",
+                                "%s,%s".formatted(latitude, longitude)
+                        )
+                        .queryParam("radius", radiusMeters)
+                        .queryParam("query", query)
+                        .queryParam("sort", "RELEVANCE")
+                        .queryParam("limit", limit)
+                        .build()
+                )
+                .retrieve()
+                .body(FoursquareResponse.class);
+    }
+
+    public FoursquareResponse searchByDestination(
+            String destination,
+            String query,
+            int limit
+    ) {
+        return restClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/places/search")
+                        .queryParam("near", destination)
+                        .queryParam("query", query)
+                        .queryParam("sort", "RELEVANCE")
+                        .queryParam("limit", limit)
+                        .build()
+                )
+                .retrieve()
+                .body(FoursquareResponse.class);
+    }
+}

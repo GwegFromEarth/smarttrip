@@ -2,8 +2,7 @@ package com.smarttrip.api.service;
 
 import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
-import com.smarttrip.api.integration.geoapify.GeoapifyClient;
-import com.smarttrip.api.integration.geoapify.GeoapifyPlaceMapper;
+import com.smarttrip.api.integration.foursquare.FoursquarePlaceService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,25 +15,22 @@ public class PlaceService {
     private static final int MAX_LIMIT = 100;
     private static final int SEARCH_LIMIT = 50;
 
-    private final GeoapifyClient geoapifyClient;
-    private final GeocodingService geocodingService;
-    private final GeoapifyPlaceMapper geoapifyPlaceMapper;
+    private final FoursquarePlaceService foursquarePlaceService;
+    private final PlaceRankingService placeRankingService;
 
     public PlaceService(
-            GeoapifyClient geoapifyClient,
-            GeocodingService geocodingService,
-            GeoapifyPlaceMapper geoapifyPlaceMapper
+            FoursquarePlaceService foursquarePlaceService,
+            PlaceRankingService placeRankingService
     ) {
-        this.geoapifyClient = geoapifyClient;
-        this.geocodingService = geocodingService;
-        this.geoapifyPlaceMapper = geoapifyPlaceMapper;
+        this.foursquarePlaceService = foursquarePlaceService;
+        this.placeRankingService = placeRankingService;
     }
 
     public List<PlaceDto> search(
             double latitude,
             double longitude,
             int radiusMeters,
-            String category,
+            PlaceCategory category,
             int limit
     ) {
         validateCoordinates(latitude, longitude);
@@ -42,7 +38,7 @@ public class PlaceService {
         validateCategory(category);
         validateLimit(limit);
 
-        var response = geoapifyClient.search(
+        var places = foursquarePlaceService.searchPlaces(
                 latitude,
                 longitude,
                 radiusMeters,
@@ -50,38 +46,7 @@ public class PlaceService {
                 SEARCH_LIMIT
         );
 
-        if (response == null || response.features() == null) {
-            return List.of();
-        }
-
-        return response.features().stream()
-                .map(feature -> geoapifyPlaceMapper.toPlaceDto(
-                        feature,
-                        category
-                ))
-                .toList();
-    }
-
-    public List<PlaceDto> searchByDestination(
-            String destination,
-            int radius,
-            String category,
-            int limit
-    ) {
-        validateDestination(destination);
-        validateRadius(radius);
-        validateCategory(category);
-        validateLimit(limit);
-
-        var location = geocodingService.geocode(destination);
-
-        return search(
-                location.lat(),
-                location.lon(),
-                radius,
-                category,
-                limit
-        );
+        return placeRankingService.rank(places, limit);
     }
 
     public List<PlaceDto> searchByDestination(
@@ -90,18 +55,18 @@ public class PlaceService {
             PlaceCategory category,
             int limit
     ) {
-        if (category == null) {
-            throw new IllegalArgumentException(
-                    "Category must not be null"
-            );
-        }
+        validateDestination(destination);
+        validateRadius(radius);
+        validateCategory(category);
+        validateLimit(limit);
 
-        return searchByDestination(
+        var places = foursquarePlaceService.searchByDestination(
                 destination,
-                radius,
-                category.geoapifyCategory(),
-                limit
+                category,
+                SEARCH_LIMIT
         );
+
+        return placeRankingService.rank(places, limit);
     }
 
     private void validateCoordinates(
@@ -142,10 +107,10 @@ public class PlaceService {
         }
     }
 
-    private void validateCategory(String category) {
-        if (category == null || category.isBlank()) {
+    private void validateCategory(PlaceCategory category) {
+        if (category == null) {
             throw new IllegalArgumentException(
-                    "Category must not be blank"
+                    "Category must not be null"
             );
         }
     }

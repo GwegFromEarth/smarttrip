@@ -6,7 +6,7 @@ public record PlaceDto(
         String description,
         double latitude,
         double longitude,
-        String category,
+        PlaceCategory category,
         String address,
         Double distance
 ) {
