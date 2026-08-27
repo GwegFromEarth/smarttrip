@@ -232,4 +232,92 @@ describe('Itinerary', () => {
         10
       );
   });
+
+  it('should display places for the itinerary destination', async () => {
+
+    const tripService = {
+      getItinerary: vi.fn().mockReturnValue(
+        of(itinerary)
+      ),
+      generateItinerary: vi.fn()
+    };
+
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(
+        of(places)
+      )
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
+
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl(
+      '/trips/4/itinerary',
+      Itinerary
+    );
+
+    const content =
+      harness.routeNativeElement?.textContent ?? '';
+
+    expect(content)
+      .toContain('Lieux à découvrir');
+
+    expect(content)
+      .toContain('Colosseum');
+
+    expect(content)
+      .toContain('Ancient Roman amphitheatre');
+
+    expect(content)
+      .toContain(
+        'Piazza del Colosseo, 1, 00184 Roma RM, Italy'
+      );
+
+    expect(content)
+      .toContain('Pantheon');
+
+    expect(content)
+      .toContain('Ancient Roman temple');
+  });
+
+  it('should not display places section when no places are found', async () => {
+
+    const tripService = {
+      getItinerary: vi.fn().mockReturnValue(
+        of(itinerary)
+      ),
+      generateItinerary: vi.fn()
+    };
+
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(
+        of([])
+      )
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
+
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl(
+      '/trips/4/itinerary',
+      Itinerary
+    );
+
+    const content =
+      harness.routeNativeElement?.textContent ?? '';
+
+    expect(content)
+      .not.toContain('Lieux à découvrir');
+
+    expect(content)
+      .not.toContain('Colosseum');
+  });
 });

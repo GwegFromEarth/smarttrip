@@ -74,6 +74,36 @@
 
     }
 
+    @if (places().length > 0) {
+
+      <section>
+
+        <h2>📍 Lieux à découvrir</h2>
+
+        @for (place of places(); track place.placeId) {
+
+          <article>
+
+            <h3>
+              {{ place.name }}
+            </h3>
+
+            <p>
+              {{ place.description }}
+            </p>
+
+            <p>
+              {{ place.address }}
+            </p>
+
+          </article>
+
+        }
+
+      </section>
+
+    }
+
   </main>
 
 }
