@@ -23,7 +23,9 @@ public class FoursquarePlaceMapper {
                 address,
                 place.distance() != null
                         ? place.distance().doubleValue()
-                        : null
+                        : null,
+                place.rating(),
+                place.popularity()
         );
     }
 

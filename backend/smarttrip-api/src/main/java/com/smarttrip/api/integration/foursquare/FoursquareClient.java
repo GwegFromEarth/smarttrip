@@ -10,6 +10,9 @@ public class FoursquareClient {
 
     private static final String API_VERSION = "2025-06-17";
 
+    private static final String PLACE_FIELDS =
+            "fsq_place_id,name,geocodes,location,categories,distance,rating,popularity";
+
     private final RestClient restClient;
 
     public FoursquareClient(
@@ -47,15 +50,18 @@ public class FoursquareClient {
                                     "%s,%s".formatted(latitude, longitude)
                             )
                             .queryParam("radius", radiusMeters)
-                            .queryParam("sort", "RELEVANCE")
-                            .queryParam("limit", limit);
+                            .queryParam("limit", limit)
+                            .queryParam("fields", PLACE_FIELDS);
 
                     if (query != null && !query.isBlank()) {
                         builder.queryParam("query", query);
                     }
 
                     if (categoryIds != null && !categoryIds.isBlank()) {
-                        builder.queryParam("fsq_category_ids", categoryIds);
+                        builder.queryParam(
+                                "fsq_category_ids",
+                                categoryIds
+                        );
                     }
 
                     return builder.build();
@@ -76,15 +82,18 @@ public class FoursquareClient {
                     var builder = uriBuilder
                             .path("/places/search")
                             .queryParam("near", destination)
-                            .queryParam("sort", "RELEVANCE")
-                            .queryParam("limit", limit);
+                            .queryParam("limit", limit)
+                            .queryParam("fields", PLACE_FIELDS);
 
                     if (query != null && !query.isBlank()) {
                         builder.queryParam("query", query);
                     }
 
                     if (categoryIds != null && !categoryIds.isBlank()) {
-                        builder.queryParam("fsq_category_ids", categoryIds);
+                        builder.queryParam(
+                                "fsq_category_ids",
+                                categoryIds
+                        );
                     }
 
                     return builder.build();

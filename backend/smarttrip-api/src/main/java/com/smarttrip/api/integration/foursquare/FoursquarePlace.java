@@ -21,6 +21,10 @@ public record FoursquarePlace(
 
         List<FoursquareCategory> categories,
 
-        Integer distance
+        Integer distance,
+
+        Double rating,
+
+        Double popularity
 ) {
 }

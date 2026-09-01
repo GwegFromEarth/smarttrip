@@ -12,18 +12,11 @@ public class FoursquarePlaceService {
     private static final int MAX_SEARCH_LIMIT = 50;
 
     /*
-     * Foursquare category IDs used for SmartTrip.
-     *
-     * Historic and Protected Sites
+     * Foursquare category:
+     * Landmarks and Outdoors
      */
-    private static final String HISTORIC_AND_PROTECTED_SITES =
-            "4deefb944765f83613cdba6e";
-
-    /*
-     * Monuments
-     */
-    private static final String MONUMENTS =
-            "4bf58dd8d48988d12d941735";
+    private static final String TOURIST_ATTRACTION_CATEGORY_ID =
+            "4bf58dd8d48988d181941735";
 
     private final FoursquareClient foursquareClient;
     private final FoursquarePlaceMapper mapper;
@@ -93,6 +86,7 @@ public class FoursquarePlaceService {
     }
 
     private String toFoursquareQuery(PlaceCategory category) {
+
         if (category == null) {
             throw new IllegalArgumentException(
                     "Category must not be null"
@@ -108,7 +102,10 @@ public class FoursquarePlaceService {
         };
     }
 
-    private String toFoursquareCategoryIds(PlaceCategory category) {
+    private String toFoursquareCategoryIds(
+            PlaceCategory category
+    ) {
+
         if (category == null) {
             throw new IllegalArgumentException(
                     "Category must not be null"
@@ -117,19 +114,13 @@ public class FoursquarePlaceService {
 
         return switch (category) {
             case TOURIST_ATTRACTION ->
-                    HISTORIC_AND_PROTECTED_SITES + "," + MONUMENTS;
+                    TOURIST_ATTRACTION_CATEGORY_ID;
 
-            case MUSEUM ->
-                    "4bf58dd8d48988d181941735";
-
-            case RESTAURANT ->
-                    "4d4b7105d754a06374d81259";
-
-            case CAFE ->
-                    "4bf58dd8d48988d1e0931735";
-
-            case PARK ->
-                    "4bf58dd8d48988d163941735";
+            case MUSEUM,
+                 RESTAURANT,
+                 CAFE,
+                 PARK ->
+                    null;
         };
     }
 }

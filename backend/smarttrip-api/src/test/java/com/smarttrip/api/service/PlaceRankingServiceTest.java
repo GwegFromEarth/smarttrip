@@ -89,7 +89,9 @@ class PlaceRankingServiceTest {
                 12.4922,
                 PlaceCategory.TOURIST_ATTRACTION,
                 null,
-                distance
+                distance,
+                null,
+                null
         );
     }
 }

@@ -33,7 +33,9 @@ class FoursquarePlaceMapperTest {
                                 "Historic Site"
                         )
                 ),
-                250
+                250,
+                4.8,
+                2.0
         );
 
         PlaceDto result = mapper.toPlaceDto(place, PlaceCategory.TOURIST_ATTRACTION);

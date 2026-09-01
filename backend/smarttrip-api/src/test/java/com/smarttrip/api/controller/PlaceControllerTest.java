@@ -37,6 +37,8 @@ class PlaceControllerTest {
                 2.3376,
                 PlaceCategory.MUSEUM,
                 "Rue de Rivoli, 75001 Paris, France",
+                null,
+                null,
                 null
         );
 
@@ -118,6 +120,8 @@ class PlaceControllerTest {
                 12.4922,
                 PlaceCategory.TOURIST_ATTRACTION,
                 "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
+                null,
+                null,
                 null
         );
 

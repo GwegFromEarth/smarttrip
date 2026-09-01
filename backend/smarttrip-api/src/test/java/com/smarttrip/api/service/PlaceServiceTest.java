@@ -37,7 +37,9 @@ class PlaceServiceTest {
                 2.3376,
                 PlaceCategory.MUSEUM,
                 "Rue de Rivoli, 75001 Paris, France",
-                100.0
+                100.0,
+                null,
+                null
         );
 
         when(foursquarePlaceService.searchPlaces(
@@ -96,7 +98,9 @@ class PlaceServiceTest {
                 12.4922,
                 PlaceCategory.TOURIST_ATTRACTION,
                 "Piazza del Colosseo, 1, Rome, Italy",
-                500.0
+                500.0,
+                null,
+                null
         );
 
         when(foursquarePlaceService.searchByDestination(
