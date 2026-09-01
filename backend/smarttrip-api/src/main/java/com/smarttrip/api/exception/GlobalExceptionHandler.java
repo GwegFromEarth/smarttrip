@@ -1,5 +1,6 @@
 package com.smarttrip.api.exception;
 
+import com.smarttrip.api.integration.foursquare.FoursquareApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -65,5 +66,30 @@ public class GlobalExceptionHandler {
         problemDetail.setTitle("Invalid request");
 
         return problemDetail;
+    }
+
+    @ExceptionHandler(FoursquareApiException.class)
+    public ResponseEntity<ProblemDetail> handleFoursquareApiException(
+            FoursquareApiException exception
+    ) {
+        HttpStatus status;
+
+        if (exception.getStatusCode() == 401) {
+            status = HttpStatus.BAD_GATEWAY;
+        } else if (exception.getStatusCode() == 429) {
+            status = HttpStatus.TOO_MANY_REQUESTS;
+        } else if (exception.getStatusCode() >= 500) {
+            status = HttpStatus.BAD_GATEWAY;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        ProblemDetail problem = ProblemDetail.forStatus(status);
+        problem.setTitle("Foursquare API error");
+        problem.setDetail(exception.getMessage());
+
+        return ResponseEntity
+                .status(status)
+                .body(problem);
     }
 }

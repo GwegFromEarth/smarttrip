@@ -69,6 +69,42 @@ public class FoursquareClient {
                     return builder.build();
                 })
                 .retrieve()
+                .onStatus(
+                        status -> status.value() == 401,
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    401,
+                                    "Foursquare authentication failed"
+                            );
+                        }
+                )
+                .onStatus(
+                        status -> status.value() == 429,
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    429,
+                                    "Foursquare rate limit exceeded"
+                            );
+                        }
+                )
+                .onStatus(
+                        status -> status.is4xxClientError(),
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    response.getStatusCode().value(),
+                                    "Foursquare request failed"
+                            );
+                        }
+                )
+                .onStatus(
+                        status -> status.is5xxServerError(),
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    response.getStatusCode().value(),
+                                    "Foursquare service unavailable"
+                            );
+                        }
+                )
                 .body(FoursquareResponse.class);
     }
 
@@ -119,7 +155,42 @@ public class FoursquareClient {
 
                     return builder.build();
                 })
-                .retrieve()
+                .retrieve().onStatus(
+                        status -> status.value() == 401,
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    401,
+                                    "Foursquare authentication failed"
+                            );
+                        }
+                )
+                .onStatus(
+                        status -> status.value() == 429,
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    429,
+                                    "Foursquare rate limit exceeded"
+                            );
+                        }
+                )
+                .onStatus(
+                        status -> status.is4xxClientError(),
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    response.getStatusCode().value(),
+                                    "Foursquare request failed"
+                            );
+                        }
+                )
+                .onStatus(
+                        status -> status.is5xxServerError(),
+                        (request, response) -> {
+                            throw new FoursquareApiException(
+                                    response.getStatusCode().value(),
+                                    "Foursquare service unavailable"
+                            );
+                        }
+                )
                 .body(FoursquareResponse.class);
     }
 }

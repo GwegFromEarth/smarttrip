@@ -13,12 +13,15 @@ public class FoursquarePlaceMapper {
     ) {
         String address = buildAddress(place);
 
+        FoursquareCoordinates coordinates =
+                extractCoordinates(place);
+
         return new PlaceDto(
                 place.fsq_id(),
                 place.name(),
                 null,
-                place.latitude(),
-                place.longitude(),
+                coordinates.latitude(),
+                coordinates.longitude(),
                 category,
                 address,
                 place.distance() != null
@@ -27,6 +30,31 @@ public class FoursquarePlaceMapper {
                 place.rating(),
                 place.popularity()
         );
+    }
+
+    private FoursquareCoordinates extractCoordinates(
+            FoursquarePlace place
+    ) {
+        if (place.geocodes() == null
+                || place.geocodes().main() == null) {
+
+            throw new IllegalArgumentException(
+                    "Foursquare place has no coordinates"
+            );
+        }
+
+        FoursquareCoordinates coordinates =
+                place.geocodes().main();
+
+        if (coordinates.latitude() == null
+                || coordinates.longitude() == null) {
+
+            throw new IllegalArgumentException(
+                    "Foursquare place has incomplete coordinates"
+            );
+        }
+
+        return coordinates;
     }
 
     private String buildAddress(FoursquarePlace place) {

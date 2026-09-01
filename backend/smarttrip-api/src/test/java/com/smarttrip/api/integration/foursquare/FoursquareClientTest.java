@@ -8,12 +8,15 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.queryParam;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RestClientTest(FoursquareClient.class)
@@ -62,8 +65,12 @@ class FoursquareClientTest {
                             {
                               "fsq_place_id": "test-louvre-id",
                               "name": "Louvre Museum",
-                              "latitude": 48.8606,
-                              "longitude": 2.3376,
+                              "geocodes": {
+                                "main": {
+                                  "latitude": 48.8606,
+                                  "longitude": 2.3376
+                                }
+                              },
                               "location": {
                                 "address": "Rue de Rivoli",
                                 "locality": "Paris",
@@ -171,8 +178,12 @@ class FoursquareClientTest {
                             {
                               "fsq_place_id": "test-capitoline-id",
                               "name": "Capitoline Museums",
-                              "latitude": 41.8931,
-                              "longitude": 12.4828,
+                              "geocodes": {
+                                "main": {
+                                  "latitude": 48.8606,
+                                  "longitude": 2.3376
+                                }
+                              },
                               "location": {
                                 "address": "Piazza del Campidoglio",
                                 "locality": "Rome",
@@ -204,6 +215,138 @@ class FoursquareClientTest {
 
         assertThat(response.results().getFirst().name())
                 .isEqualTo("Capitoline Museums");
+
+        mockServer.verify();
+    }
+
+    @Test
+    void shouldThrowFoursquareApiExceptionWhenUnauthorized() {
+
+        mockServer.expect(request -> {
+                    assertThat(request.getURI().getPath())
+                            .isEqualTo("/places/search");
+                })
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(
+                        withStatus(HttpStatus.UNAUTHORIZED)
+                );
+
+        FoursquareApiException exception = assertThrows(
+                FoursquareApiException.class,
+                () -> foursquareClient.search(
+                        48.8566,
+                        2.3522,
+                        1000,
+                        "museum",
+                        null,
+                        10
+                )
+        );
+
+        assertThat(exception.getStatusCode())
+                .isEqualTo(401);
+
+        assertThat(exception.getMessage())
+                .isEqualTo("Foursquare authentication failed");
+
+        mockServer.verify();
+    }
+
+    @Test
+    void shouldThrowFoursquareApiExceptionWhenRateLimitExceeded() {
+
+        mockServer.expect(request -> {
+                    assertThat(request.getURI().getPath())
+                            .isEqualTo("/places/search");
+                })
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(
+                        withStatus(HttpStatus.TOO_MANY_REQUESTS)
+                );
+
+        FoursquareApiException exception = assertThrows(
+                FoursquareApiException.class,
+                () -> foursquareClient.search(
+                        48.8566,
+                        2.3522,
+                        1000,
+                        "museum",
+                        null,
+                        10
+                )
+        );
+
+        assertThat(exception.getStatusCode())
+                .isEqualTo(429);
+
+        assertThat(exception.getMessage())
+                .isEqualTo("Foursquare rate limit exceeded");
+
+        mockServer.verify();
+    }
+
+    @Test
+    void shouldThrowFoursquareApiExceptionWhenBadRequest() {
+
+        mockServer.expect(request -> {
+                    assertThat(request.getURI().getPath())
+                            .isEqualTo("/places/search");
+                })
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(
+                        withStatus(HttpStatus.BAD_REQUEST)
+                );
+
+        FoursquareApiException exception = assertThrows(
+                FoursquareApiException.class,
+                () -> foursquareClient.search(
+                        48.8566,
+                        2.3522,
+                        1000,
+                        "museum",
+                        null,
+                        10
+                )
+        );
+
+        assertThat(exception.getStatusCode())
+                .isEqualTo(400);
+
+        assertThat(exception.getMessage())
+                .isEqualTo("Foursquare request failed");
+
+        mockServer.verify();
+    }
+
+    @Test
+    void shouldThrowFoursquareApiExceptionWhenFoursquareIsUnavailable() {
+
+        mockServer.expect(request -> {
+                    assertThat(request.getURI().getPath())
+                            .isEqualTo("/places/search");
+                })
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(
+                        withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                );
+
+        FoursquareApiException exception = assertThrows(
+                FoursquareApiException.class,
+                () -> foursquareClient.search(
+                        48.8566,
+                        2.3522,
+                        1000,
+                        "museum",
+                        null,
+                        10
+                )
+        );
+
+        assertThat(exception.getStatusCode())
+                .isEqualTo(500);
+
+        assertThat(exception.getMessage())
+                .isEqualTo("Foursquare service unavailable");
 
         mockServer.verify();
     }

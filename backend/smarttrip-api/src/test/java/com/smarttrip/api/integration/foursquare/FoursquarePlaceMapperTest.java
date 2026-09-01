@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 class FoursquarePlaceMapperTest {
@@ -20,8 +21,12 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-123",
                 "Louvre Museum",
-                48.8606,
-                2.3376,
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                48.8606,
+                                2.3376
+                        )
+                ),
                 new FoursquareLocation(
                         "Rue de Rivoli",
                         "Paris",
@@ -63,8 +68,12 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-456",
                 "Colosseum",
-                41.8902,
-                12.4922,
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                41.8902,
+                                12.4922
+                        )
+                ),
                 null,
                 List.of(),
                 500,
@@ -79,6 +88,8 @@ class FoursquarePlaceMapperTest {
 
         assertEquals("fsq-456", result.placeId());
         assertEquals("Colosseum", result.name());
+        assertEquals(41.8902, result.latitude());
+        assertEquals(12.4922, result.longitude());
         assertNull(result.address());
     }
 
@@ -88,8 +99,12 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-789",
                 "Test Museum",
-                48.8606,
-                2.3376,
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                48.8606,
+                                2.3376
+                        )
+                ),
                 null,
                 List.of(),
                 null,
@@ -113,8 +128,12 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-999",
                 "Test Place",
-                48.8566,
-                2.3522,
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                48.8566,
+                                2.3522
+                        )
+                ),
                 new FoursquareLocation(
                         "10 Rue de Paris",
                         "Paris",
@@ -145,8 +164,12 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-empty",
                 "Unknown Place",
-                48.8566,
-                2.3522,
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                48.8566,
+                                2.3522
+                        )
+                ),
                 new FoursquareLocation(
                         null,
                         null,
@@ -168,4 +191,95 @@ class FoursquarePlaceMapperTest {
         assertNull(result.address());
     }
 
+    @Test
+    void shouldRejectPlaceWithoutGeocodes() {
+
+        FoursquarePlace place = new FoursquarePlace(
+                "fsq-no-geocodes",
+                "Unknown Place",
+                null,
+                null,
+                List.of(),
+                100,
+                null,
+                null
+        );
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> mapper.toPlaceDto(
+                                place,
+                                PlaceCategory.MUSEUM
+                        )
+                );
+
+        assertEquals(
+                "Foursquare place has no coordinates",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void shouldRejectPlaceWithoutMainCoordinates() {
+
+        FoursquarePlace place = new FoursquarePlace(
+                "fsq-no-main",
+                "Unknown Place",
+                new FoursquareGeocodes(null),
+                null,
+                List.of(),
+                100,
+                null,
+                null
+        );
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> mapper.toPlaceDto(
+                                place,
+                                PlaceCategory.MUSEUM
+                        )
+                );
+
+        assertEquals(
+                "Foursquare place has no coordinates",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void shouldRejectPlaceWithIncompleteCoordinates() {
+
+        FoursquarePlace place = new FoursquarePlace(
+                "fsq-incomplete",
+                "Unknown Place",
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                41.8902,
+                                null
+                        )
+                ),
+                null,
+                List.of(),
+                100,
+                null,
+                null
+        );
+
+        IllegalArgumentException exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> mapper.toPlaceDto(
+                                place,
+                                PlaceCategory.MUSEUM
+                        )
+                );
+
+        assertEquals(
+                "Foursquare place has incomplete coordinates",
+                exception.getMessage()
+        );
+    }
 }
