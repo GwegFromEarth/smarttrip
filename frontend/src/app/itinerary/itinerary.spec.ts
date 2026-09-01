@@ -41,7 +41,9 @@ describe('Itinerary', () => {
       longitude: 12.4922,
       category: PLACE_CATEGORIES.TOURIST_ATTRACTION,
       address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy',
-      distance: null
+      distance: null,
+      rating: null,
+      popularity: null
     },
     {
       placeId: 'pantheon-test-id',
@@ -51,7 +53,9 @@ describe('Itinerary', () => {
       longitude: 12.4769,
       category: PLACE_CATEGORIES.TOURIST_ATTRACTION,
       address: 'Piazza della Rotonda, 00186 Roma RM, Italy',
-      distance: null
+      distance: null,
+      rating: null,
+      popularity: null
     }
   ];
 
@@ -322,5 +326,40 @@ describe('Itinerary', () => {
 
     expect(content)
       .not.toContain('Colosseum');
+  });
+
+  it('should display a link to the trips list', async () => {
+
+    const tripService = {
+      getItinerary: vi.fn().mockReturnValue(of(itinerary)),
+      generateItinerary: vi.fn()
+    };
+
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(of([]))
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
+
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl(
+      '/trips/1/itinerary',
+      Itinerary
+    );
+
+    const link = harness.routeNativeElement
+      ?.querySelector<HTMLAnchorElement>('.back-link');
+
+    expect(link).not.toBeNull();
+
+    expect(link?.textContent?.trim())
+      .toContain('Mes voyages');
+
+    expect(link?.getAttribute('href'))
+      .toBe('/trips');
   });
 });

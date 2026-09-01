@@ -4,7 +4,10 @@ import {
   signal
 } from '@angular/core';
 
-import { ActivatedRoute } from '@angular/router';
+import {
+  ActivatedRoute,
+  RouterLink
+} from '@angular/router';
 
 import { TripService } from '../trip/trip.service';
 import { ItineraryDto } from '../trip/trip.models';
@@ -15,7 +18,7 @@ import { PLACE_CATEGORIES } from '../place/place-category';
 
 @Component({
   selector: 'app-itinerary',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './itinerary.html',
   styleUrl: './itinerary.css'
 })

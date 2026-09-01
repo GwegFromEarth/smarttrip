@@ -1,0 +1,56 @@
+.app-header {
+border-bottom: 1px solid #e5e7eb;
+background: white;
+}
+
+.navbar {
+max-width: 1200px;
+margin: 0 auto;
+padding: 1rem 2rem;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 2rem;
+}
+
+.brand {
+font-size: 1.25rem;
+font-weight: 700;
+text-decoration: none;
+color: #111827;
+}
+
+.nav-links {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+
+.nav-links a {
+padding: 0.6rem 0.9rem;
+border-radius: 6px;
+
+text-decoration: none;
+color: #4b5563;
+
+transition:
+background-color 0.15s ease,
+color 0.15s ease;
+}
+
+.nav-links a:hover {
+background: #f3f4f6;
+color: #111827;
+}
+
+.nav-links a.active {
+background: #e5e7eb;
+color: #111827;
+font-weight: 600;
+}
+
+.app-content {
+max-width: 1200px;
+margin: 0 auto;
+}

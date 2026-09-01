@@ -1,128 +1,190 @@
 @if (loading()) {
 
-  <p>Chargement de l'itinéraire...</p>
+  <main class="itinerary-page">
+    <div class="state-card">
+      <p>Chargement de l'itinéraire...</p>
+    </div>
+  </main>
 
 } @else if (error()) {
 
-  <p>
-    Impossible de charger l'itinéraire.
-  </p>
+  <main class="itinerary-page">
+    <div class="state-card error-state">
+      <h1>Impossible de charger l'itinéraire</h1>
+      <p>Une erreur est survenue lors du chargement de votre voyage.</p>
+    </div>
+  </main>
 
 } @else if (needsGeneration()) {
 
-  <main>
+  <main class="itinerary-page">
 
-    <h1>✈️ Votre itinéraire</h1>
+    <a routerLink="/trips" class="back-link">
+    ← Mes voyages
+  </a>
 
-    @if (generating()) {
+<header class="itinerary-header">
+  <span class="eyebrow">Votre voyage</span>
+  <h1>✈️ Votre itinéraire</h1>
+</header>
 
+<section class="generation-card">
+
+  @if (generating()) {
+
+    <div class="generation-content">
+      <div class="loading-indicator"></div>
+      <h2>Génération de votre itinéraire...</h2>
       <p>
-        Génération de votre itinéraire...
+        SmartTrip prépare votre programme de voyage.
       </p>
+    </div>
 
-    } @else {
+  } @else {
+
+    <div class="generation-content">
+      <div class="generation-icon">🗺️</div>
+
+      <h2>Aucun itinéraire disponible</h2>
 
       <p>
-        Aucun itinéraire n'a encore été généré pour ce voyage.
+        Votre itinéraire n'a pas encore été généré pour ce voyage.
       </p>
 
       <button
         type="button"
+        class="primary-button"
         (click)="generateItinerary()">
         Générer mon itinéraire
       </button>
+    </div>
 
-    }
+  }
+
+</section>
 
   </main>
 
 } @else if (itinerary(); as trip) {
 
-  <main>
+  <main class="itinerary-page">
 
-    <h1>✈️ {{ trip.destination }}</h1>
+    <a routerLink="/trips" class="back-link">
+    ← Mes voyages
+  </a>
 
-    @for (day of trip.days; track day.dayNumber) {
+<header class="itinerary-header">
+  <span class="eyebrow">Votre voyage</span>
+  <h1>✈️ {{ trip.destination }}</h1>
+  <p>
+    Votre programme jour par jour
+  </p>
+</header>
 
-      <section>
+<div class="days">
 
-        <h2>
-          Jour {{ day.dayNumber }} — {{ day.date }}
-        </h2>
+  @for (day of trip.days; track day.dayNumber) {
+
+    <section class="day-card">
+
+      <header class="day-header">
+        <span class="day-number">
+          Jour {{ day.dayNumber }}
+        </span>
+
+        <h2>{{ day.date }}</h2>
+      </header>
+
+      <div class="activities">
 
         @for (activity of day.activities; track activity.title) {
 
-          <article>
+          <article class="activity">
 
-            <h3>
-              {{ activity.time }} — {{ activity.title }}
-            </h3>
+            <div class="activity-time">
+              {{ activity.time }}
+            </div>
 
-            <p>
-              {{ activity.description }}
-            </p>
+            <div class="activity-content">
 
-            <p>
-              {{ activity.location }}
-            </p>
+              <h3>
+                {{ activity.title }}
+              </h3>
+
+              <p class="activity-description">
+                {{ activity.description }}
+              </p>
+
+              <p class="activity-location">
+                📍 {{ activity.location }}
+              </p>
+
+            </div>
 
           </article>
 
         }
 
-      </section>
+      </div>
 
-    }
+    </section>
 
-    @if (places().length > 0) {
+  }
 
-      <section>
+</div>
 
-        <h2>📍 Lieux à découvrir</h2>
+@if (places().length > 0) {
 
-        @if (places().length > 0) {
+  <section class="places-section">
 
-          @for (place of places(); track place.placeId) {
+    <header class="section-header">
+      <span class="section-icon">📍</span>
 
-            <article>
+      <div>
+        <h2>Lieux à découvrir</h2>
+        <p>
+          Quelques lieux touristiques à proximité
+        </p>
+      </div>
+    </header>
 
-              <h3>
-                {{ place.name }}
-              </h3>
+    <div class="places-grid">
 
-              @if (place.description) {
-                <p>
-                  {{ place.description }}
-                </p>
-              }
+      @for (place of places(); track place.placeId) {
 
-              @if (place.address) {
-                <p>
-                  {{ place.address }}
-                </p>
-              }
+        <article class="place-card">
 
-              @if (place.distance !== null) {
-                <p>
-                  {{ place.distance }} m
-                </p>
-              }
+          <h3>
+            {{ place.name }}
+          </h3>
 
-            </article>
-
+          @if (place.description) {
+            <p class="place-description">
+              {{ place.description }}
+            </p>
           }
 
-        } @else {
+          @if (place.address) {
+            <p class="place-address">
+              📍 {{ place.address }}
+            </p>
+          }
 
-          <p>
-            Aucun lieu touristique trouvé à proximité.
-          </p>
+          @if (place.distance !== null) {
+            <span class="place-distance">
+              {{ place.distance }} m
+            </span>
+          }
 
-        }
+        </article>
 
-      </section>
+      }
 
-    }
+    </div>
+
+  </section>
+
+}
 
   </main>
 

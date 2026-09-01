@@ -9,4 +9,6 @@ export interface Place {
   category: PlaceCategory;
   address: string | null;
   distance: number | null;
+  rating: number | null;
+  popularity: number | null;
 }

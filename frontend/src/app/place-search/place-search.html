@@ -1,0 +1,116 @@
+<section class="place-search">
+
+  <h2>Découvrir des lieux</h2>
+
+  <div class="search-form">
+
+    <div class="form-group">
+      <label for="destination">
+        Destination
+      </label>
+
+      <input
+        id="destination"
+        type="text"
+        [(ngModel)]="destination"
+        placeholder="Ex. Rome"
+        (keyup.enter)="search()"
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="category">
+        Catégorie
+      </label>
+
+      <select
+        id="category"
+        [(ngModel)]="selectedCategory"
+      >
+        @for (category of categories; track category.value) {
+          <option [value]="category.value">
+            {{ category.label }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <button
+      type="button"
+      (click)="search()"
+      [disabled]="loading"
+    >
+      @if (loading) {
+        Recherche...
+      } @else {
+        Rechercher
+      }
+    </button>
+
+  </div>
+
+  @if (errorMessage) {
+    <div class="error-message">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (!loading && !errorMessage && places.length === 0) {
+    <p class="empty-message">
+      Aucun lieu à afficher.
+    </p>
+  }
+
+  @if (places.length > 0) {
+
+    <div class="places">
+
+      @for (place of places; track place.placeId) {
+
+        <article class="place-card">
+
+          <h3>{{ place.name }}</h3>
+
+          @if (place.address) {
+            <p class="address">
+              {{ place.address }}
+            </p>
+          }
+
+          @if (place.description) {
+            <p class="description">
+              {{ place.description }}
+            </p>
+          }
+
+          <div class="place-details">
+
+            @if (place.distance !== null) {
+              <span>
+                📍 {{ place.distance | number:'1.0-0' }} m
+              </span>
+            }
+
+            @if (place.rating !== null) {
+              <span>
+                ⭐ {{ place.rating }}/10
+              </span>
+            }
+
+            @if (place.popularity !== null) {
+              <span>
+                Popularité : {{ place.popularity }}
+              </span>
+            }
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  }
+
+</section>

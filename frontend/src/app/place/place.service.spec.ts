@@ -22,7 +22,9 @@ describe('PlaceService', () => {
       longitude: 12.4922,
       category: PLACE_CATEGORIES.TOURIST_ATTRACTION,
       address: 'Piazza del Colosseo, 1, 00184 Roma RM, Italy',
-      distance: 500
+      distance: 500,
+      rating: 9.2,
+      popularity: 0.95
     }
   ];
 
@@ -139,6 +141,84 @@ describe('PlaceService', () => {
       {
         status: 400,
         statusText: 'Bad Request'
+      }
+    );
+  });
+
+  it('should handle places without rating and popularity', () => {
+    const placeWithoutScores: Place = {
+      placeId: 'test-id',
+      name: 'Test Place',
+      description: null,
+      latitude: 41.8902,
+      longitude: 12.4922,
+      category: PLACE_CATEGORIES.MUSEUM,
+      address: null,
+      distance: null,
+      rating: null,
+      popularity: null
+    };
+
+    service.searchByDestination(
+      'Rome',
+      PLACE_CATEGORIES.MUSEUM
+    ).subscribe(result => {
+      expect(result).toEqual([placeWithoutScores]);
+    });
+
+    const request = httpTesting.expectOne(
+      'http://localhost:8080/api/places/by-destination?destination=Rome&category=MUSEUM&radius=1000&limit=10'
+    );
+
+    request.flush([placeWithoutScores]);
+  });
+
+  it('should propagate HTTP 429 rate limit errors', () => {
+    service.searchByDestination(
+      'Rome',
+      PLACE_CATEGORIES.TOURIST_ATTRACTION
+    ).subscribe({
+      next: () => expect.fail('Expected an HTTP 429 error'),
+      error: error => {
+        expect(error.status).toBe(429);
+        expect(error.error.detail)
+          .toBe('Foursquare rate limit exceeded');
+        expect(error.error.title)
+          .toBe('Foursquare API error');
+        expect(error.error.instance)
+          .toBe('/api/places/by-destination');
+      }
+    });
+
+    const request = httpTesting.expectOne(
+      request =>
+        request.url ===
+          'http://localhost:8080/api/places/by-destination' &&
+        request.method === 'GET'
+    );
+
+    expect(request.request.params.get('destination'))
+      .toBe('Rome');
+
+    expect(request.request.params.get('category'))
+      .toBe('TOURIST_ATTRACTION');
+
+    expect(request.request.params.get('radius'))
+      .toBe('1000');
+
+    expect(request.request.params.get('limit'))
+      .toBe('10');
+
+    request.flush(
+      {
+        detail: 'Foursquare rate limit exceeded',
+        instance: '/api/places/by-destination',
+        status: 429,
+        title: 'Foursquare API error'
+      },
+      {
+        status: 429,
+        statusText: 'Too Many Requests'
       }
     );
   });
