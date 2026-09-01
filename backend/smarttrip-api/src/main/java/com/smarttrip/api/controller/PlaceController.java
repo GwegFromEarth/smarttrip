@@ -100,12 +100,6 @@ public class PlaceController {
             @RequestParam String destination,
 
             @Parameter(
-                    description = "Rayon de recherche en mètres",
-                    example = "1000"
-            )
-            @RequestParam(defaultValue = "1000") int radius,
-
-            @Parameter(
                     description = "Catégorie SmartTrip",
                     example = "MUSEUM"
             )
@@ -119,7 +113,6 @@ public class PlaceController {
     ) {
         return placeService.searchByDestination(
                 destination,
-                radius,
                 category,
                 limit
         );

@@ -394,7 +394,6 @@ class FoursquarePlaceServiceTest {
         List<PlaceDto> result =
                 service.searchByDestination(
                         "Rome",
-                        1000,
                         PlaceCategory.MUSEUM,
                         10
                 );
@@ -424,7 +423,6 @@ class FoursquarePlaceServiceTest {
 
         service.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.MUSEUM,
                 50
         );
@@ -476,7 +474,6 @@ class FoursquarePlaceServiceTest {
         List<PlaceDto> result =
                 service.searchByDestination(
                         "Rome",
-                        1000,
                         PlaceCategory.MUSEUM,
                         10
                 );

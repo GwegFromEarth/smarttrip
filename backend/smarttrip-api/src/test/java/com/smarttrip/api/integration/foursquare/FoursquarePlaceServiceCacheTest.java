@@ -164,14 +164,12 @@ class FoursquarePlaceServiceCacheTest {
 
         List<?> firstResult = service.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.MUSEUM,
                 10
         );
 
         List<?> secondResult = service.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.MUSEUM,
                 10
         );
@@ -214,14 +212,12 @@ class FoursquarePlaceServiceCacheTest {
 
         service.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.MUSEUM,
                 10
         );
 
         service.searchByDestination(
                 "Paris",
-                1000,
                 PlaceCategory.MUSEUM,
                 10
         );

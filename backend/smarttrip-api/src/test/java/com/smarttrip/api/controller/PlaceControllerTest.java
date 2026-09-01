@@ -141,7 +141,6 @@ class PlaceControllerTest {
 
         when(placeService.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.TOURIST_ATTRACTION,
                 10
         )).thenReturn(List.of(place));
@@ -172,7 +171,6 @@ class PlaceControllerTest {
 
         when(placeService.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.MUSEUM,
                 10
         )).thenReturn(List.of());

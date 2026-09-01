@@ -51,18 +51,15 @@ public class PlaceService {
 
     public List<PlaceDto> searchByDestination(
             String destination,
-            int radius,
             PlaceCategory category,
             int limit
     ) {
         validateDestination(destination);
-        validateRadius(radius);
         validateCategory(category);
         validateLimit(limit);
 
         var places = foursquarePlaceService.searchByDestination(
                 destination,
-                radius,
                 category,
                 SEARCH_LIMIT
         );

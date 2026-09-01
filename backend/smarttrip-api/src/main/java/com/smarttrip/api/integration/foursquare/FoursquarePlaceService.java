@@ -83,7 +83,6 @@ public class FoursquarePlaceService {
     )
     public List<PlaceDto> searchByDestination(
             String destination,
-            int radius,
             PlaceCategory category,
             int limit
     ) {

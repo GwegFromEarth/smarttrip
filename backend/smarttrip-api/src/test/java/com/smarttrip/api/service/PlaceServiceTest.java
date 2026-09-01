@@ -104,7 +104,6 @@ class PlaceServiceTest {
 
         when(foursquarePlaceService.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.TOURIST_ATTRACTION,
                 50
         )).thenReturn(places);
@@ -114,7 +113,6 @@ class PlaceServiceTest {
 
         var result = placeService.searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.TOURIST_ATTRACTION,
                 10
         );
@@ -123,7 +121,6 @@ class PlaceServiceTest {
 
         verify(foursquarePlaceService).searchByDestination(
                 "Rome",
-                1000,
                 PlaceCategory.TOURIST_ATTRACTION,
                 50
         );
@@ -238,7 +235,6 @@ class PlaceServiceTest {
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         "   ",
-                        1000,
                         PlaceCategory.MUSEUM,
                         10
                 )
@@ -257,26 +253,6 @@ class PlaceServiceTest {
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         null,
-                        1000,
-                        PlaceCategory.MUSEUM,
-                        10
-                )
-        );
-
-        verifyNoInteractions(
-                foursquarePlaceService,
-                placeRankingService
-        );
-    }
-
-    @Test
-    void searchByDestination_shouldRejectInvalidRadius() {
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> placeService.searchByDestination(
-                        "Rome",
-                        0,
                         PlaceCategory.MUSEUM,
                         10
                 )
@@ -295,7 +271,6 @@ class PlaceServiceTest {
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         "Rome",
-                        1000,
                         PlaceCategory.MUSEUM,
                         101
                 )
@@ -314,7 +289,6 @@ class PlaceServiceTest {
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         "Rome",
-                        1000,
                         null,
                         10
                 )
