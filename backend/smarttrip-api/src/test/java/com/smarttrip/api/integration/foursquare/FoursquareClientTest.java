@@ -21,6 +21,7 @@ class FoursquareClientTest {
                 12.4922,
                 5000,
                 "Colosseum",
+                null,
                 10
         );
 
@@ -36,6 +37,7 @@ class FoursquareClientTest {
                 foursquareClient.searchByDestination(
                         "Rome",
                         "Colosseum",
+                        null,
                         10
                 );
 

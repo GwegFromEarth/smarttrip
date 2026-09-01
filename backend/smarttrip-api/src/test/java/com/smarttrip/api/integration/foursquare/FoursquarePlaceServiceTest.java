@@ -66,6 +66,7 @@ class FoursquarePlaceServiceTest {
                 12.4922,
                 1000,
                 "museum",
+                "4bf58dd8d48988d181941735",
                 10
         )).thenReturn(response);
 
@@ -101,6 +102,7 @@ class FoursquarePlaceServiceTest {
                 12.4922,
                 1000,
                 "museum",
+                "4bf58dd8d48988d181941735",
                 10
         );
 
@@ -115,6 +117,7 @@ class FoursquarePlaceServiceTest {
                 12.4922,
                 1000,
                 "museum",
+                "4bf58dd8d48988d181941735",
                 10
         )).thenReturn(null);
 
@@ -134,6 +137,7 @@ class FoursquarePlaceServiceTest {
                 12.4922,
                 1000,
                 "museum",
+                "4bf58dd8d48988d181941735",
                 10
         );
 
@@ -148,6 +152,7 @@ class FoursquarePlaceServiceTest {
                 12.4922,
                 1000,
                 "museum",
+                "4bf58dd8d48988d181941735",
                 10
         )).thenReturn(new FoursquareResponse(null));
 
@@ -167,6 +172,7 @@ class FoursquarePlaceServiceTest {
                 12.4922,
                 1000,
                 "museum",
+                "4bf58dd8d48988d181941735",
                 10
         );
 

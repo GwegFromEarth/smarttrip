@@ -62,6 +62,7 @@ public class PlaceService {
 
         var places = foursquarePlaceService.searchByDestination(
                 destination,
+                radius,
                 category,
                 SEARCH_LIMIT
         );

@@ -101,6 +101,7 @@ class PlaceServiceTest {
 
         when(foursquarePlaceService.searchByDestination(
                 "Rome",
+                1000,
                 PlaceCategory.TOURIST_ATTRACTION,
                 50
         )).thenReturn(List.of(place));
@@ -127,6 +128,7 @@ class PlaceServiceTest {
 
         when(foursquarePlaceService.searchByDestination(
                 "Rome",
+                1000,
                 PlaceCategory.MUSEUM,
                 50
         )).thenReturn(List.of());

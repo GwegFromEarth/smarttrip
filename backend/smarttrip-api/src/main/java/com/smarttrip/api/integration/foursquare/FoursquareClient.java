@@ -34,22 +34,32 @@ public class FoursquareClient {
             double longitude,
             int radiusMeters,
             String query,
+            String categoryIds,
             int limit
     ) {
         return restClient
                 .get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/places/search")
-                        .queryParam(
-                                "ll",
-                                "%s,%s".formatted(latitude, longitude)
-                        )
-                        .queryParam("radius", radiusMeters)
-                        .queryParam("query", query)
-                        .queryParam("sort", "RELEVANCE")
-                        .queryParam("limit", limit)
-                        .build()
-                )
+                .uri(uriBuilder -> {
+                    var builder = uriBuilder
+                            .path("/places/search")
+                            .queryParam(
+                                    "ll",
+                                    "%s,%s".formatted(latitude, longitude)
+                            )
+                            .queryParam("radius", radiusMeters)
+                            .queryParam("sort", "RELEVANCE")
+                            .queryParam("limit", limit);
+
+                    if (query != null && !query.isBlank()) {
+                        builder.queryParam("query", query);
+                    }
+
+                    if (categoryIds != null && !categoryIds.isBlank()) {
+                        builder.queryParam("fsq_category_ids", categoryIds);
+                    }
+
+                    return builder.build();
+                })
                 .retrieve()
                 .body(FoursquareResponse.class);
     }
@@ -57,18 +67,28 @@ public class FoursquareClient {
     public FoursquareResponse searchByDestination(
             String destination,
             String query,
+            String categoryIds,
             int limit
     ) {
         return restClient
                 .get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/places/search")
-                        .queryParam("near", destination)
-                        .queryParam("query", query)
-                        .queryParam("sort", "RELEVANCE")
-                        .queryParam("limit", limit)
-                        .build()
-                )
+                .uri(uriBuilder -> {
+                    var builder = uriBuilder
+                            .path("/places/search")
+                            .queryParam("near", destination)
+                            .queryParam("sort", "RELEVANCE")
+                            .queryParam("limit", limit);
+
+                    if (query != null && !query.isBlank()) {
+                        builder.queryParam("query", query);
+                    }
+
+                    if (categoryIds != null && !categoryIds.isBlank()) {
+                        builder.queryParam("fsq_category_ids", categoryIds);
+                    }
+
+                    return builder.build();
+                })
                 .retrieve()
                 .body(FoursquareResponse.class);
     }
