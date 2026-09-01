@@ -14,6 +14,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+
 import com.smarttrip.api.dto.CreateTripRequest;
 import com.smarttrip.api.dto.ItineraryDto;
 import com.smarttrip.api.dto.TripResponse;
@@ -37,6 +42,15 @@ class TripControllerTest {
 
     @MockitoBean
     private ItineraryService itineraryService;
+
+    @TestConfiguration
+    static class TestCacheConfig {
+
+        @Bean
+        CacheManager cacheManager() {
+            return new ConcurrentMapCacheManager();
+        }
+    }
 
     @Test
     void createTrip_shouldReturnCreatedTrip() throws Exception {

@@ -38,6 +38,7 @@ public class FoursquareClient {
             int radiusMeters,
             String query,
             String categoryIds,
+            String sort,
             int limit
     ) {
         return restClient
@@ -51,7 +52,8 @@ public class FoursquareClient {
                             )
                             .queryParam("radius", radiusMeters)
                             .queryParam("limit", limit)
-                            .queryParam("fields", PLACE_FIELDS);
+                            .queryParam("fields", PLACE_FIELDS)
+                            .queryParam("sort", sort);
 
                     if (query != null && !query.isBlank()) {
                         builder.queryParam("query", query);
@@ -68,6 +70,25 @@ public class FoursquareClient {
                 })
                 .retrieve()
                 .body(FoursquareResponse.class);
+    }
+
+    public FoursquareResponse search(
+            double latitude,
+            double longitude,
+            int radiusMeters,
+            String query,
+            String categoryIds,
+            int limit
+    ) {
+        return search(
+                latitude,
+                longitude,
+                radiusMeters,
+                query,
+                categoryIds,
+                null,
+                limit
+        );
     }
 
     public FoursquareResponse searchByDestination(

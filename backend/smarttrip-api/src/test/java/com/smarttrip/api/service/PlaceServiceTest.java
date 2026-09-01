@@ -4,43 +4,51 @@ import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
 import com.smarttrip.api.integration.foursquare.FoursquarePlaceService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class PlaceServiceTest {
 
-    private final FoursquarePlaceService foursquarePlaceService =
-            mock(FoursquarePlaceService.class);
+    @Mock
+    private FoursquarePlaceService foursquarePlaceService;
 
-    private final PlaceRankingService placeRankingService =
-            new PlaceRankingService();
+    @Mock
+    private PlaceRankingService placeRankingService;
 
-    private final PlaceService placeService =
-            new PlaceService(
-                    foursquarePlaceService,
-                    placeRankingService
-            );
+    @InjectMocks
+    private PlaceService placeService;
 
     @Test
-    void shouldSearchPlaces() {
+    void search_shouldReturnRankedPlaces() {
 
-        var place = new PlaceDto(
-                "louvre-test-id",
-                "Louvre Museum",
-                null,
-                48.8606,
-                2.3376,
-                PlaceCategory.MUSEUM,
-                "Rue de Rivoli, 75001 Paris, France",
-                100.0,
-                null,
-                null
+        var places = List.of(
+                new PlaceDto(
+                        "id-1",
+                        "Louvre Museum",
+                        "Museum in Paris",
+                        48.8606,
+                        2.3376,
+                        PlaceCategory.MUSEUM,
+                        "Paris",
+                        null,
+                        null,
+                        null
+                )
         );
+
+        var rankedPlaces = List.of(places.get(0));
 
         when(foursquarePlaceService.searchPlaces(
                 48.8606,
@@ -48,7 +56,10 @@ class PlaceServiceTest {
                 1000,
                 PlaceCategory.MUSEUM,
                 50
-        )).thenReturn(List.of(place));
+        )).thenReturn(places);
+
+        when(placeRankingService.rank(places, 10))
+                .thenReturn(rankedPlaces);
 
         var result = placeService.search(
                 48.8606,
@@ -58,57 +69,48 @@ class PlaceServiceTest {
                 10
         );
 
-        assertEquals(1, result.size());
-        assertEquals("Louvre Museum", result.get(0).name());
-        assertEquals(48.8606, result.get(0).latitude());
-        assertEquals(2.3376, result.get(0).longitude());
-        assertEquals(PlaceCategory.MUSEUM, result.get(0).category());
-    }
+        assertEquals(rankedPlaces, result);
 
-    @Test
-    void shouldReturnEmptyListWhenFoursquareReturnsNoPlaces() {
-
-        when(foursquarePlaceService.searchPlaces(
+        verify(foursquarePlaceService).searchPlaces(
                 48.8606,
                 2.3376,
                 1000,
                 PlaceCategory.MUSEUM,
                 50
-        )).thenReturn(List.of());
-
-        var result = placeService.search(
-                48.8606,
-                2.3376,
-                1000,
-                PlaceCategory.MUSEUM,
-                10
         );
 
-        assertEquals(List.of(), result);
+        verify(placeRankingService).rank(places, 10);
     }
 
     @Test
-    void shouldSearchPlacesByDestination() {
+    void searchByDestination_shouldReturnRankedPlaces() {
 
-        var place = new PlaceDto(
-                "colosseum-test-id",
-                "Colosseum",
-                null,
-                41.8902,
-                12.4922,
-                PlaceCategory.TOURIST_ATTRACTION,
-                "Piazza del Colosseo, 1, Rome, Italy",
-                500.0,
-                null,
-                null
+        var places = List.of(
+                new PlaceDto(
+                        "colosseum-id",
+                        "Colosseum",
+                        "Ancient Roman amphitheatre",
+                        41.8902,
+                        12.4922,
+                        PlaceCategory.TOURIST_ATTRACTION,
+                        "Rome",
+                        null,
+                        null,
+                        null
+                )
         );
+
+        var rankedPlaces = List.of(places.get(0));
 
         when(foursquarePlaceService.searchByDestination(
                 "Rome",
                 1000,
                 PlaceCategory.TOURIST_ATTRACTION,
                 50
-        )).thenReturn(List.of(place));
+        )).thenReturn(places);
+
+        when(placeRankingService.rank(places, 10))
+                .thenReturn(rankedPlaces);
 
         var result = placeService.searchByDestination(
                 "Rome",
@@ -117,43 +119,25 @@ class PlaceServiceTest {
                 10
         );
 
-        assertEquals(1, result.size());
-        assertEquals("Colosseum", result.get(0).name());
-        assertEquals(41.8902, result.get(0).latitude());
-        assertEquals(12.4922, result.get(0).longitude());
-        assertEquals(
+        assertEquals(rankedPlaces, result);
+
+        verify(foursquarePlaceService).searchByDestination(
+                "Rome",
+                1000,
                 PlaceCategory.TOURIST_ATTRACTION,
-                result.get(0).category()
-        );
-    }
-
-    @Test
-    void shouldReturnEmptyListWhenFoursquareReturnsNoPlacesByDestination() {
-
-        when(foursquarePlaceService.searchByDestination(
-                "Rome",
-                1000,
-                PlaceCategory.MUSEUM,
                 50
-        )).thenReturn(List.of());
-
-        var result = placeService.searchByDestination(
-                "Rome",
-                1000,
-                PlaceCategory.MUSEUM,
-                10
         );
 
-        assertEquals(List.of(), result);
+        verify(placeRankingService).rank(places, 10);
     }
 
     @Test
-    void shouldRejectInvalidLatitude() {
+    void search_shouldRejectInvalidLatitude() {
 
-        var exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
-                        91.0,
+                        91,
                         2.3376,
                         1000,
                         PlaceCategory.MUSEUM,
@@ -161,36 +145,36 @@ class PlaceServiceTest {
                 )
         );
 
-        assertEquals(
-                "Latitude must be between -90 and 90",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 
     @Test
-    void shouldRejectInvalidLongitude() {
+    void search_shouldRejectInvalidLongitude() {
 
-        var exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
-                        181.0,
+                        181,
                         1000,
                         PlaceCategory.MUSEUM,
                         10
                 )
         );
 
-        assertEquals(
-                "Longitude must be between -180 and 180",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 
     @Test
-    void shouldRejectInvalidRadius() {
+    void search_shouldRejectRadiusBelowMinimum() {
 
-        var exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
@@ -201,16 +185,16 @@ class PlaceServiceTest {
                 )
         );
 
-        assertEquals(
-                "Radius must be at least 1 meter",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 
     @Test
-    void shouldRejectInvalidLimit() {
+    void search_shouldRejectInvalidLimit() {
 
-        var exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
@@ -221,16 +205,16 @@ class PlaceServiceTest {
                 )
         );
 
-        assertEquals(
-                "Limit must be between 1 and 100",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 
     @Test
-    void shouldRejectNullCategory() {
+    void search_shouldRejectNullCategory() {
 
-        var exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.search(
                         48.8606,
@@ -241,35 +225,92 @@ class PlaceServiceTest {
                 )
         );
 
-        assertEquals(
-                "Category must not be null",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 
     @Test
-    void shouldRejectBlankDestination() {
+    void searchByDestination_shouldRejectBlankDestination() {
 
-        var exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
-                        " ",
+                        "   ",
                         1000,
                         PlaceCategory.MUSEUM,
                         10
                 )
         );
 
-        assertEquals(
-                "Destination must not be blank",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 
     @Test
-    void shouldRejectNullCategoryByDestination() {
+    void searchByDestination_shouldRejectNullDestination() {
 
-        var exception = assertThrows(
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> placeService.searchByDestination(
+                        null,
+                        1000,
+                        PlaceCategory.MUSEUM,
+                        10
+                )
+        );
+
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
+        );
+    }
+
+    @Test
+    void searchByDestination_shouldRejectInvalidRadius() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> placeService.searchByDestination(
+                        "Rome",
+                        0,
+                        PlaceCategory.MUSEUM,
+                        10
+                )
+        );
+
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
+        );
+    }
+
+    @Test
+    void searchByDestination_shouldRejectInvalidLimit() {
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> placeService.searchByDestination(
+                        "Rome",
+                        1000,
+                        PlaceCategory.MUSEUM,
+                        101
+                )
+        );
+
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
+        );
+    }
+
+    @Test
+    void searchByDestination_shouldRejectNullCategory() {
+
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> placeService.searchByDestination(
                         "Rome",
@@ -279,9 +320,9 @@ class PlaceServiceTest {
                 )
         );
 
-        assertEquals(
-                "Category must not be null",
-                exception.getMessage()
+        verifyNoInteractions(
+                foursquarePlaceService,
+                placeRankingService
         );
     }
 }

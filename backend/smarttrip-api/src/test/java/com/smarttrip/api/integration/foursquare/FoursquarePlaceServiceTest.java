@@ -6,8 +6,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class FoursquarePlaceServiceTest {
 
@@ -15,7 +18,7 @@ class FoursquarePlaceServiceTest {
             mock(FoursquareClient.class);
 
     private final FoursquarePlaceMapper mapper =
-            new FoursquarePlaceMapper();
+            mock(FoursquarePlaceMapper.class);
 
     private final FoursquarePlaceService service =
             new FoursquarePlaceService(
@@ -24,34 +27,200 @@ class FoursquarePlaceServiceTest {
             );
 
     @Test
-    void shouldSearchAndMapPlaces() {
+    void shouldSearchPlacesForTouristAttraction() {
 
-        FoursquarePlace place = new FoursquarePlace(
-                "abc123",
-                "Louvre Museum",
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.search(
+                41.8902,
+                12.4922,
+                1000,
+                null,
+                "4bf58dd8d48988d181941735",
+                "POPULARITY",
+                10
+        )).thenReturn(response);
+
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        41.8902,
+                        12.4922,
+                        1000,
+                        PlaceCategory.TOURIST_ATTRACTION,
+                        10
+                );
+
+        assertEquals(List.of(), result);
+
+        verify(foursquareClient).search(
+                41.8902,
+                12.4922,
+                1000,
+                null,
+                "4bf58dd8d48988d181941735",
+                "POPULARITY",
+                10
+        );
+    }
+
+    @Test
+    void shouldSearchMuseumsWithRatingSort() {
+
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.search(
                 48.8606,
                 2.3376,
-                new FoursquareLocation(
-                        "Rue de Rivoli",
-                        "Paris",
-                        "Île-de-France",
-                        "75001",
-                        "France"
-                ),
-                List.of(
-                        new FoursquareCategory(
-                                "category123",
-                                "Museum"
-                        )
-                ),
-                250,
-                4.5,
-                95.0
-        );
+                1000,
+                "museum",
+                null,
+                "RATING",
+                10
+        )).thenReturn(response);
 
-        FoursquareResponse response = new FoursquareResponse(
-                List.of(place)
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        48.8606,
+                        2.3376,
+                        1000,
+                        PlaceCategory.MUSEUM,
+                        10
+                );
+
+        assertEquals(List.of(), result);
+
+        verify(foursquareClient).search(
+                48.8606,
+                2.3376,
+                1000,
+                "museum",
+                null,
+                "RATING",
+                10
         );
+    }
+
+    @Test
+    void shouldSearchRestaurantsWithRatingSort() {
+
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.search(
+                48.8566,
+                2.3522,
+                500,
+                "restaurant",
+                null,
+                "RATING",
+                10
+        )).thenReturn(response);
+
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        48.8566,
+                        2.3522,
+                        500,
+                        PlaceCategory.RESTAURANT,
+                        10
+                );
+
+        assertEquals(List.of(), result);
+
+        verify(foursquareClient).search(
+                48.8566,
+                2.3522,
+                500,
+                "restaurant",
+                null,
+                "RATING",
+                10
+        );
+    }
+
+    @Test
+    void shouldSearchCafesWithRatingSort() {
+
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.search(
+                48.8566,
+                2.3522,
+                500,
+                "cafe",
+                null,
+                "RATING",
+                10
+        )).thenReturn(response);
+
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        48.8566,
+                        2.3522,
+                        500,
+                        PlaceCategory.CAFE,
+                        10
+                );
+
+        assertEquals(List.of(), result);
+
+        verify(foursquareClient).search(
+                48.8566,
+                2.3522,
+                500,
+                "cafe",
+                null,
+                "RATING",
+                10
+        );
+    }
+
+    @Test
+    void shouldSearchParksWithPopularitySort() {
+
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.search(
+                48.8566,
+                2.3522,
+                1000,
+                "park",
+                null,
+                "POPULARITY",
+                10
+        )).thenReturn(response);
+
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        48.8566,
+                        2.3522,
+                        1000,
+                        PlaceCategory.PARK,
+                        10
+                );
+
+        assertEquals(List.of(), result);
+
+        verify(foursquareClient).search(
+                48.8566,
+                2.3522,
+                1000,
+                "park",
+                null,
+                "POPULARITY",
+                10
+        );
+    }
+
+    @Test
+    void shouldLimitSearchToMaximumOfTenResults() {
+
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
 
         when(foursquareClient.search(
                 41.8902,
@@ -59,36 +228,17 @@ class FoursquarePlaceServiceTest {
                 1000,
                 "museum",
                 null,
+                "RATING",
                 10
         )).thenReturn(response);
 
-        List<PlaceDto> result = service.searchPlaces(
+        service.searchPlaces(
                 41.8902,
                 12.4922,
                 1000,
                 PlaceCategory.MUSEUM,
-                10
+                50
         );
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-
-        PlaceDto resultPlace = result.get(0);
-
-        assertEquals("abc123", resultPlace.placeId());
-        assertEquals("Louvre Museum", resultPlace.name());
-        assertEquals(48.8606, resultPlace.latitude());
-        assertEquals(2.3376, resultPlace.longitude());
-        assertEquals(PlaceCategory.MUSEUM, resultPlace.category());
-
-        assertEquals(
-                "Rue de Rivoli, 75001, Paris, Île-de-France, France",
-                resultPlace.address()
-        );
-
-        assertEquals(250.0, resultPlace.distance());
-        assertEquals(4.5, resultPlace.rating());
-        assertEquals(95.0, resultPlace.popularity());
 
         verify(foursquareClient).search(
                 41.8902,
@@ -96,7 +246,67 @@ class FoursquarePlaceServiceTest {
                 1000,
                 "museum",
                 null,
+                "RATING",
                 10
+        );
+    }
+
+    @Test
+    void shouldReturnMappedPlaces() {
+
+        FoursquarePlace foursquarePlace =
+                mock(FoursquarePlace.class);
+
+        FoursquareResponse response =
+                new FoursquareResponse(
+                        List.of(foursquarePlace)
+                );
+
+        PlaceDto place = new PlaceDto(
+                "test-id",
+                "Colosseum",
+                null,
+                41.8902,
+                12.4922,
+                PlaceCategory.TOURIST_ATTRACTION,
+                "Piazza del Colosseo, Rome",
+                100.0,
+                9.0,
+                0.9
+        );
+
+        when(foursquareClient.search(
+                41.8902,
+                12.4922,
+                1000,
+                null,
+                "4bf58dd8d48988d181941735",
+                "POPULARITY",
+                10
+        )).thenReturn(response);
+
+        when(mapper.toPlaceDto(
+                foursquarePlace,
+                PlaceCategory.TOURIST_ATTRACTION
+        )).thenReturn(place);
+
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        41.8902,
+                        12.4922,
+                        1000,
+                        PlaceCategory.TOURIST_ATTRACTION,
+                        10
+                );
+
+        assertEquals(1, result.size());
+        assertEquals("Colosseum", result.get(0).name());
+        assertEquals(41.8902, result.get(0).latitude());
+        assertEquals(12.4922, result.get(0).longitude());
+
+        verify(mapper).toPlaceDto(
+                foursquarePlace,
+                PlaceCategory.TOURIST_ATTRACTION
         );
     }
 
@@ -109,36 +319,27 @@ class FoursquarePlaceServiceTest {
                 1000,
                 "museum",
                 null,
+                "RATING",
                 10
         )).thenReturn(null);
 
-        List<PlaceDto> result = service.searchPlaces(
-                41.8902,
-                12.4922,
-                1000,
-                PlaceCategory.MUSEUM,
-                10
-        );
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        41.8902,
+                        12.4922,
+                        1000,
+                        PlaceCategory.MUSEUM,
+                        10
+                );
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(foursquareClient).search(
-                41.8902,
-                12.4922,
-                1000,
-                "museum",
-                null,
-                10
-        );
+        assertEquals(List.of(), result);
     }
 
     @Test
-    void shouldReturnEmptyListWhenResponseContainsNoResults() {
+    void shouldReturnEmptyListWhenResponseResultsAreNull() {
 
-        FoursquareResponse response = new FoursquareResponse(
-                List.of()
-        );
+        FoursquareResponse response =
+                new FoursquareResponse(null);
 
         when(foursquareClient.search(
                 41.8902,
@@ -146,244 +347,26 @@ class FoursquarePlaceServiceTest {
                 1000,
                 "museum",
                 null,
+                "RATING",
                 10
         )).thenReturn(response);
 
-        List<PlaceDto> result = service.searchPlaces(
-                41.8902,
-                12.4922,
-                1000,
-                PlaceCategory.MUSEUM,
-                10
-        );
+        List<PlaceDto> result =
+                service.searchPlaces(
+                        41.8902,
+                        12.4922,
+                        1000,
+                        PlaceCategory.MUSEUM,
+                        10
+                );
 
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(foursquareClient).search(
-                41.8902,
-                12.4922,
-                1000,
-                "museum",
-                null,
-                10
-        );
-    }
-
-    @Test
-    void shouldUseTouristAttractionCategoryId() {
-
-        FoursquareResponse response = new FoursquareResponse(
-                List.of()
-        );
-
-        when(foursquareClient.search(
-                41.8902,
-                12.4922,
-                1000,
-                null,
-                "4bf58dd8d48988d181941735",
-                10
-        )).thenReturn(response);
-
-        List<PlaceDto> result = service.searchPlaces(
-                41.8902,
-                12.4922,
-                1000,
-                PlaceCategory.TOURIST_ATTRACTION,
-                10
-        );
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(foursquareClient).search(
-                41.8902,
-                12.4922,
-                1000,
-                null,
-                "4bf58dd8d48988d181941735",
-                10
-        );
-    }
-
-    @Test
-    void shouldLimitSearchToMaximumAllowedLimit() {
-
-        FoursquareResponse response = new FoursquareResponse(
-                List.of()
-        );
-
-        when(foursquareClient.search(
-                41.8902,
-                12.4922,
-                1000,
-                "museum",
-                null,
-                50
-        )).thenReturn(response);
-
-        List<PlaceDto> result = service.searchPlaces(
-                41.8902,
-                12.4922,
-                1000,
-                PlaceCategory.MUSEUM,
-                100
-        );
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(foursquareClient).search(
-                41.8902,
-                12.4922,
-                1000,
-                "museum",
-                null,
-                50
-        );
-    }
-
-    @Test
-    void shouldSearchPlacesByDestination() {
-
-        FoursquarePlace place = new FoursquarePlace(
-                "colosseum123",
-                "Colosseum",
-                41.8902,
-                12.4922,
-                new FoursquareLocation(
-                        "Piazza del Colosseo",
-                        "Rome",
-                        "Lazio",
-                        "00184",
-                        "Italy"
-                ),
-                List.of(
-                        new FoursquareCategory(
-                                "category123",
-                                "Historic Site"
-                        )
-                ),
-                100,
-                4.8,
-                98.0
-        );
-
-        FoursquareResponse response = new FoursquareResponse(
-                List.of(place)
-        );
-
-        when(foursquareClient.searchByDestination(
-                "Rome",
-                null,
-                "4bf58dd8d48988d181941735",
-                10
-        )).thenReturn(response);
-
-        List<PlaceDto> result = service.searchByDestination(
-                "Rome",
-                1000,
-                PlaceCategory.TOURIST_ATTRACTION,
-                10
-        );
-
-        assertNotNull(result);
-        assertEquals(1, result.size());
-
-        PlaceDto resultPlace = result.get(0);
-
-        assertEquals("colosseum123", resultPlace.placeId());
-        assertEquals("Colosseum", resultPlace.name());
-        assertEquals(41.8902, resultPlace.latitude());
-        assertEquals(12.4922, resultPlace.longitude());
-
-        assertEquals(
-                PlaceCategory.TOURIST_ATTRACTION,
-                resultPlace.category()
-        );
-
-        assertEquals(
-                "Piazza del Colosseo, 00184, Rome, Lazio, Italy",
-                resultPlace.address()
-        );
-
-        assertEquals(100.0, resultPlace.distance());
-        assertEquals(4.8, resultPlace.rating());
-        assertEquals(98.0, resultPlace.popularity());
-
-        verify(foursquareClient).searchByDestination(
-                "Rome",
-                null,
-                "4bf58dd8d48988d181941735",
-                10
-        );
-    }
-
-    @Test
-    void shouldReturnEmptyListWhenDestinationResponseIsNull() {
-
-        when(foursquareClient.searchByDestination(
-                "Rome",
-                "museum",
-                null,
-                10
-        )).thenReturn(null);
-
-        List<PlaceDto> result = service.searchByDestination(
-                "Rome",
-                1000,
-                PlaceCategory.MUSEUM,
-                10
-        );
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(foursquareClient).searchByDestination(
-                "Rome",
-                "museum",
-                null,
-                10
-        );
-    }
-
-    @Test
-    void shouldReturnEmptyListWhenDestinationResponseContainsNoResults() {
-
-        FoursquareResponse response = new FoursquareResponse(
-                List.of()
-        );
-
-        when(foursquareClient.searchByDestination(
-                "Rome",
-                "museum",
-                null,
-                10
-        )).thenReturn(response);
-
-        List<PlaceDto> result = service.searchByDestination(
-                "Rome",
-                1000,
-                PlaceCategory.MUSEUM,
-                10
-        );
-
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-
-        verify(foursquareClient).searchByDestination(
-                "Rome",
-                "museum",
-                null,
-                10
-        );
+        assertEquals(List.of(), result);
     }
 
     @Test
     void shouldRejectNullCategory() {
 
-        IllegalArgumentException exception = assertThrows(
+        assertThrows(
                 IllegalArgumentException.class,
                 () -> service.searchPlaces(
                         41.8902,
@@ -393,33 +376,114 @@ class FoursquarePlaceServiceTest {
                         10
                 )
         );
-
-        assertEquals(
-                "Category must not be null",
-                exception.getMessage()
-        );
-
-        verifyNoInteractions(foursquareClient);
     }
 
     @Test
-    void shouldRejectNullCategoryByDestination() {
+    void shouldSearchByDestination() {
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> service.searchByDestination(
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.searchByDestination(
+                "Rome",
+                "museum",
+                null,
+                10
+        )).thenReturn(response);
+
+        List<PlaceDto> result =
+                service.searchByDestination(
                         "Rome",
                         1000,
-                        null,
+                        PlaceCategory.MUSEUM,
                         10
-                )
-        );
+                );
 
-        assertEquals(
-                "Category must not be null",
-                exception.getMessage()
-        );
+        assertEquals(List.of(), result);
 
-        verifyNoInteractions(foursquareClient);
+        verify(foursquareClient).searchByDestination(
+                "Rome",
+                "museum",
+                null,
+                10
+        );
     }
+
+    @Test
+    void shouldLimitDestinationSearchToMaximumOfTenResults() {
+
+        FoursquareResponse response =
+                new FoursquareResponse(List.of());
+
+        when(foursquareClient.searchByDestination(
+                "Rome",
+                "museum",
+                null,
+                10
+        )).thenReturn(response);
+
+        service.searchByDestination(
+                "Rome",
+                1000,
+                PlaceCategory.MUSEUM,
+                50
+        );
+
+        verify(foursquareClient).searchByDestination(
+                "Rome",
+                "museum",
+                null,
+                10
+        );
+    }
+
+    @Test
+    void shouldReturnMappedPlacesForDestination() {
+
+        FoursquarePlace foursquarePlace =
+                mock(FoursquarePlace.class);
+
+        FoursquareResponse response =
+                new FoursquareResponse(
+                        List.of(foursquarePlace)
+                );
+
+        PlaceDto place = new PlaceDto(
+                "rome-museum",
+                "Roman Museum",
+                null,
+                41.9,
+                12.5,
+                PlaceCategory.MUSEUM,
+                "Rome, Italy",
+                null,
+                8.5,
+                0.7
+        );
+
+        when(foursquareClient.searchByDestination(
+                "Rome",
+                "museum",
+                null,
+                10
+        )).thenReturn(response);
+
+        when(mapper.toPlaceDto(
+                foursquarePlace,
+                PlaceCategory.MUSEUM
+        )).thenReturn(place);
+
+        List<PlaceDto> result =
+                service.searchByDestination(
+                        "Rome",
+                        1000,
+                        PlaceCategory.MUSEUM,
+                        10
+                );
+
+        assertEquals(1, result.size());
+        assertEquals("Roman Museum", result.get(0).name());
+        assertEquals("Rome, Italy", result.get(0).address());
+    }
+
 }

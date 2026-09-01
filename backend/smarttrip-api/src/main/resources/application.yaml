@@ -28,5 +28,12 @@ spring:
       enabled: true
       force: true
 
+  cache:
+    type: caffeine
+    cache-names:
+      - foursquarePlaces
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=1h
+
 foursquare:
   api-key: ${FOURSQUARE_API_KEY}
