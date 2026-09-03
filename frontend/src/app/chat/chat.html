@@ -1,72 +1,116 @@
-<h1>✈️ SmartTrip</h1>
+<section class="chat-page">
 
-<p>Votre assistant de voyage IA</p>
+  <header class="chat-header">
+    <div class="chat-icon">✈️</div>
 
-<hr>
+    <div>
+      <h1>SmartTrip</h1>
+      <p>Votre assistant de voyage IA</p>
+    </div>
+  </header>
 
-<div class="input-area">
+  <div class="conversation" #conversation>
 
-  <textarea
-    placeholder="Posez votre question..."
-    [value]="message()"
-    (input)="message.set($any($event.target).value)"
-    (keydown.enter)="onEnter($event)"
-  ></textarea>
+    @if (messages().length === 0) {
 
-  <button
-    type="button"
-    (click)="sendStreamMessage()"
-    [disabled]="!message().trim() || isStreaming()"
-  >
-    @if (isStreaming()) {
-      Envoi en cours...
-    } @else {
-      Envoyer
+      <div class="welcome-message">
+        <div class="welcome-icon">🌍</div>
+
+        <h2>Bonjour ! 👋</h2>
+
+        <p>
+          Je suis votre assistant de voyage.
+          Posez-moi une question sur votre prochaine destination.
+        </p>
+
+        <div class="suggestions">
+          <span>🏛️ Que visiter à Rome ?</span>
+          <span>🍝 Où manger à Rome ?</span>
+          <span>🗓️ Organiser mon séjour</span>
+        </div>
+      </div>
+
     }
-  </button>
 
-</div>
+    @for (message of messages(); track $index) {
 
-<hr>
+      <div
+        class="message"
+        [class.user-message]="message.role === 'user'"
+        [class.assistant-message]="message.role === 'assistant'"
+      >
 
-<div class="conversation" #conversation>
+        <div class="message-author">
 
-  @for (message of messages(); track $index) {
+          @if (message.role === 'user') {
+            <span>👤</span>
+            Vous
+          } @else {
+            <span>✈️</span>
+            SmartTrip
+          }
 
-    <div
-      class="message"
-      [class.user-message]="message.role === 'user'"
-      [class.assistant-message]="message.role === 'assistant'"
-    >
+        </div>
 
-      <div class="message-author">
+        <div class="message-content">
 
-        @if (message.role === 'user') {
-          Vous
-        } @else {
-          SmartTrip
-        }
+          @if (message.streaming) {
+
+            {{ message.content }}
+
+            @if (isStreaming()) {
+              <span class="typing-cursor"></span>
+            }
+
+          } @else {
+
+            <markdown
+              [data]="message.content">
+            </markdown>
+
+          }
+
+        </div>
 
       </div>
 
-      <div class="message-content">
+    }
 
-        @if (message.streaming) {
+  </div>
 
-          {{ message.content }}
+  <div class="input-container">
 
+    <div class="input-area">
+
+      <textarea
+        placeholder="Posez votre question..."
+        [value]="message()"
+        (input)="message.set($any($event.target).value)"
+        (keydown.enter)="onEnter($event)"
+        [disabled]="isStreaming()"
+        aria-label="Votre message"
+      ></textarea>
+
+      <button
+        type="button"
+        (click)="sendStreamMessage()"
+        [disabled]="!message().trim() || isStreaming()"
+      >
+        @if (isStreaming()) {
+          <span>⏳</span>
+          Envoi...
         } @else {
-
-          <markdown
-            [data]="message.content">
-          </markdown>
-
+          <span>➤</span>
+          Envoyer
         }
-
-      </div>
+      </button>
 
     </div>
 
-  }
+    <p class="input-hint">
+      Entrée pour envoyer · Shift + Entrée pour un retour à la ligne
+    </p>
 
-</div>
+  </div>
+
+</section>
