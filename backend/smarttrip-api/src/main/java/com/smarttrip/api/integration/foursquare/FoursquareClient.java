@@ -81,9 +81,15 @@ public class FoursquareClient {
                 .onStatus(
                         status -> status.value() == 429,
                         (request, response) -> {
+
+                            String body = new String(
+                                    response.getBody().readAllBytes(),
+                                    java.nio.charset.StandardCharsets.UTF_8
+                            );
+
                             throw new FoursquareApiException(
                                     429,
-                                    "Foursquare rate limit exceeded"
+                                    "Foursquare returned 429: " + body
                             );
                         }
                 )
@@ -139,8 +145,7 @@ public class FoursquareClient {
                     var builder = uriBuilder
                             .path("/places/search")
                             .queryParam("near", destination)
-                            .queryParam("limit", limit)
-                            .queryParam("fields", PLACE_FIELDS);
+                            .queryParam("limit", limit);
 
                     if (query != null && !query.isBlank()) {
                         builder.queryParam("query", query);
@@ -167,9 +172,15 @@ public class FoursquareClient {
                 .onStatus(
                         status -> status.value() == 429,
                         (request, response) -> {
+
+                            String body = new String(
+                                    response.getBody().readAllBytes(),
+                                    java.nio.charset.StandardCharsets.UTF_8
+                            );
+
                             throw new FoursquareApiException(
                                     429,
-                                    "Foursquare rate limit exceeded"
+                                    "Foursquare returned 429: " + body
                             );
                         }
                 )

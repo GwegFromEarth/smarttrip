@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class FoursquarePlaceMapperTest {
 
@@ -21,6 +21,8 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-123",
                 "Louvre Museum",
+                48.8606,
+                2.3376,
                 new FoursquareGeocodes(
                         new FoursquareCoordinates(
                                 48.8606,
@@ -34,7 +36,7 @@ class FoursquarePlaceMapperTest {
                         "75001",
                         "France"
                 ),
-                List.of(),
+                List.<FoursquareCategory>of(),
                 150,
                 9.2,
                 0.85
@@ -68,6 +70,8 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-456",
                 "Colosseum",
+                41.8902,
+                12.4922,
                 new FoursquareGeocodes(
                         new FoursquareCoordinates(
                                 41.8902,
@@ -75,7 +79,7 @@ class FoursquarePlaceMapperTest {
                         )
                 ),
                 null,
-                List.of(),
+                List.<FoursquareCategory>of(),
                 500,
                 9.5,
                 0.95
@@ -99,6 +103,8 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-789",
                 "Test Museum",
+                48.8606,
+                2.3376,
                 new FoursquareGeocodes(
                         new FoursquareCoordinates(
                                 48.8606,
@@ -106,7 +112,7 @@ class FoursquarePlaceMapperTest {
                         )
                 ),
                 null,
-                List.of(),
+                List.<FoursquareCategory>of(),
                 null,
                 8.5,
                 0.70
@@ -128,6 +134,8 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-999",
                 "Test Place",
+                48.8566,
+                2.3522,
                 new FoursquareGeocodes(
                         new FoursquareCoordinates(
                                 48.8566,
@@ -141,7 +149,7 @@ class FoursquarePlaceMapperTest {
                         null,
                         "France"
                 ),
-                List.of(),
+                List.<FoursquareCategory>of(),
                 200,
                 null,
                 null
@@ -164,6 +172,8 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-empty",
                 "Unknown Place",
+                48.8566,
+                2.3522,
                 new FoursquareGeocodes(
                         new FoursquareCoordinates(
                                 48.8566,
@@ -177,7 +187,7 @@ class FoursquarePlaceMapperTest {
                         null,
                         null
                 ),
-                List.of(),
+                List.<FoursquareCategory>of(),
                 100,
                 null,
                 null
@@ -192,6 +202,36 @@ class FoursquarePlaceMapperTest {
     }
 
     @Test
+    void shouldUseGeocodesAsFallbackWhenRootCoordinatesAreMissing() {
+
+        FoursquarePlace place = new FoursquarePlace(
+                "fsq-fallback",
+                "Fallback Place",
+                null,
+                null,
+                new FoursquareGeocodes(
+                        new FoursquareCoordinates(
+                                41.8902,
+                                12.4922
+                        )
+                ),
+                null,
+                List.<FoursquareCategory>of(),
+                100,
+                null,
+                null
+        );
+
+        PlaceDto result = mapper.toPlaceDto(
+                place,
+                PlaceCategory.TOURIST_ATTRACTION
+        );
+
+        assertEquals(41.8902, result.latitude());
+        assertEquals(12.4922, result.longitude());
+    }
+
+    @Test
     void shouldRejectPlaceWithoutGeocodes() {
 
         FoursquarePlace place = new FoursquarePlace(
@@ -199,7 +239,9 @@ class FoursquarePlaceMapperTest {
                 "Unknown Place",
                 null,
                 null,
-                List.of(),
+                null,
+                null,
+                List.<FoursquareCategory>of(),
                 100,
                 null,
                 null
@@ -226,9 +268,11 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-no-main",
                 "Unknown Place",
+                null,
+                null,
                 new FoursquareGeocodes(null),
                 null,
-                List.of(),
+                List.<FoursquareCategory>of(),
                 100,
                 null,
                 null
@@ -255,6 +299,8 @@ class FoursquarePlaceMapperTest {
         FoursquarePlace place = new FoursquarePlace(
                 "fsq-incomplete",
                 "Unknown Place",
+                null,
+                null,
                 new FoursquareGeocodes(
                         new FoursquareCoordinates(
                                 41.8902,
@@ -262,7 +308,7 @@ class FoursquarePlaceMapperTest {
                         )
                 ),
                 null,
-                List.of(),
+                List.<FoursquareCategory>of(),
                 100,
                 null,
                 null

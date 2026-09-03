@@ -162,10 +162,6 @@ class FoursquareClientTest {
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(queryParam("near", "Rome"))
                 .andExpect(queryParam("limit", "10"))
-                .andExpect(queryParam(
-                        "fields",
-                        "fsq_place_id,name,geocodes,location,categories,distance,rating,popularity"
-                ))
                 .andExpect(queryParam("query", "museum"))
                 .andExpect(queryParam(
                         "fsq_category_ids",
@@ -280,7 +276,7 @@ class FoursquareClientTest {
                 .isEqualTo(429);
 
         assertThat(exception.getMessage())
-                .isEqualTo("Foursquare rate limit exceeded");
+                .isEqualTo("Foursquare returned 429: ");
 
         mockServer.verify();
     }

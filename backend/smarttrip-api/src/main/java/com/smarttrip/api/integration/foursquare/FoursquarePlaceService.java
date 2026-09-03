@@ -14,10 +14,10 @@ public class FoursquarePlaceService {
 
     /*
      * Foursquare category:
-     * Landmarks and Outdoors
+     * Historic and Protected Site
      */
     private static final String TOURIST_ATTRACTION_CATEGORY_ID =
-            "4bf58dd8d48988d181941735";
+            "4bf58dd8d48988d12d941735";
 
     private final FoursquareClient foursquareClient;
     private final FoursquarePlaceMapper mapper;

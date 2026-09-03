@@ -6,30 +6,30 @@ import { PlaceCategory } from './place-category';
 import { Place } from './place.models';
 
 @Injectable({
-  providedIn: 'root'
+providedIn: 'root'
 })
 export class PlaceService {
 
-  private readonly http = inject(HttpClient);
+private readonly http = inject(HttpClient);
 
-  private readonly apiUrl = 'http://localhost:8080/api/places';
+private readonly apiUrl = 'http://localhost:8080/api/places';
 
-  searchByDestination(
-    destination: string,
-    category: PlaceCategory,
-    radius = 1000,
-    limit = 10
-  ): Observable<Place[]> {
+searchByDestination(
+destination: string,
+category: PlaceCategory,
+radius = 1000,
+limit = 10
+): Observable<Place[]> {
 
-    const params = new HttpParams()
-      .set('destination', destination)
-      .set('category', category)
-      .set('radius', radius)
-      .set('limit', limit);
+const params = new HttpParams()
+  .set('destination', destination)
+  .set('category', category)
+  .set('limit', limit);
 
-    return this.http.get<Place[]>(
-      `${this.apiUrl}/by-destination`,
-      { params }
-    );
-  }
+return this.http.get<Place[]>(
+  `${this.apiUrl}/by-destination`,
+  { params }
+);
+
+}
 }

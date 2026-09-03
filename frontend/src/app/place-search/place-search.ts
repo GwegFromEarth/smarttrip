@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -26,10 +26,10 @@ export class PlaceSearch {
   selectedCategory: PlaceCategory =
     PLACE_CATEGORIES.TOURIST_ATTRACTION;
 
-  places: Place[] = [];
+  places = signal<Place[]>([]);
 
-  loading = false;
-  errorMessage: string | null = null;
+  loading = signal(false);
+  errorMessage = signal<string | null>(null);
 
   readonly categories = [
     {
@@ -59,34 +59,39 @@ export class PlaceSearch {
     const destination = this.destination.trim();
 
     if (!destination) {
-      this.errorMessage = 'Veuillez saisir une destination.';
-      this.places = [];
+      this.errorMessage.set(
+        'Veuillez saisir une destination.'
+      );
+      this.places.set([]);
       return;
     }
 
-    this.loading = true;
-    this.errorMessage = null;
-    this.places = [];
+    this.loading.set(true);
+    this.errorMessage.set(null);
+    this.places.set([]);
 
     this.placeService.searchByDestination(
       destination,
       this.selectedCategory
     ).subscribe({
       next: places => {
-        this.places = places;
-        this.loading = false;
+        this.places.set(places);
+        this.loading.set(false);
       },
+
       error: error => {
-        this.loading = false;
+        this.loading.set(false);
 
         if (error.status === 429) {
-          this.errorMessage =
+          this.errorMessage.set(
             'Le service est temporairement limité. '
-            + 'Veuillez réessayer dans quelques instants.';
+            + 'Veuillez réessayer dans quelques instants.'
+          );
         } else {
-          this.errorMessage =
+          this.errorMessage.set(
             error.error?.detail ??
-            'Une erreur est survenue lors de la recherche.';
+            'Une erreur est survenue lors de la recherche.'
+          );
         }
       }
     });

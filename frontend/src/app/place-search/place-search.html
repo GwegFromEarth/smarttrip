@@ -38,9 +38,9 @@
     <button
       type="button"
       (click)="search()"
-      [disabled]="loading"
+      [disabled]="loading()"
     >
-      @if (loading) {
+      @if (loading()) {
         Recherche...
       } @else {
         Rechercher
@@ -49,23 +49,23 @@
 
   </div>
 
-  @if (errorMessage) {
+  @if (errorMessage()) {
     <div class="error-message">
-      {{ errorMessage }}
+      {{ errorMessage() }}
     </div>
   }
 
-  @if (!loading && !errorMessage && places.length === 0) {
+  @if (!loading() && !errorMessage() && places().length === 0) {
     <p class="empty-message">
       Aucun lieu à afficher.
     </p>
   }
 
-  @if (places.length > 0) {
+  @if (places().length > 0) {
 
     <div class="places">
 
-      @for (place of places; track place.placeId) {
+      @for (place of places(); track place.placeId) {
 
         <article class="place-card">
 

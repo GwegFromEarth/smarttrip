@@ -612,4 +612,19 @@ describe('PlaceSearch', () => {
       .toHaveBeenCalledOnce();
   });
 
+  it('should display the place search screen', () => {
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(element.querySelector('h2')?.textContent)
+      .toContain('Découvrir des lieux');
+
+    expect(element.querySelector('label[for="destination"]')?.textContent)
+      .toContain('Destination');
+
+    expect(element.querySelector('label[for="category"]')?.textContent)
+      .toContain('Catégorie');
+
+    expect(element.querySelector('button')?.textContent)
+      .toContain('Rechercher');
+  });
 });

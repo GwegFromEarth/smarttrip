@@ -35,26 +35,45 @@ public class FoursquarePlaceMapper {
     private FoursquareCoordinates extractCoordinates(
             FoursquarePlace place
     ) {
-        if (place.geocodes() == null
-                || place.geocodes().main() == null) {
+        // Nouveau format Foursquare :
+        // les coordonnées sont directement sur le place.
+        if (place.latitude() != null || place.longitude() != null) {
 
-            throw new IllegalArgumentException(
-                    "Foursquare place has no coordinates"
+            if (place.latitude() == null
+                    || place.longitude() == null) {
+
+                throw new IllegalArgumentException(
+                        "Foursquare place has incomplete coordinates"
+                );
+            }
+
+            return new FoursquareCoordinates(
+                    place.latitude(),
+                    place.longitude()
             );
         }
 
-        FoursquareCoordinates coordinates =
-                place.geocodes().main();
+        // Fallback : ancien/autre format avec geocodes.main.
+        if (place.geocodes() != null
+                && place.geocodes().main() != null) {
 
-        if (coordinates.latitude() == null
-                || coordinates.longitude() == null) {
+            FoursquareCoordinates coordinates =
+                    place.geocodes().main();
 
-            throw new IllegalArgumentException(
-                    "Foursquare place has incomplete coordinates"
-            );
+            if (coordinates.latitude() == null
+                    || coordinates.longitude() == null) {
+
+                throw new IllegalArgumentException(
+                        "Foursquare place has incomplete coordinates"
+                );
+            }
+
+            return coordinates;
         }
 
-        return coordinates;
+        throw new IllegalArgumentException(
+                "Foursquare place has no coordinates"
+        );
     }
 
     private String buildAddress(FoursquarePlace place) {

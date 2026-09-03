@@ -13,6 +13,10 @@ public record FoursquarePlace(
 
         String name,
 
+        Double latitude,
+
+        Double longitude,
+
         FoursquareGeocodes geocodes,
 
         FoursquareLocation location,
