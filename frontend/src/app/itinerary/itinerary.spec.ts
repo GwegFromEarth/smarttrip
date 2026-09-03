@@ -362,4 +362,44 @@ describe('Itinerary', () => {
     expect(link?.getAttribute('href'))
       .toBe('/trips');
   });
+
+  it('should display an error message when places cannot be loaded', async () => {
+    const tripService = {
+      getItinerary: vi.fn().mockReturnValue(of(itinerary)),
+      generateItinerary: vi.fn()
+    };
+
+    const placeService = {
+      searchByDestination: vi.fn().mockReturnValue(
+        throwError(() => ({
+          status: 429
+        }))
+      )
+    };
+
+    configureTestBed(
+      tripService,
+      placeService
+    );
+
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl(
+      '/trips/4/itinerary',
+      Itinerary
+    );
+
+    const content =
+      harness.routeNativeElement?.textContent ?? '';
+
+    expect(content)
+      .toContain(
+        'Les lieux à découvrir sont temporairement indisponibles.'
+      );
+
+    expect(content)
+      .toContain(
+        'Veuillez réessayer plus tard.'
+      );
+  });
 });

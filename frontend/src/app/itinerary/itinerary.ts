@@ -39,6 +39,7 @@ export class Itinerary {
   generating = signal(false);
   needsGeneration = signal(false);
   error = signal(false);
+  placesError = signal(false);
 
   constructor() {
     this.loadItinerary();
@@ -76,6 +77,8 @@ export class Itinerary {
   }
 
   private loadPlaces(destination: string): void {
+    this.placesError.set(false);
+
     this.placeService
       .searchByDestination(
         destination,
@@ -92,6 +95,9 @@ export class Itinerary {
             'Erreur lors du chargement des lieux :',
             error
           );
+
+          this.places.set([]);
+          this.placesError.set(true);
         }
       });
   }

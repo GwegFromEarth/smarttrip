@@ -133,54 +133,54 @@
 
 </div>
 
-@if (places().length > 0) {
+@if (placesError()) {
 
-  <section class="places-section">
+  <section class="places-error">
 
-    <header class="section-header">
-      <span class="section-icon">📍</span>
+    <h2>📍 Lieux à découvrir</h2>
 
-      <div>
-        <h2>Lieux à découvrir</h2>
-        <p>
-          Quelques lieux touristiques à proximité
-        </p>
-      </div>
-    </header>
+    <p>
+      Les lieux à découvrir sont temporairement indisponibles.
+      Veuillez réessayer plus tard.
+    </p>
 
-    <div class="places-grid">
+  </section>
 
-      @for (place of places(); track place.placeId) {
+} @else if (places().length > 0) {
 
-        <article class="place-card">
+  <section>
 
-          <h3>
-            {{ place.name }}
-          </h3>
+    <h2>📍 Lieux à découvrir</h2>
 
-          @if (place.description) {
-            <p class="place-description">
-              {{ place.description }}
-            </p>
-          }
+    @for (place of places(); track place.placeId) {
 
-          @if (place.address) {
-            <p class="place-address">
-              📍 {{ place.address }}
-            </p>
-          }
+      <article>
 
-          @if (place.distance !== null) {
-            <span class="place-distance">
-              {{ place.distance }} m
-            </span>
-          }
+        <h3>
+          {{ place.name }}
+        </h3>
 
-        </article>
+        @if (place.description) {
+          <p>
+            {{ place.description }}
+          </p>
+        }
 
-      }
+        @if (place.address) {
+          <p>
+            {{ place.address }}
+          </p>
+        }
 
-    </div>
+        @if (place.distance !== null) {
+          <p>
+            {{ place.distance }} m
+          </p>
+        }
+
+      </article>
+
+    }
 
   </section>
 
