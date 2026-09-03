@@ -554,4 +554,62 @@ describe('PlaceSearch', () => {
       .not.toContain('Popularité');
   });
 
+  it('should update destination from the input', async () => {
+
+    const input = fixture.nativeElement
+      .querySelector('#destination') as HTMLInputElement;
+
+    input.value = 'Paris';
+    input.dispatchEvent(new Event('input'));
+
+    await fixture.whenStable();
+
+    expect(component.destination)
+      .toBe('Paris');
+  });
+
+  it('should update the selected category', async () => {
+
+    const select = fixture.nativeElement
+      .querySelector('#category') as HTMLSelectElement;
+
+    select.value = PLACE_CATEGORIES.MUSEUM;
+    select.dispatchEvent(new Event('change'));
+
+    await fixture.whenStable();
+
+    expect(component.selectedCategory)
+      .toBe(PLACE_CATEGORIES.MUSEUM);
+  });
+
+  it('should search when clicking the search button', () => {
+
+    const searchSpy = vi.spyOn(component, 'search');
+
+    const button = fixture.nativeElement
+      .querySelector('button[type="button"]') as HTMLButtonElement;
+
+    button.click();
+
+    expect(searchSpy)
+      .toHaveBeenCalledOnce();
+  });
+
+  it('should search when pressing Enter in the destination input', () => {
+
+    const searchSpy = vi.spyOn(component, 'search');
+
+    const input = fixture.nativeElement
+      .querySelector('#destination') as HTMLInputElement;
+
+    input.dispatchEvent(
+      new KeyboardEvent('keyup', {
+        key: 'Enter'
+      })
+    );
+
+    expect(searchSpy)
+      .toHaveBeenCalledOnce();
+  });
+
 });
