@@ -6,18 +6,30 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FoursquarePlaceService {
 
-    private static final int MAX_SEARCH_LIMIT = 10;
+    private static final int MAX_SEARCH_LIMIT = 20;
 
     /*
-     * Foursquare category:
-     * Historic and Protected Site
+     * Foursquare category used for tourist attractions:
+     * - Monuments
      */
-    private static final String TOURIST_ATTRACTION_CATEGORY_ID =
+    private static final String MONUMENTS_CATEGORY_ID =
             "4bf58dd8d48988d12d941735";
+
+    /*
+     * Names that usually correspond to secondary/sub-sites
+     * rather than major tourist attractions.
+     */
+    private static final Set<String> EXCLUDED_TOURIST_ATTRACTIONS = Set.of(
+            "Emperor Seats",
+            "House of the Vestal Virgins (Casa delle Vestali)",
+            "Tomba di Vittorio Emanuele II",
+            "Tomba del Beato Giovanni Paolo II"
+    );
 
     private final FoursquareClient foursquareClient;
     private final FoursquarePlaceMapper mapper;
@@ -43,6 +55,8 @@ public class FoursquarePlaceService {
             PlaceCategory category,
             int limit
     ) {
+        int searchLimit = Math.min(limit, MAX_SEARCH_LIMIT);
+
         String query = toFoursquareQuery(category);
         String categoryIds = toFoursquareCategoryIds(category);
         String sort = toFoursquareSort(category);
@@ -54,10 +68,69 @@ public class FoursquarePlaceService {
                 query,
                 categoryIds,
                 sort,
-                Math.min(limit, MAX_SEARCH_LIMIT)
+                searchLimit
         );
 
         return mapResults(response, category);
+    }
+
+    @Cacheable(
+            cacheNames = "foursquarePlaces",
+            key = "'destination:' + #destination.toLowerCase() + ':' + #category + ':' + #limit"
+    )
+    public List<PlaceDto> searchByDestination(
+            String destination,
+            PlaceCategory category,
+            int limit
+    ) {
+        int requestedLimit = Math.min(limit, MAX_SEARCH_LIMIT);
+
+        /*
+         * We request the maximum number of results from Foursquare
+         * so that we have enough candidates after filtering.
+         */
+        FoursquareResponse response =
+                foursquareClient.searchByDestination(
+                        destination,
+                        toFoursquareQuery(category),
+                        toFoursquareCategoryIds(category),
+                        MAX_SEARCH_LIMIT
+                );
+
+        return mapResults(response, category)
+                .stream()
+                .filter(place -> !isExcludedTouristAttraction(place))
+                .limit(requestedLimit)
+                .toList();
+    }
+
+    private List<PlaceDto> mapResults(
+            FoursquareResponse response,
+            PlaceCategory category
+    ) {
+        if (response == null || response.results() == null) {
+            return List.of();
+        }
+
+        return response.results()
+                .stream()
+                .map(place -> mapper.toPlaceDto(place, category))
+                .toList();
+    }
+
+    private boolean isExcludedTouristAttraction(PlaceDto place) {
+
+        if (place == null || place.name() == null) {
+            return false;
+        }
+
+        if (place.category() != PlaceCategory.TOURIST_ATTRACTION) {
+            return false;
+        }
+
+        return EXCLUDED_TOURIST_ATTRACTIONS.contains(
+                place.name().trim()
+        );
     }
 
     private String toFoursquareSort(PlaceCategory category) {
@@ -75,43 +148,6 @@ public class FoursquarePlaceService {
             case CAFE -> "RATING";
             case PARK -> "POPULARITY";
         };
-    }
-
-    @Cacheable(
-            cacheNames = "foursquarePlaces",
-            key = "'destination:' + #destination.toLowerCase() + ':' + #category + ':' + #limit"
-    )
-    public List<PlaceDto> searchByDestination(
-            String destination,
-            PlaceCategory category,
-            int limit
-    ) {
-        String query = toFoursquareQuery(category);
-        String categoryIds = toFoursquareCategoryIds(category);
-
-        FoursquareResponse response =
-                foursquareClient.searchByDestination(
-                        destination,
-                        query,
-                        categoryIds,
-                        Math.min(limit, MAX_SEARCH_LIMIT)
-                );
-
-        return mapResults(response, category);
-    }
-
-    private List<PlaceDto> mapResults(
-            FoursquareResponse response,
-            PlaceCategory category
-    ) {
-        if (response == null || response.results() == null) {
-            return List.of();
-        }
-
-        return response.results()
-                .stream()
-                .map(place -> mapper.toPlaceDto(place, category))
-                .toList();
     }
 
     private String toFoursquareQuery(PlaceCategory category) {
@@ -143,7 +179,7 @@ public class FoursquarePlaceService {
 
         return switch (category) {
             case TOURIST_ATTRACTION ->
-                    TOURIST_ATTRACTION_CATEGORY_ID;
+                    MONUMENTS_CATEGORY_ID;
 
             case MUSEUM,
                  RESTAURANT,

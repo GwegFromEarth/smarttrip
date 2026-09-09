@@ -159,19 +159,19 @@ class FoursquarePlaceServiceCacheTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         )).thenReturn(response);
 
         List<?> firstResult = service.searchByDestination(
                 "Rome",
                 PlaceCategory.MUSEUM,
-                10
+                20
         );
 
         List<?> secondResult = service.searchByDestination(
                 "Rome",
                 PlaceCategory.MUSEUM,
-                10
+                20
         );
 
         assertNotNull(firstResult);
@@ -183,7 +183,7 @@ class FoursquarePlaceServiceCacheTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         );
     }
 
@@ -200,40 +200,40 @@ class FoursquarePlaceServiceCacheTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         )).thenReturn(romeResponse);
 
         when(foursquareClient.searchByDestination(
                 "Paris",
                 "museum",
                 null,
-                10
+                20
         )).thenReturn(parisResponse);
 
         service.searchByDestination(
                 "Rome",
                 PlaceCategory.MUSEUM,
-                10
+                20
         );
 
         service.searchByDestination(
                 "Paris",
                 PlaceCategory.MUSEUM,
-                10
+                20
         );
 
         verify(foursquareClient, times(1)).searchByDestination(
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         );
 
         verify(foursquareClient, times(1)).searchByDestination(
                 "Paris",
                 "museum",
                 null,
-                10
+                20
         );
     }
 }

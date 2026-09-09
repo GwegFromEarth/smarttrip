@@ -51,7 +51,10 @@ class PlaceControllerTest {
                 "Rue de Rivoli, 75001 Paris, France",
                 null,
                 null,
-                null
+                null,
+                null,
+                null,
+                List.of()
         );
 
         when(placeService.search(
@@ -134,7 +137,10 @@ class PlaceControllerTest {
                 "Piazza del Colosseo, 1, 00184 Roma RM, Italy",
                 null,
                 null,
-                null
+                null,
+                null,
+                null,
+                List.of()
         );
 
         when(placeService.searchByDestination(

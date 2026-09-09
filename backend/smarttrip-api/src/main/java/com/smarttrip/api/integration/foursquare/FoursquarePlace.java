@@ -27,6 +27,10 @@ public record FoursquarePlace(
 
         Double rating,
 
-        Double popularity
+        Double popularity,
+
+        String tel,
+
+        String website
 ) {
 }

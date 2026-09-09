@@ -247,7 +247,7 @@ class FoursquarePlaceServiceTest {
                 "museum",
                 null,
                 "RATING",
-                10
+                20
         );
     }
 
@@ -272,7 +272,10 @@ class FoursquarePlaceServiceTest {
                 "Piazza del Colosseo, Rome",
                 100.0,
                 9.0,
-                0.9
+                0.9,
+                null,
+                null,
+                List.of("Monument")
         );
 
         when(foursquareClient.search(
@@ -388,14 +391,14 @@ class FoursquarePlaceServiceTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         )).thenReturn(response);
 
         List<PlaceDto> result =
                 service.searchByDestination(
                         "Rome",
                         PlaceCategory.MUSEUM,
-                        10
+                        20
                 );
 
         assertEquals(List.of(), result);
@@ -404,7 +407,7 @@ class FoursquarePlaceServiceTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         );
     }
 
@@ -418,7 +421,7 @@ class FoursquarePlaceServiceTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         )).thenReturn(response);
 
         service.searchByDestination(
@@ -431,7 +434,7 @@ class FoursquarePlaceServiceTest {
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         );
     }
 
@@ -456,14 +459,17 @@ class FoursquarePlaceServiceTest {
                 "Rome, Italy",
                 null,
                 8.5,
-                0.7
+                0.7,
+                null,
+                null,
+                List.of("Monument")
         );
 
         when(foursquareClient.searchByDestination(
                 "Rome",
                 "museum",
                 null,
-                10
+                20
         )).thenReturn(response);
 
         when(mapper.toPlaceDto(
@@ -475,7 +481,7 @@ class FoursquarePlaceServiceTest {
                 service.searchByDestination(
                         "Rome",
                         PlaceCategory.MUSEUM,
-                        10
+                        20
                 );
 
         assertEquals(1, result.size());

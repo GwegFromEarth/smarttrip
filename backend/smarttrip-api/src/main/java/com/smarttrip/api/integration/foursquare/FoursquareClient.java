@@ -145,7 +145,8 @@ public class FoursquareClient {
                     var builder = uriBuilder
                             .path("/places/search")
                             .queryParam("near", destination)
-                            .queryParam("limit", limit);
+                            .queryParam("limit", limit)
+                            .queryParam("sort", "POPULARITY");
 
                     if (query != null && !query.isBlank()) {
                         builder.queryParam("query", query);

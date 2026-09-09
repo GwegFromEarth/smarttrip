@@ -39,7 +39,9 @@ class FoursquarePlaceMapperTest {
                 List.<FoursquareCategory>of(),
                 150,
                 9.2,
-                0.85
+                0.85,
+                null,
+                null
         );
 
         PlaceDto result = mapper.toPlaceDto(
@@ -62,6 +64,8 @@ class FoursquarePlaceMapperTest {
         assertEquals(9.2, result.rating());
         assertEquals(0.85, result.popularity());
         assertNull(result.description());
+        assertNull(result.tel());
+        assertNull(result.website());
     }
 
     @Test
@@ -82,7 +86,9 @@ class FoursquarePlaceMapperTest {
                 List.<FoursquareCategory>of(),
                 500,
                 9.5,
-                0.95
+                0.95,
+                null,
+                null
         );
 
         PlaceDto result = mapper.toPlaceDto(
@@ -115,7 +121,9 @@ class FoursquarePlaceMapperTest {
                 List.<FoursquareCategory>of(),
                 null,
                 8.5,
-                0.70
+                0.70,
+                null,
+                null
         );
 
         PlaceDto result = mapper.toPlaceDto(
@@ -151,6 +159,8 @@ class FoursquarePlaceMapperTest {
                 ),
                 List.<FoursquareCategory>of(),
                 200,
+                null,
+                null,
                 null,
                 null
         );
@@ -190,6 +200,8 @@ class FoursquarePlaceMapperTest {
                 List.<FoursquareCategory>of(),
                 100,
                 null,
+                null,
+                null,
                 null
         );
 
@@ -219,6 +231,8 @@ class FoursquarePlaceMapperTest {
                 List.<FoursquareCategory>of(),
                 100,
                 null,
+                null,
+                null,
                 null
         );
 
@@ -243,6 +257,8 @@ class FoursquarePlaceMapperTest {
                 null,
                 List.<FoursquareCategory>of(),
                 100,
+                null,
+                null,
                 null,
                 null
         );
@@ -274,6 +290,8 @@ class FoursquarePlaceMapperTest {
                 null,
                 List.<FoursquareCategory>of(),
                 100,
+                null,
+                null,
                 null,
                 null
         );
@@ -310,6 +328,8 @@ class FoursquarePlaceMapperTest {
                 null,
                 List.<FoursquareCategory>of(),
                 100,
+                null,
+                null,
                 null,
                 null
         );

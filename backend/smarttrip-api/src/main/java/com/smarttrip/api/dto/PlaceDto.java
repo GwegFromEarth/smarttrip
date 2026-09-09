@@ -1,5 +1,7 @@
 package com.smarttrip.api.dto;
 
+import java.util.List;
+
 public record PlaceDto(
 
         String placeId,
@@ -20,6 +22,12 @@ public record PlaceDto(
 
         Double rating,
 
-        Double popularity
+        Double popularity,
+
+        String tel,
+
+        String website,
+
+        List<String> categories
 ) {
 }

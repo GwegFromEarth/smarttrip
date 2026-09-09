@@ -356,7 +356,10 @@ class PlaceRankingServiceTest {
                 "Test address",
                 distance,
                 rating,
-                popularity
+                popularity,
+                null,
+                null,
+                List.of()
         );
     }
 

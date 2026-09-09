@@ -44,7 +44,10 @@ class PlaceServiceTest {
                         "Paris",
                         null,
                         null,
-                        null
+                        null,
+                        null,
+                        null,
+                        List.of()
                 )
         );
 
@@ -96,7 +99,10 @@ class PlaceServiceTest {
                         "Rome",
                         null,
                         null,
-                        null
+                        null,
+                        null,
+                        null,
+                        List.of()
                 )
         );
 

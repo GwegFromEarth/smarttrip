@@ -4,6 +4,8 @@ import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class FoursquarePlaceMapper {
 
@@ -15,6 +17,12 @@ public class FoursquarePlaceMapper {
 
         FoursquareCoordinates coordinates =
                 extractCoordinates(place);
+
+        List<String> categories = place.categories() == null
+                ? List.of()
+                : place.categories().stream()
+                .map(FoursquareCategory::name)
+                .toList();
 
         return new PlaceDto(
                 place.fsq_id(),
@@ -28,7 +36,10 @@ public class FoursquarePlaceMapper {
                         ? place.distance().doubleValue()
                         : null,
                 place.rating(),
-                place.popularity()
+                place.popularity(),
+                place.tel(),
+                place.website(),
+                categories
         );
     }
 
