@@ -24,15 +24,18 @@ public class ChatService {
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
     private final ChatClient chatClient;
+    private final PlaceTools placeTools;
 
     public ChatService(
             ConversationRepository conversationRepository,
             MessageRepository messageRepository,
-            ChatClient chatClient
+            ChatClient chatClient,
+            PlaceTools placeTools
     ) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.chatClient = chatClient;
+        this.placeTools = placeTools;
     }
 
     public Conversation createConversation() {
@@ -166,6 +169,7 @@ public class ChatService {
         return chatClient
                 .prompt()
                 .messages(messages)
+                .tools(placeTools)
                 .stream()
                 .content()
                 .doOnNext(assistantResponse::append)
