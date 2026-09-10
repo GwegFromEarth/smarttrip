@@ -1,6 +1,7 @@
 package com.smarttrip.api.service;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.messages.Message;
 import reactor.core.publisher.Flux;
@@ -14,8 +15,8 @@ public class AiChatService {
     private final ChatClient ollamaChatClient;
 
     public AiChatService(
-            ChatClient geminiChatClient,
-            ChatClient ollamaChatClient
+            @Qualifier("geminiChatClient") ChatClient geminiChatClient,
+            @Qualifier("ollamaChatClient") ChatClient ollamaChatClient
     ) {
         this.geminiChatClient = geminiChatClient;
         this.ollamaChatClient = ollamaChatClient;

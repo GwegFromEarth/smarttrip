@@ -23,20 +23,17 @@ public class ChatService {
 
     private final ConversationRepository conversationRepository;
     private final MessageRepository messageRepository;
-    private final ChatClient chatClient;
     private final PlaceTools placeTools;
     private final AiChatService aiChatService;
 
     public ChatService(
             ConversationRepository conversationRepository,
             MessageRepository messageRepository,
-            ChatClient chatClient,
             PlaceTools placeTools,
             AiChatService aiChatService
     ) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
-        this.chatClient = chatClient;
         this.placeTools = placeTools;
         this.aiChatService = aiChatService;
     }
