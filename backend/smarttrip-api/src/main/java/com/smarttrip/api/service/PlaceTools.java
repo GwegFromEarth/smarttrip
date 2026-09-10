@@ -80,8 +80,6 @@ public class PlaceTools {
     )
     public List<PlaceDto> searchParks(String destination) {
 
-        System.out.println(">>> TOOL searchParks APPELE pour : " + destination);
-
         return foursquarePlaceService.searchByDestination(
                 destination,
                 PlaceCategory.PARK,

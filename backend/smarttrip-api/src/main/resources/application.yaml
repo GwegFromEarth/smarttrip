@@ -13,6 +13,10 @@ spring:
     open-in-view: false
 
   ai:
+    chat:
+      client:
+        enabled: false
+
     ollama:
       base-url: http://localhost:11434
       chat:
@@ -21,6 +25,13 @@ spring:
         num-predict: 600
         temperature: 0.7
         keep-alive: 5m
+
+    google:
+      genai:
+        api-key: ${GOOGLE_API_KEY}
+        chat:
+          model: gemini-3.5-flash
+          temperature: 0.7
 
   servlet:
     encoding:

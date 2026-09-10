@@ -1,11 +1,14 @@
 package com.smarttrip.api.config;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.google.genai.GoogleGenAiChatModel;
+import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
-public class ChatConfig {
+public class ChatClientConfig {
 
     private static final String SYSTEM_PROMPT = """
             Tu es SmartTrip, un assistant de voyage intelligent.
@@ -38,8 +41,22 @@ public class ChatConfig {
             """;
 
     @Bean
-    public ChatClient chatClient(ChatClient.Builder builder) {
-        return builder
+    @Primary
+    public ChatClient geminiChatClient(
+            GoogleGenAiChatModel googleGenAiChatModel
+    ) {
+        return ChatClient
+                .builder(googleGenAiChatModel)
+                .defaultSystem(SYSTEM_PROMPT)
+                .build();
+    }
+
+    @Bean
+    public ChatClient ollamaChatClient(
+            OllamaChatModel ollamaChatModel
+    ) {
+        return ChatClient
+                .builder(ollamaChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .build();
     }
