@@ -339,6 +339,31 @@ class PlaceRankingServiceTest {
         assertEquals("Zero Distance", result.get(0).name());
     }
 
+    private PlaceDto createPlaceWithCategories(
+            String id,
+            String name,
+            Double distance,
+            Double rating,
+            Double popularity,
+            List<String> categories
+    ) {
+        return new PlaceDto(
+                id,
+                name,
+                "Test description",
+                48.8566,
+                2.3522,
+                PlaceCategory.TOURIST_ATTRACTION,
+                "Test address",
+                distance,
+                rating,
+                popularity,
+                null,
+                null,
+                categories
+        );
+    }
+
     private PlaceDto createPlace(
             String id,
             String name,
@@ -361,6 +386,36 @@ class PlaceRankingServiceTest {
                 null,
                 List.of()
         );
+    }
+
+    @Test
+    void shouldPreferMoreRelevantCategory() {
+
+        PlaceDto monument = createPlaceWithCategories(
+                "1",
+                "Monument",
+                1000.0,
+                8.0,
+                0.5,
+                List.of("Monument")
+        );
+
+        PlaceDto historicSite = createPlaceWithCategories(
+                "2",
+                "Historic Site",
+                1000.0,
+                8.0,
+                0.5,
+                List.of("Historic and Protected Site")
+        );
+
+        List<PlaceDto> result =
+                placeRankingService.rank(
+                        List.of(monument, historicSite),
+                        2
+                );
+
+        assertEquals("Historic Site", result.get(0).name());
     }
 
 }

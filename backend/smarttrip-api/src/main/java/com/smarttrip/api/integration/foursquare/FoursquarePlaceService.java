@@ -2,6 +2,7 @@ package com.smarttrip.api.integration.foursquare;
 
 import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
+import com.smarttrip.api.service.PlaceRankingService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +34,16 @@ public class FoursquarePlaceService {
 
     private final FoursquareClient foursquareClient;
     private final FoursquarePlaceMapper mapper;
+    private final PlaceRankingService placeRankingService;
 
     public FoursquarePlaceService(
             FoursquareClient foursquareClient,
-            FoursquarePlaceMapper mapper
+            FoursquarePlaceMapper mapper,
+            PlaceRankingService placeRankingService
     ) {
         this.foursquareClient = foursquareClient;
         this.mapper = mapper;
+        this.placeRankingService = placeRankingService;
     }
 
     @Cacheable(
@@ -97,11 +101,12 @@ public class FoursquarePlaceService {
                         MAX_SEARCH_LIMIT
                 );
 
-        return mapResults(response, category)
+        List<PlaceDto> candidates = mapResults(response, category)
                 .stream()
                 .filter(place -> !isExcludedTouristAttraction(place))
-                .limit(requestedLimit)
                 .toList();
+
+        return placeRankingService.rank(candidates, requestedLimit);
     }
 
     private List<PlaceDto> mapResults(

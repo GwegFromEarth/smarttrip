@@ -2,6 +2,7 @@ package com.smarttrip.api.integration.foursquare;
 
 import com.smarttrip.api.dto.PlaceCategory;
 import com.smarttrip.api.dto.PlaceDto;
+import com.smarttrip.api.service.PlaceRankingService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -20,10 +21,14 @@ class FoursquarePlaceServiceTest {
     private final FoursquarePlaceMapper mapper =
             mock(FoursquarePlaceMapper.class);
 
+    private final PlaceRankingService placeRankingService =
+            new PlaceRankingService();
+
     private final FoursquarePlaceService service =
             new FoursquarePlaceService(
                     foursquareClient,
-                    mapper
+                    mapper,
+                    placeRankingService
             );
 
     @Test
@@ -217,7 +222,7 @@ class FoursquarePlaceServiceTest {
     }
 
     @Test
-    void shouldLimitSearchToMaximumOfTenResults() {
+    void shouldLimitSearchToMaximumOfTwentyResults() {
 
         FoursquareResponse response =
                 new FoursquareResponse(List.of());
@@ -412,7 +417,7 @@ class FoursquarePlaceServiceTest {
     }
 
     @Test
-    void shouldLimitDestinationSearchToMaximumOfTenResults() {
+    void shouldLimitDestinationSearchToMaximumOfTwentyResults() {
 
         FoursquareResponse response =
                 new FoursquareResponse(List.of());
@@ -436,6 +441,105 @@ class FoursquarePlaceServiceTest {
                 null,
                 20
         );
+    }
+
+    @Test
+    void shouldRankDestinationResults() {
+
+        FoursquarePlace place1 =
+                mock(FoursquarePlace.class);
+
+        FoursquarePlace place2 =
+                mock(FoursquarePlace.class);
+
+        FoursquarePlace place3 =
+                mock(FoursquarePlace.class);
+
+        FoursquareResponse response =
+                new FoursquareResponse(
+                        List.of(place1, place2, place3)
+                );
+
+        PlaceDto lowScorePlace = new PlaceDto(
+                "1",
+                "Low Score Museum",
+                null,
+                41.9000,
+                12.5000,
+                PlaceCategory.MUSEUM,
+                "Rome",
+                3000.0,
+                5.0,
+                0.2,
+                null,
+                null,
+                List.of()
+        );
+
+        PlaceDto bestPlace = new PlaceDto(
+                "2",
+                "Best Museum",
+                null,
+                41.9000,
+                12.5000,
+                PlaceCategory.MUSEUM,
+                "Rome",
+                500.0,
+                9.0,
+                0.9,
+                null,
+                null,
+                List.of()
+        );
+
+        PlaceDto mediumPlace = new PlaceDto(
+                "3",
+                "Medium Museum",
+                null,
+                41.9000,
+                12.5000,
+                PlaceCategory.MUSEUM,
+                "Rome",
+                1000.0,
+                7.0,
+                0.5,
+                null,
+                null,
+                List.of()
+        );
+
+        when(foursquareClient.searchByDestination(
+                "Rome",
+                "museum",
+                null,
+                20
+        )).thenReturn(response);
+
+        when(mapper.toPlaceDto(
+                place1,
+                PlaceCategory.MUSEUM
+        )).thenReturn(lowScorePlace);
+
+        when(mapper.toPlaceDto(
+                place2,
+                PlaceCategory.MUSEUM
+        )).thenReturn(bestPlace);
+
+        when(mapper.toPlaceDto(
+                place3,
+                PlaceCategory.MUSEUM
+        )).thenReturn(mediumPlace);
+
+        List<PlaceDto> result =
+                service.searchByDestination(
+                        "Rome",
+                        PlaceCategory.MUSEUM,
+                        2
+                );
+
+        assertEquals(2, result.size());
+        assertEquals("Best Museum", result.get(0).name());
+        assertEquals("Medium Museum", result.get(1).name());
     }
 
     @Test
