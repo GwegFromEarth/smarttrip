@@ -56,7 +56,9 @@
 
           @if (message.streaming) {
 
-            {{ message.content }}
+            <markdown
+              [data]="message.content">
+            </markdown>
 
             @if (isStreaming()) {
               <span class="typing-cursor"></span>

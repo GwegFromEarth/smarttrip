@@ -67,29 +67,27 @@ export class Chat {
     element.scrollTop = element.scrollHeight;
   }
 
-  /**
-   * Normalise certaines listes Markdown générées
-   * sans retour à la ligne entre les éléments.
-   *
-   * Exemple :
-   *
-   * 1. **Colisée** ... Rome.2. **Panthéon** ... romaine.3. **Forum**
-   *
-   * devient :
-   *
-   * 1. **Colisée** ... Rome.
-   *
-   * 2. **Panthéon** ... romaine.
-   *
-   * 3. **Forum**
-   */
   private formatMarkdown(content: string): string {
 
-    return content.replace(
+  return content
+    // Liste collée au texte précédent :
+    // "Rome :1. **Villa Borghese**"
+    // devient :
+    // "Rome :\n\n1. **Villa Borghese**"
+    .replace(
+      /([.!?:])\s*(?=\d+\.\s+\*\*)/g,
+      '$1\n\n'
+    )
+
+    // Éléments de liste collés :
+    // "... Borghese.2. **Villa Doria Pamphili**"
+    // devient :
+    // "... Borghese.\n\n2. **Villa Doria Pamphili**"
+    .replace(
       /([.!?])\s*(?=\d+\.\s+\*\*)/g,
       '$1\n\n'
     );
-  }
+}
 
   sendStreamMessage(): void {
 
