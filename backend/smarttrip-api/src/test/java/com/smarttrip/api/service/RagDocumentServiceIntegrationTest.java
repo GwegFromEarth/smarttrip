@@ -35,7 +35,7 @@ class RagDocumentServiceIntegrationTest {
                 ragDocumentService.indexDestinations();
 
         assertThat(indexedDocuments)
-                .isEqualTo(6);
+                .isEqualTo(12);
 
         List<Document> results =
                 vectorStore.similaritySearch(

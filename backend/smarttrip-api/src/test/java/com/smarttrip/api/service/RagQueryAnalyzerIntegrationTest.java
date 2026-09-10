@@ -22,14 +22,36 @@ class RagQueryAnalyzerIntegrationTest {
                 );
 
         System.out.println("\n========== RAG QUERY ANALYSIS ==========");
+        System.out.println("ragRelevant = " + result.ragRelevant());
         System.out.println("destination = " + result.destination());
         System.out.println("topic       = " + result.topic());
         System.out.println("=========================================\n");
+
+        assertThat(result.ragRelevant())
+                .isTrue();
 
         assertThat(result.destination())
                 .isEqualToIgnoringCase("Rome");
 
         assertThat(result.topic())
                 .isEqualTo("history");
+    }
+
+    @Test
+    void shouldDetectQuestionNotRelevantToRag() {
+
+        RagQuery result =
+                ragQueryAnalyzer.analyze(
+                        "Quel temps fera-t-il à Rome demain ?"
+                );
+
+        System.out.println("\n========== RAG QUERY ANALYSIS ==========");
+        System.out.println("ragRelevant = " + result.ragRelevant());
+        System.out.println("destination = " + result.destination());
+        System.out.println("topic       = " + result.topic());
+        System.out.println("=========================================\n");
+
+        assertThat(result.ragRelevant())
+                .isFalse();
     }
 }
