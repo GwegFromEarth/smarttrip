@@ -25,17 +25,24 @@ public class ChatService {
     private final MessageRepository messageRepository;
     private final ChatClient chatClient;
     private final PlaceTools placeTools;
+    private final AiChatService aiChatService;
 
     public ChatService(
             ConversationRepository conversationRepository,
             MessageRepository messageRepository,
             ChatClient chatClient,
-            PlaceTools placeTools
+            PlaceTools placeTools,
+            AiChatService aiChatService
     ) {
         this.conversationRepository = conversationRepository;
         this.messageRepository = messageRepository;
         this.chatClient = chatClient;
         this.placeTools = placeTools;
+        this.aiChatService = aiChatService;
+    }
+
+    public PlaceTools getPlaceTools() {
+        return placeTools;
     }
 
     public Conversation createConversation() {
@@ -185,12 +192,11 @@ public class ChatService {
 
         StringBuilder assistantResponse = new StringBuilder();
 
-        return chatClient
-                .prompt()
-                .messages(messages)
-                .tools(placeTools)
-                .stream()
-                .content()
+        return aiChatService
+                .streamResponse(
+                        messages,
+                        placeTools
+                )
                 .doOnNext(assistantResponse::append)
                 .doOnComplete(() ->
                         saveAssistantMessage(

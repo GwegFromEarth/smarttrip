@@ -2,6 +2,7 @@ package com.smarttrip.api.controller;
 
 import com.smarttrip.api.dto.ChatRequest;
 import com.smarttrip.api.model.Conversation;
+import com.smarttrip.api.service.AiChatService;
 import com.smarttrip.api.service.ChatService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,10 +24,12 @@ public class ChatController {
 
     private final ChatClient chatClient;
     private final ChatService chatService;
+    private final AiChatService aiChatService;
 
-    public ChatController(ChatClient chatClient, ChatService chatService) {
+    public ChatController(ChatClient chatClient, ChatService chatService, AiChatService aiChatService) {
         this.chatClient = chatClient;
         this.chatService = chatService;
+        this.aiChatService = aiChatService;
     }
 
     @Operation(
@@ -47,11 +50,10 @@ public class ChatController {
             )
             @RequestParam String message) {
 
-        return chatClient
-                .prompt()
-                .user(message)
-                .call()
-                .content();
+        return aiChatService.generateResponse(
+                message,
+                chatService.getPlaceTools()
+        );
     }
 
     @Operation(

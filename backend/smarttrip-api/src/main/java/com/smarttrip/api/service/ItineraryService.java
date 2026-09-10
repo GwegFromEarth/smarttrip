@@ -18,18 +18,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ItineraryService {
 
-    private final ChatClient chatClient;
+    private final AiChatService aiChatService;
     private final TripRepository tripRepository;
     private final ItineraryRepository itineraryRepository;
     private final PlaceService placeService;
 
     public ItineraryService(
-            ChatClient chatClient,
+            AiChatService aiChatService,
             TripRepository tripRepository,
             ItineraryRepository itineraryRepository,
             PlaceService placeService) {
 
-        this.chatClient = chatClient;
+        this.aiChatService = aiChatService;
         this.tripRepository = tripRepository;
         this.itineraryRepository = itineraryRepository;
         this.placeService = placeService;
@@ -120,15 +120,10 @@ public class ItineraryService {
                         trip.getPreferences()
         );
 
-        return chatClient.prompt()
-                .user(prompt)
-                .call()
-                .entity(
-                        ItineraryDto.class,
-                        spec -> spec
-                                .useProviderStructuredOutput()
-                                .validateSchema()
-                );
+        return aiChatService.generateEntity(
+                prompt,
+                ItineraryDto.class
+        );
     }
 
     private ItineraryDto toDto(Itinerary itinerary) {
