@@ -157,6 +157,25 @@ public class ChatService {
         return conversation;
     }
 
+    private boolean isQuotaExceeded(Throwable exception) {
+
+        Throwable current = exception;
+
+        while (current != null) {
+
+            if (current instanceof com.google.genai.errors.ClientException
+                    && current.getMessage() != null
+                    && current.getMessage().contains("429")) {
+
+                return true;
+            }
+
+            current = current.getCause();
+        }
+
+        return false;
+    }
+
     public Flux<String> generateResponse(
             Conversation conversation
     ) {
@@ -178,6 +197,20 @@ public class ChatService {
                                 conversation,
                                 assistantResponse.toString()
                         )
-                );
+                )
+                .onErrorResume(exception -> {
+
+                    if (isQuotaExceeded(exception)) {
+                        return Flux.just(
+                                "Désolé, le service IA a temporairement atteint sa limite d'utilisation. " +
+                                        "Veuillez réessayer un peu plus tard."
+                        );
+                    }
+
+                    return Flux.just(
+                            "Désolé, le service IA est temporairement indisponible. " +
+                                    "Veuillez réessayer dans quelques instants."
+                    );
+                });
     }
 }
