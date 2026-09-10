@@ -6,6 +6,8 @@ import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
+import org.springframework.ai.vectorstore.VectorStore;
 
 @Configuration
 public class ChatClientConfig {
@@ -53,11 +55,17 @@ public class ChatClientConfig {
 
     @Bean
     public ChatClient ollamaChatClient(
-            OllamaChatModel ollamaChatModel
+            OllamaChatModel ollamaChatModel,
+            VectorStore vectorStore
     ) {
+        QuestionAnswerAdvisor ragAdvisor =
+                QuestionAnswerAdvisor.builder(vectorStore)
+                        .build();
+
         return ChatClient
                 .builder(ollamaChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
+                .defaultAdvisors(ragAdvisor)
                 .build();
     }
 }

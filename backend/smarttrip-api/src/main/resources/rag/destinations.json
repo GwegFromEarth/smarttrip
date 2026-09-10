@@ -1,0 +1,64 @@
+[
+  {
+    "destination": "Rome",
+    "topic": "history",
+    "content": "Rome est une destination majeure pour découvrir l'histoire antique et le patrimoine européen. Le Colisée, le Forum romain, le Panthéon et les places historiques du centre permettent de découvrir différentes périodes de l'histoire de la ville. Le Centro Storico est particulièrement adapté à une découverte à pied des monuments historiques."
+  },
+  {
+    "destination": "Rome",
+    "topic": "gastronomy",
+    "content": "La cuisine romaine repose notamment sur des plats comme la carbonara, l'amatriciana, la cacio e pepe et les supplì. Les quartiers du centre et de Trastevere offrent de nombreuses possibilités pour découvrir la cuisine romaine dans des restaurants et trattorias."
+  },
+  {
+    "destination": "Rome",
+    "topic": "neighborhoods",
+    "content": "Le Centro Storico est adapté à une première découverte de Rome et permet de rejoindre de nombreux monuments à pied. Trastevere est apprécié pour ses ruelles, ses places et son ambiance en soirée. Le quartier du Monti est intéressant pour ses petites rues, ses restaurants et sa proximité avec le Colisée."
+  },
+  {
+    "destination": "Rome",
+    "topic": "practical",
+    "content": "Pour découvrir Rome, la marche est particulièrement intéressante dans le centre historique. Les distances entre plusieurs monuments majeurs peuvent être importantes et il est utile de regrouper les visites par quartier. Les transports publics peuvent compléter les déplacements à pied."
+  },
+
+  {
+    "destination": "Paris",
+    "topic": "history",
+    "content": "Paris possède un patrimoine historique particulièrement riche. Le centre de la ville permet notamment de découvrir Notre-Dame, le Louvre, les quais de Seine et plusieurs quartiers historiques. Le Marais et l'Île de la Cité sont intéressants pour une découverte du patrimoine parisien à pied."
+  },
+  {
+    "destination": "Paris",
+    "topic": "gastronomy",
+    "content": "Paris propose une grande diversité gastronomique avec des boulangeries, pâtisseries, cafés, brasseries et restaurants. Les quartiers historiques et les marchés permettent de découvrir différentes spécialités françaises."
+  },
+  {
+    "destination": "Paris",
+    "topic": "neighborhoods",
+    "content": "Le Marais est intéressant pour son patrimoine, ses rues historiques et ses commerces. Montmartre est connu pour ses rues en pente, son ambiance artistique et la basilique du Sacré-Cœur. Saint-Germain-des-Prés permet de découvrir des cafés, des librairies et une partie du patrimoine culturel parisien."
+  },
+  {
+    "destination": "Paris",
+    "topic": "practical",
+    "content": "Paris se découvre facilement en combinant marche et transports en commun. Pour une première visite, il est préférable de regrouper les lieux par secteur afin de limiter les déplacements. Les principaux quartiers touristiques peuvent être très fréquentés, notamment en journée."
+  },
+
+  {
+    "destination": "Toulouse",
+    "topic": "history",
+    "content": "Toulouse possède un patrimoine architectural marqué par la brique et plusieurs monuments historiques. Le Capitole, la basilique Saint-Sernin, le couvent des Jacobins et les rues du centre historique constituent des points importants pour découvrir la ville."
+  },
+  {
+    "destination": "Toulouse",
+    "topic": "gastronomy",
+    "content": "La gastronomie toulousaine est notamment associée au cassoulet, à la saucisse de Toulouse et à plusieurs spécialités du Sud-Ouest. Les marchés et restaurants du centre permettent de découvrir la cuisine locale."
+  },
+  {
+    "destination": "Toulouse",
+    "topic": "neighborhoods",
+    "content": "Le centre historique de Toulouse est adapté à une découverte à pied. Le quartier des Carmes est apprécié pour ses rues, ses restaurants et ses commerces. Saint-Cyprien, situé sur la rive gauche de la Garonne, possède une identité de quartier et permet de découvrir Toulouse sous un autre angle."
+  },
+  {
+    "destination": "Toulouse",
+    "topic": "practical",
+    "content": "Le centre historique de Toulouse peut être parcouru facilement à pied. Les transports en commun permettent de rejoindre les secteurs plus éloignés. Pour une première découverte, regrouper les visites autour du Capitole, de Saint-Sernin, des Jacobins et des Carmes permet de limiter les déplacements."
+  }
+]
