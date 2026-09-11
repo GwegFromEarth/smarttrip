@@ -8,9 +8,11 @@ import com.smarttrip.api.model.Trip;
 import com.smarttrip.api.repository.ConversationRepository;
 import com.smarttrip.api.repository.MessageRepository;
 import com.smarttrip.api.repository.TripRepository;
+
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.ai.chat.messages.SystemMessage;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
@@ -221,6 +223,20 @@ public class ChatService {
         List<org.springframework.ai.chat.messages.Message> messages =
                 buildChatHistory(conversation.getId());
 
+        Trip trip = conversation.getTrip();
+
+        String destination =
+                trip != null
+                        ? trip.getDestination()
+                        : null;
+
+        List<org.springframework.ai.chat.messages.Message> messagesWithTripContext =
+                buildMessagesWithTripContext(
+                        messages,
+                        trip,
+                        destination
+                );
+
         // =========================================================
         // 2. DERNIER MESSAGE UTILISATEUR
         // =========================================================
@@ -235,12 +251,6 @@ public class ChatService {
         // =========================================================
         // 3. RECHERCHE RAG
         // =========================================================
-
-        String destination = null;
-
-        if (conversation.getTrip() != null) {
-            destination = conversation.getTrip().getDestination();
-        }
 
         String ragContext =
                 ragContextService.buildContext(
@@ -257,7 +267,7 @@ public class ChatService {
 
         return aiChatService
                 .streamResponse(
-                        messages,
+                        messagesWithTripContext,
                         ragContext,
                         placeTools
                 )
@@ -284,5 +294,46 @@ public class ChatService {
                                     "Veuillez réessayer dans quelques instants."
                     );
                 });
+    }
+
+    private List<org.springframework.ai.chat.messages.Message> buildMessagesWithTripContext(
+            List<org.springframework.ai.chat.messages.Message> messages,
+            Trip trip,
+            String destination
+    ) {
+
+        if (trip == null) {
+            return messages;
+        }
+
+        List<org.springframework.ai.chat.messages.Message> enrichedMessages =
+                new ArrayList<>();
+
+        enrichedMessages.add(
+                new SystemMessage(
+                        """
+                        CONTEXTE DU VOYAGE SMARTTRIP
+    
+                        Destination : %s
+                        Date de début : %s
+                        Date de fin : %s
+                        Nombre de voyageurs : %d
+                        Préférences : %s
+    
+                        Utilise ces informations pour personnaliser tes réponses
+                        lorsque cela est pertinent.
+                        """.formatted(
+                                destination,
+                                trip.getStartDate(),
+                                trip.getEndDate(),
+                                trip.getTravelers(),
+                                trip.getPreferences()
+                        )
+                )
+        );
+
+        enrichedMessages.addAll(messages);
+
+        return enrichedMessages;
     }
 }
