@@ -1,5 +1,7 @@
 package com.smarttrip.api.service;
 
+import com.smarttrip.api.dto.RagQuery;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Disabled("Test d'intégration Ollama long - à lancer manuellement")
 class RagWithToolsIntegrationTest {
 
     @Autowired
@@ -26,13 +29,16 @@ class RagWithToolsIntegrationTest {
     @Autowired
     private PlaceTools placeTools;
 
+    @Autowired
+    private RagQueryAnalyzer ragQueryAnalyzer;
+
     @Test
     void shouldAnswerUsingRagAndTools() {
 
         long totalStart = System.currentTimeMillis();
 
         // =========================================================
-        // 1. Indexation des données RAG
+        // 1. INDEXATION RAG
         // =========================================================
 
         long indexingStart = System.currentTimeMillis();
@@ -43,15 +49,43 @@ class RagWithToolsIntegrationTest {
                 System.currentTimeMillis() - indexingStart;
 
         // =========================================================
-        // 2. Construction du conseiller RAG
+        // 2. ANALYSE DE LA QUESTION
+        // =========================================================
+
+        String question =
+                "Quels sont les principaux lieux historiques " +
+                        "à découvrir à Rome ?";
+
+        RagQuery ragQuery =
+                ragQueryAnalyzer.analyze(question);
+
+        System.out.println(
+                "\n========== RAG QUERY =========="
+        );
+
+        System.out.println(
+                "destination = " + ragQuery.destination()
+        );
+
+        System.out.println(
+                "topic       = " + ragQuery.topic()
+        );
+
+        System.out.println(
+                "================================\n"
+        );
+
+        // =========================================================
+        // 3. CONSEILLER RAG
         // =========================================================
 
         QuestionAnswerAdvisor advisor =
-                QuestionAnswerAdvisor.builder(vectorStore)
+                QuestionAnswerAdvisor
+                        .builder(vectorStore)
                         .build();
 
         // =========================================================
-        // 3. Appel Ollama + RAG + Tools
+        // 4. APPEL OLLAMA + RAG + TOOLS
         // =========================================================
 
         long aiStart = System.currentTimeMillis();
@@ -60,20 +94,37 @@ class RagWithToolsIntegrationTest {
                 ollamaChatClient
                         .prompt()
                         .advisors(advisor)
+                        .advisors(a -> a.param(
+                                QuestionAnswerAdvisor.FILTER_EXPRESSION,
+                                "destination == '%s' && topic == '%s'"
+                                        .formatted(
+                                                ragQuery.destination(),
+                                                ragQuery.topic()
+                                        )
+                        ))
                         .tools(placeTools)
                         .user("""
-                                Réponds à la question de l'utilisateur
-                                en utilisant les informations pertinentes
-                                du contexte RAG.
+                            Tu es SmartTrip, un assistant de voyage.
 
-                                Lorsque la question demande des lieux
-                                touristiques précis à visiter, utilise
-                                l'outil de recherche de lieux touristiques.
+                            Réponds à la question de l'utilisateur
+                            uniquement à partir des informations
+                            disponibles dans le contexte RAG et,
+                            lorsque cela est pertinent, des résultats
+                            fournis par les outils.
 
-                                Question :
-                                Quels sont les principaux lieux historiques
-                                à découvrir à Rome ?
-                                """)
+                            Lorsque la question demande des lieux
+                            touristiques précis à visiter, utilise
+                            l'outil de recherche de lieux touristiques.
+
+                            Ne prétends pas avoir utilisé un outil
+                            si tu ne l'as pas utilisé.
+
+                            Réponds en français, de manière claire
+                            et concise.
+
+                            QUESTION :
+                            %s
+                            """.formatted(question))
                         .call()
                         .content();
 
@@ -81,7 +132,7 @@ class RagWithToolsIntegrationTest {
                 System.currentTimeMillis() - aiStart;
 
         // =========================================================
-        // 4. Affichage du résultat
+        // 5. AFFICHAGE
         // =========================================================
 
         long totalDuration =
@@ -97,26 +148,22 @@ class RagWithToolsIntegrationTest {
                 "==========================================="
         );
 
-        // =========================================================
-        // 5. Mesures de performance
-        // =========================================================
-
         System.out.println(
                 "\n========== PERFORMANCE =========="
         );
 
         System.out.printf(
-                "Indexation RAG       : %.2f s%n",
+                "Indexation RAG        : %.2f s%n",
                 indexingDuration / 1000.0
         );
 
         System.out.printf(
-                "Ollama + RAG + Tools : %.2f s%n",
+                "Ollama + RAG + Tools  : %.2f s%n",
                 aiDuration / 1000.0
         );
 
         System.out.printf(
-                "TOTAL                 : %.2f s%n",
+                "TOTAL                  : %.2f s%n",
                 totalDuration / 1000.0
         );
 
@@ -125,10 +172,17 @@ class RagWithToolsIntegrationTest {
         );
 
         // =========================================================
-        // 6. Vérifications
+        // 6. VÉRIFICATIONS
         // =========================================================
+
+        assertThat(ragQuery.destination())
+                .isEqualToIgnoringCase("Rome");
+
+        assertThat(ragQuery.topic())
+                .isEqualTo("history");
 
         assertThat(response)
                 .isNotBlank();
     }
+
 }

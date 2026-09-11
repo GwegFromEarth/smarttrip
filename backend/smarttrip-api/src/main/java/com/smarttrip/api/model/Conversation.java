@@ -1,6 +1,8 @@
 package com.smarttrip.api.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +28,10 @@ public class Conversation {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "trip_id")
+    private Trip trip;
 
     public Conversation() {
     }
@@ -57,5 +63,13 @@ public class Conversation {
 
     public void addMessage(Message message) {
         messages.add(message);
+    }
+
+    public Trip getTrip() {
+        return trip;
+    }
+
+    public void setTrip(Trip trip) {
+        this.trip = trip;
     }
 }

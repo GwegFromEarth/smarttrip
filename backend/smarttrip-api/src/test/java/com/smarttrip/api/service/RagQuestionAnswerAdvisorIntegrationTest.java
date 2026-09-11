@@ -1,6 +1,7 @@
 package com.smarttrip.api.service;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
@@ -15,6 +16,7 @@ import org.springframework.ai.vectorstore.SearchRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Disabled("Test d'intégration Ollama long - à lancer manuellement")
 class RagQuestionAnswerAdvisorIntegrationTest {
 
     @Autowired

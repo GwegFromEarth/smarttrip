@@ -37,6 +37,22 @@ public class RagContextService {
         return buildContext(documents);
     }
 
+    public String buildContext(
+            String query,
+            String destination,
+            String topic
+    ) {
+
+        List<Document> documents =
+                ragSearchService.search(
+                        query,
+                        destination,
+                        topic
+                );
+
+        return buildContext(documents);
+    }
+
     private String buildContext(List<Document> documents) {
 
         if (documents == null || documents.isEmpty()) {
@@ -45,7 +61,9 @@ public class RagContextService {
 
         return documents.stream()
                 .map(Document::getText)
-                .filter(text -> text != null && !text.isBlank())
+                .filter(text ->
+                        text != null && !text.isBlank()
+                )
                 .collect(Collectors.joining("\n\n"));
     }
 }

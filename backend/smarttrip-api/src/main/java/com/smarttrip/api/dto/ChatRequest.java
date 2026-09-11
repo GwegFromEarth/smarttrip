@@ -12,6 +12,12 @@ public record ChatRequest(
         Long conversationId,
 
         @Schema(
+                description = "Identifiant du voyage associé à la conversation.",
+                example = "1"
+        )
+        Long tripId,
+
+        @Schema(
                 description = "Message envoyé à l'assistant IA",
                 example = "Propose-moi trois lieux historiques à Rome"
         )

@@ -1,3 +1,7 @@
+logging:
+  level:
+    org.springframework.ai: DEBUG
+
 spring:
   application:
     name: smarttrip-api
@@ -33,7 +37,7 @@ spring:
       chat:
         model: qwen3:4b-instruct
         think: false
-        num-predict: 600
+        num-predict: 300
         temperature: 0.7
         keep-alive: 5m
 

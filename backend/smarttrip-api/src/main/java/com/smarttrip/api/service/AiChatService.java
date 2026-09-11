@@ -4,8 +4,10 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,7 +24,10 @@ public class AiChatService {
         this.ollamaChatClient = ollamaChatClient;
     }
 
-    public String generateResponse(String message, Object... tools) {
+    public String generateResponse(
+            String message,
+            Object... tools
+    ) {
 
         try {
             return geminiChatClient
@@ -47,20 +52,74 @@ public class AiChatService {
             List<Message> messages,
             Object... tools
     ) {
+        return streamResponse(
+                messages,
+                "",
+                tools
+        );
+    }
+
+    public Flux<String> streamResponse(
+            List<Message> messages,
+            String ragContext,
+            Object... tools
+    ) {
+
+        List<Message> messagesWithRagContext =
+                addRagContext(
+                        messages,
+                        ragContext
+                );
+
         return geminiChatClient
                 .prompt()
-                .messages(messages)
+                .messages(messagesWithRagContext)
                 .tools(tools)
                 .stream()
                 .content()
                 .onErrorResume(
                         error -> ollamaChatClient
                                 .prompt()
-                                .messages(messages)
+                                .messages(messagesWithRagContext)
                                 .tools(tools)
                                 .stream()
                                 .content()
                 );
+    }
+
+    private List<Message> addRagContext(
+            List<Message> messages,
+            String ragContext
+    ) {
+
+        if (ragContext == null || ragContext.isBlank()) {
+            return messages;
+        }
+
+        List<Message> enrichedMessages =
+                new ArrayList<>(messages);
+
+        String contextMessage = """
+                CONTEXTE RAG SMARTTRIP
+
+                Les informations suivantes proviennent de la base
+                documentaire de SmartTrip.
+
+                Utilise-les lorsqu'elles sont pertinentes pour répondre
+                à la question de l'utilisateur.
+
+                N'invente pas d'informations qui ne sont pas présentes
+                dans le contexte lorsque celui-ci fournit une réponse.
+
+                Contexte :
+                %s
+                """.formatted(ragContext);
+
+        enrichedMessages.add(
+                new SystemMessage(contextMessage)
+        );
+
+        return enrichedMessages;
     }
 
     public <T> T generateEntity(

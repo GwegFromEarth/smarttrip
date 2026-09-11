@@ -22,14 +22,10 @@ public class RagSearchService {
 
     public List<Document> search(String query) {
 
-        return vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(query)
-                        .topK(DEFAULT_TOP_K)
-                        .filterExpression(
-                                "source == '" + SOURCE + "'"
-                        )
-                        .build()
+        return search(
+                query,
+                null,
+                null
         );
     }
 
@@ -38,15 +34,43 @@ public class RagSearchService {
             String destination
     ) {
 
+        return search(
+                query,
+                destination,
+                null
+        );
+    }
+
+    public List<Document> search(
+            String query,
+            String destination,
+            String topic
+    ) {
+
+        String filterExpression =
+                "source == '" + SOURCE + "'";
+
+        if (destination != null && !destination.isBlank()) {
+
+            filterExpression +=
+                    " && destination == '" +
+                            destination +
+                            "'";
+        }
+
+        if (topic != null && !topic.isBlank()) {
+
+            filterExpression +=
+                    " && topic == '" +
+                            topic +
+                            "'";
+        }
+
         return vectorStore.similaritySearch(
                 SearchRequest.builder()
                         .query(query)
                         .topK(DEFAULT_TOP_K)
-                        .filterExpression(
-                                "source == '" + SOURCE + "'" +
-                                        " && destination == '" +
-                                        destination + "'"
-                        )
+                        .filterExpression(filterExpression)
                         .build()
         );
     }
