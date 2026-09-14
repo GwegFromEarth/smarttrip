@@ -24,6 +24,7 @@ limit = 10
 const params = new HttpParams()
   .set('destination', destination)
   .set('category', category)
+  .set('radius', radius)
   .set('limit', limit);
 
 return this.http.get<Place[]>(

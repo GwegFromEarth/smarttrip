@@ -80,15 +80,15 @@ describe('PlaceSearch', () => {
   });
 
   it('should initialize with no places', () => {
-    expect(component.places).toEqual([]);
+    expect(component.places()).toEqual([]);
   });
 
   it('should initialize without loading', () => {
-    expect(component.loading).toBe(false);
+    expect(component.loading()).toBe(false);
   });
 
   it('should initialize without an error', () => {
-    expect(component.errorMessage).toBeNull();
+    expect(component.errorMessage()).toBeNull();
   });
 
   it('should contain all supported categories', () => {
@@ -139,13 +139,13 @@ describe('PlaceSearch', () => {
     expect(placeService.searchByDestination)
       .not.toHaveBeenCalled();
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBe('Veuillez saisir une destination.');
 
-    expect(component.places)
+    expect(component.places())
       .toEqual([]);
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
   });
 
@@ -184,13 +184,13 @@ describe('PlaceSearch', () => {
         PLACE_CATEGORIES.TOURIST_ATTRACTION
       );
 
-    expect(component.places)
+    expect(component.places())
       .toEqual(places);
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBeNull();
   });
 
@@ -211,7 +211,7 @@ describe('PlaceSearch', () => {
         PLACE_CATEGORIES.MUSEUM
       );
 
-    expect(component.places)
+    expect(component.places())
       .toEqual([places[1]]);
   });
 
@@ -252,10 +252,10 @@ describe('PlaceSearch', () => {
 
     fixture.detectChanges();
 
-    expect(component.places)
+    expect(component.places())
       .toEqual([]);
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
 
     const element: HTMLElement = fixture.nativeElement;
@@ -272,7 +272,7 @@ describe('PlaceSearch', () => {
     component.destination = 'Rome';
     component.search();
 
-    expect(component.places)
+    expect(component.places())
       .toEqual(places);
 
     placeService.searchByDestination
@@ -281,7 +281,7 @@ describe('PlaceSearch', () => {
     component.destination = 'Paris';
     component.search();
 
-    expect(component.places)
+    expect(component.places())
       .toEqual([]);
   });
 
@@ -290,7 +290,7 @@ describe('PlaceSearch', () => {
     component.destination = '   ';
     component.search();
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBe('Veuillez saisir une destination.');
 
     placeService.searchByDestination
@@ -299,7 +299,7 @@ describe('PlaceSearch', () => {
     component.destination = 'Rome';
     component.search();
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBeNull();
   });
 
@@ -312,7 +312,7 @@ describe('PlaceSearch', () => {
 
     component.search();
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
   });
 
@@ -332,13 +332,13 @@ describe('PlaceSearch', () => {
 
     component.search();
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBe('Category must not be blank');
 
-    expect(component.places)
+    expect(component.places())
       .toEqual([]);
   });
 
@@ -358,16 +358,16 @@ describe('PlaceSearch', () => {
 
     component.search();
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBe(
         'Le service est temporairement limité. '
         + 'Veuillez réessayer dans quelques instants.'
       );
 
-    expect(component.places)
+    expect(component.places())
       .toEqual([]);
   });
 
@@ -385,10 +385,10 @@ describe('PlaceSearch', () => {
 
     component.search();
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
 
-    expect(component.errorMessage)
+    expect(component.errorMessage())
       .toBe(
         'Une erreur est survenue lors de la recherche.'
       );
@@ -435,15 +435,15 @@ describe('PlaceSearch', () => {
 
     component.search();
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(true);
 
     subject.next(places);
 
-    expect(component.places)
+    expect(component.places())
       .toEqual(places);
 
-    expect(component.loading)
+    expect(component.loading())
       .toBe(false);
   });
 
@@ -461,7 +461,7 @@ describe('PlaceSearch', () => {
       'button[type="button"]'
     ) as HTMLButtonElement;
 
-    expect(component.loading).toBe(true);
+    expect(component.loading()).toBe(true);
     expect(button.disabled).toBe(true);
     expect(button.textContent).toContain('Recherche...');
   });

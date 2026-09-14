@@ -1,7 +1,7 @@
 import {
   Component,
   ElementRef,
-  effect,
+  afterRenderEffect,
   inject,
   signal,
   viewChild
@@ -43,14 +43,13 @@ export class Chat {
 
   constructor() {
 
-    effect(() => {
+    afterRenderEffect(() => {
 
-      this.streamResponse();
-      this.messages();
+      read: () => {
+        this.messages();
 
-      requestAnimationFrame(() => {
         this.scrollConversationToBottom();
-      });
+      }
 
     });
   }
