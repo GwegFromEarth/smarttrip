@@ -1,6 +1,7 @@
 logging:
   level:
     org.springframework.ai: DEBUG
+    org.springframework.ai.chat.metadata: INFO
 
 spring:
   application:
@@ -47,6 +48,10 @@ spring:
         chat:
           model: gemini-3.5-flash
           temperature: 0.7
+          tool-choice:
+            mode: ANY
+            allowed-function-names:
+              - searchMuseums
 
   servlet:
     encoding:

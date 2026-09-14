@@ -108,6 +108,12 @@ public class ChatService {
         return messageRepository.save(message);
     }
 
+    public List<Conversation> getAllConversations() {
+
+        return conversationRepository
+                .findAllByOrderByUpdatedAtDesc();
+    }
+
     public List<Message> getMessages(Long conversationId) {
 
         return messageRepository

@@ -1,0 +1,55 @@
+<aside class="conversation-list">
+
+  <h2>Conversations</h2>
+
+  @if (loading()) {
+
+    <p>Chargement...</p>
+
+  } @else if (errorMessage()) {
+
+    <p class="conversation-error">
+      {{ errorMessage() }}
+    </p>
+
+  } @else if (conversations().length === 0) {
+
+    <p class="conversation-empty">
+      Aucune conversation.
+    </p>
+
+  } @else {
+
+    <div class="conversation-items">
+
+      @for (
+        conversation of conversations();
+        track conversation.id
+      ) {
+
+        <button
+          type="button"
+          class="conversation-item"
+          [class.selected]="
+            selectedConversationId() === conversation.id
+          "
+          (click)="selectConversation(conversation.id)"
+        >
+
+          <span>
+            Conversation #{{ conversation.id }}
+          </span>
+
+          <small>
+            {{ conversation.updatedAt | date:'dd/MM/yyyy HH:mm' }}
+          </small>
+
+        </button>
+
+      }
+
+    </div>
+
+  }
+
+</aside>

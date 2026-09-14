@@ -19,6 +19,7 @@ import reactor.test.StepVerifier;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -475,6 +476,108 @@ class ChatServiceTest {
                         anyList(),
                         eq("Contexte historique de Rome."),
                         eq(placeTools)
+                );
+    }
+
+    @Test
+    void shouldGetAllConversationsOrderedByUpdatedAt() {
+
+        // =========================================================
+        // GIVEN
+        // =========================================================
+
+        Conversation firstConversation =
+                mock(Conversation.class);
+
+        Conversation secondConversation =
+                mock(Conversation.class);
+
+        List<Conversation> conversations =
+                List.of(
+                        secondConversation,
+                        firstConversation
+                );
+
+        when(conversationRepository.findAllByOrderByUpdatedAtDesc())
+                .thenReturn(conversations);
+
+        // =========================================================
+        // WHEN
+        // =========================================================
+
+        List<Conversation> result =
+                chatService.getAllConversations();
+
+        // =========================================================
+        // THEN
+        // =========================================================
+
+        assertEquals(
+                conversations,
+                result
+        );
+
+        verify(conversationRepository)
+                .findAllByOrderByUpdatedAtDesc();
+    }
+
+    @Test
+    void shouldGetConversationMessagesInChronologicalOrder() {
+
+        // =========================================================
+        // GIVEN
+        // =========================================================
+
+        Long conversationId = 42L;
+
+        Conversation conversation =
+                mock(Conversation.class);
+
+        Message firstMessage =
+                new Message(
+                        conversation,
+                        "user",
+                        "Que visiter à Rome ?",
+                        LocalDateTime.of(2026, 9, 10, 10, 0)
+                );
+
+        Message secondMessage =
+                new Message(
+                        conversation,
+                        "assistant",
+                        "Le Colisée est incontournable.",
+                        LocalDateTime.of(2026, 9, 10, 10, 1)
+                );
+
+        List<Message> messages =
+                List.of(
+                        firstMessage,
+                        secondMessage
+                );
+
+        when(messageRepository
+                .findByConversationIdOrderByCreatedAtAsc(conversationId))
+                .thenReturn(messages);
+
+        // =========================================================
+        // WHEN
+        // =========================================================
+
+        List<Message> result =
+                chatService.getMessages(conversationId);
+
+        // =========================================================
+        // THEN
+        // =========================================================
+
+        assertEquals(
+                messages,
+                result
+        );
+
+        verify(messageRepository)
+                .findByConversationIdOrderByCreatedAtAsc(
+                        conversationId
                 );
     }
 }

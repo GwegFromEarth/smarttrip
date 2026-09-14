@@ -46,13 +46,35 @@ export class Chat {
 
   constructor() {
 
-    afterRenderEffect(() => {
+    afterRenderEffect({
 
-      read: () => {
+      earlyRead: () => {
+
         this.messages();
-        this.scrollConversationToBottom();
-      }
 
+        const element =
+          this.conversationElement()?.nativeElement;
+
+        if (!element) {
+          return null;
+        }
+
+        return {
+          element,
+          scrollHeight: element.scrollHeight
+        };
+      },
+
+      write: (data) => {
+
+        const value = data();
+
+        if (!value) {
+          return;
+        }
+
+        value.element.scrollTop = value.scrollHeight;
+      }
     });
   }
 
