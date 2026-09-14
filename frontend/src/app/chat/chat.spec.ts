@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Chat } from './chat';
@@ -164,6 +164,141 @@ describe('Chat', () => {
     expect(component.isStreaming())
       .toBe(false);
 
+  });
+
+  it('should stop the streaming and keep the partial response', () => {
+
+    const chatService =
+      TestBed.inject(ChatService) as unknown as {
+        streamChat: ReturnType<typeof vi.fn>;
+      };
+
+    const stream$ = new Subject<{
+      type: 'conversation' | 'content';
+      data: string;
+    }>();
+
+    chatService.streamChat.mockReturnValue(stream$.asObservable());
+
+    component.message.set('Parle-moi de Rome');
+
+    component.sendStreamMessage();
+
+    expect(component.isStreaming())
+      .toBe(true);
+
+    stream$.next({
+      type: 'conversation',
+      data: '42'
+    });
+
+    stream$.next({
+      type: 'content',
+      data: 'Rome possède de nombreux monuments.'
+    });
+
+    expect(component.messages()[1])
+      .toEqual({
+        role: 'assistant',
+        content: 'Rome possède de nombreux monuments.',
+        streaming: true
+      });
+
+    component.stopStreaming();
+
+    expect(component.isStreaming())
+      .toBe(false);
+
+    expect(component.messages()[1])
+      .toEqual({
+        role: 'assistant',
+        content: 'Rome possède de nombreux monuments.',
+        streaming: false
+      });
+
+    stream$.next({
+      type: 'content',
+      data: ' Ce contenu ne doit plus être reçu.'
+    });
+
+    expect(component.messages()[1].content)
+      .toBe('Rome possède de nombreux monuments.');
+  });
+
+  it('should display an error when streaming fails', () => {
+
+    const chatService =
+      TestBed.inject(ChatService) as unknown as {
+        streamChat: ReturnType<typeof vi.fn>;
+      };
+
+    const stream$ = new Subject<{
+      type: 'conversation' | 'content';
+      data: string;
+    }>();
+
+    chatService.streamChat.mockReturnValue(
+      stream$.asObservable()
+    );
+
+    component.message.set('Que visiter à Rome ?');
+
+    component.sendStreamMessage();
+
+    stream$.next({
+      type: 'conversation',
+      data: '42'
+    });
+
+    stream$.next({
+      type: 'content',
+      data: 'Le Colisée est un incontournable.'
+    });
+
+    stream$.error(
+      new Error('Connexion interrompue')
+    );
+
+    expect(component.isStreaming())
+      .toBe(false);
+
+    expect(component.errorMessage())
+      .toBe(
+        'Une erreur est survenue pendant la réponse. Veuillez réessayer.'
+      );
+
+    expect(component.messages()[1])
+      .toEqual({
+        role: 'assistant',
+        content: 'Le Colisée est un incontournable.',
+        streaming: false
+      });
+  });
+
+  it('should clear the previous error when starting a new message', () => {
+
+    const chatService =
+      TestBed.inject(ChatService) as unknown as {
+        streamChat: ReturnType<typeof vi.fn>;
+      };
+
+    chatService.streamChat.mockReturnValue(
+      of({
+        type: 'conversation',
+        data: '42'
+      })
+    );
+
+    component.errorMessage.set(
+      'Une erreur est survenue pendant la réponse.'
+    );
+
+    component.message.set('Nouvelle question');
+
+    component.sendStreamMessage();
+
+    expect(component.errorMessage())
+      .toBeNull();
   });
 
 });

@@ -80,6 +80,29 @@
 
   </div>
 
+  @if (errorMessage()) {
+
+    <div
+      class="chat-error"
+      role="alert"
+    >
+      <span>⚠️</span>
+
+      <span>
+        {{ errorMessage() }}
+      </span>
+
+      <button
+        type="button"
+        (click)="errorMessage.set(null)"
+        aria-label="Fermer le message d'erreur"
+      >
+        ✕
+      </button>
+    </div>
+
+  }
+
   <div class="input-container">
 
     <div class="input-area">
@@ -93,19 +116,28 @@
         aria-label="Votre message"
       ></textarea>
 
-      <button
-        type="button"
-        (click)="sendStreamMessage()"
-        [disabled]="!message().trim() || isStreaming()"
-      >
-        @if (isStreaming()) {
-          <span>⏳</span>
-          Envoi...
-        } @else {
+      @if (isStreaming()) {
+
+        <button
+          type="button"
+          (click)="stopStreaming()"
+        >
+          <span>⏹</span>
+          Arrêter
+        </button>
+
+      } @else {
+
+        <button
+          type="button"
+          (click)="sendStreamMessage()"
+          [disabled]="!message().trim()"
+        >
           <span>➤</span>
           Envoyer
-        }
-      </button>
+        </button>
+
+      }
 
     </div>
 

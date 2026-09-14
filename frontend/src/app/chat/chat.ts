@@ -7,6 +7,7 @@ import {
   viewChild
 } from '@angular/core';
 
+import { Subscription } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 
 import { ChatService } from './chat.service';
@@ -26,6 +27,7 @@ interface ChatMessage {
 export class Chat {
 
   private readonly chatService = inject(ChatService);
+  private streamSubscription?: Subscription;
 
   message = signal('');
   response = signal('');
@@ -37,6 +39,7 @@ export class Chat {
   messages = signal<ChatMessage[]>([]);
 
   isStreaming = signal(false);
+  errorMessage = signal<string | null>(null);
 
   conversationElement =
     viewChild<ElementRef<HTMLDivElement>>('conversation');
@@ -47,7 +50,6 @@ export class Chat {
 
       read: () => {
         this.messages();
-
         this.scrollConversationToBottom();
       }
 
@@ -97,6 +99,7 @@ export class Chat {
     }
 
     this.isStreaming.set(true);
+    this.errorMessage.set(null);
 
     this.streamResponse.set('');
 
@@ -120,7 +123,8 @@ export class Chat {
       }
     ]);
 
-    this.chatService
+    this.streamSubscription =
+      this.chatService
       .streamChat(this.conversationId(), message)
       .subscribe({
 
@@ -170,7 +174,32 @@ export class Chat {
             error
           );
 
+          this.errorMessage.set(
+            'Une erreur est survenue pendant la réponse. Veuillez réessayer.'
+          );
+
           this.isStreaming.set(false);
+
+          this.streamSubscription = undefined;
+
+          this.messages.update(current => {
+
+            const updated = [...current];
+
+            const lastMessage =
+              updated[updated.length - 1];
+
+            if (lastMessage?.role === 'assistant') {
+
+              updated[updated.length - 1] = {
+                ...lastMessage,
+                content: this.streamResponse(),
+                streaming: false
+              };
+            }
+
+            return updated;
+          });
         },
 
         complete: () => {
@@ -209,6 +238,34 @@ export class Chat {
           this.message.set('');
         }
       });
+  }
+
+stopStreaming(): void {
+    if (!this.isStreaming()) {
+      return;
+    }
+
+    this.streamSubscription?.unsubscribe();
+    this.streamSubscription = undefined;
+
+    this.isStreaming.set(false);
+
+    this.messages.update(current => {
+      const updated = [...current];
+
+      const lastMessage =
+        updated[updated.length - 1];
+
+      if (lastMessage?.role === 'assistant') {
+        updated[updated.length - 1] = {
+          ...lastMessage,
+          content: this.streamResponse(),
+          streaming: false
+        };
+      }
+
+      return updated;
+    });
   }
 
   onEnter(event: Event): void {
