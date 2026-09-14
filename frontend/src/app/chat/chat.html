@@ -1,150 +1,157 @@
 <section class="chat-page">
 
-  <header class="chat-header">
-    <div class="chat-icon">✈️</div>
+  <app-conversation-list
+    (conversationSelected)="onConversationSelected($event)"
+  />
 
-    <div>
-      <h1>SmartTrip</h1>
-      <p>Votre assistant de voyage IA</p>
-    </div>
-  </header>
+  <div class="chat-content">
 
-  <div class="conversation" #conversation>
+    <header class="chat-header">
+      <div class="chat-icon">✈️</div>
 
-    @if (messages().length === 0) {
-
-      <div class="welcome-message">
-        <div class="welcome-icon">🌍</div>
-
-        <h2>Bonjour ! 👋</h2>
-
-        <p>
-          Je suis votre assistant de voyage.
-          Posez-moi une question sur votre prochaine destination.
-        </p>
-
-        <div class="suggestions">
-          <span>🏛️ Que visiter à Rome ?</span>
-          <span>🍝 Où manger à Rome ?</span>
-          <span>🗓️ Organiser mon séjour</span>
-        </div>
+      <div>
+        <h1>SmartTrip</h1>
+        <p>Votre assistant de voyage IA</p>
       </div>
+    </header>
 
-    }
+    <div class="conversation" #conversation>
 
-    @for (message of messages(); track $index) {
+      @if (messages().length === 0) {
 
-      <div
-        class="message"
-        [class.user-message]="message.role === 'user'"
-        [class.assistant-message]="message.role === 'assistant'"
-      >
+        <div class="welcome-message">
+          <div class="welcome-icon">🌍</div>
 
-        <div class="message-author">
+          <h2>Bonjour ! 👋</h2>
 
-          @if (message.role === 'user') {
-            <span>👤</span>
-            Vous
-          } @else {
-            <span>✈️</span>
-            SmartTrip
-          }
+          <p>
+            Je suis votre assistant de voyage.
+            Posez-moi une question sur votre prochaine destination.
+          </p>
 
+          <div class="suggestions">
+            <span>🏛️ Que visiter à Rome ?</span>
+            <span>🍝 Où manger à Rome ?</span>
+            <span>🗓️ Organiser mon séjour</span>
+          </div>
         </div>
 
-        <div class="message-content">
+      }
 
-          @if (message.streaming) {
+      @for (message of messages(); track $index) {
 
-            <markdown
-              [data]="message.content">
-            </markdown>
+        <div
+          class="message"
+          [class.user-message]="message.role === 'user'"
+          [class.assistant-message]="message.role === 'assistant'"
+        >
 
-            @if (isStreaming()) {
-              <span class="typing-cursor"></span>
+          <div class="message-author">
+
+            @if (message.role === 'user') {
+              <span>👤</span>
+              Vous
+            } @else {
+              <span>✈️</span>
+              SmartTrip
             }
 
-          } @else {
+          </div>
 
-            <markdown
-              [data]="message.content">
-            </markdown>
+          <div class="message-content">
 
-          }
+            @if (message.streaming) {
+
+              <markdown
+                [data]="message.content">
+              </markdown>
+
+              @if (isStreaming()) {
+                <span class="typing-cursor"></span>
+              }
+
+            } @else {
+
+              <markdown
+                [data]="message.content">
+              </markdown>
+
+            }
+
+          </div>
 
         </div>
-
-      </div>
-
-    }
-
-  </div>
-
-  @if (errorMessage()) {
-
-    <div
-      class="chat-error"
-      role="alert"
-    >
-      <span>⚠️</span>
-
-      <span>
-        {{ errorMessage() }}
-      </span>
-
-      <button
-        type="button"
-        (click)="errorMessage.set(null)"
-        aria-label="Fermer le message d'erreur"
-      >
-        ✕
-      </button>
-    </div>
-
-  }
-
-  <div class="input-container">
-
-    <div class="input-area">
-
-      <textarea
-        placeholder="Posez votre question..."
-        [value]="message()"
-        (input)="message.set($any($event.target).value)"
-        (keydown.enter)="onEnter($event)"
-        [disabled]="isStreaming()"
-        aria-label="Votre message"
-      ></textarea>
-
-      @if (isStreaming()) {
-
-        <button
-          type="button"
-          (click)="stopStreaming()"
-        >
-          <span>⏹</span>
-          Arrêter
-        </button>
-
-      } @else {
-
-        <button
-          type="button"
-          (click)="sendStreamMessage()"
-          [disabled]="!message().trim()"
-        >
-          <span>➤</span>
-          Envoyer
-        </button>
 
       }
 
     </div>
 
-    <p class="input-hint">
-      Entrée pour envoyer · Shift + Entrée pour un retour à la ligne
-    </p>
+    @if (errorMessage()) {
 
+      <div
+        class="chat-error"
+        role="alert"
+      >
+        <span>⚠️</span>
+
+        <span>
+          {{ errorMessage() }}
+        </span>
+
+        <button
+          type="button"
+          (click)="errorMessage.set(null)"
+          aria-label="Fermer le message d'erreur"
+        >
+          ✕
+        </button>
+      </div>
+
+    }
+
+    <div class="input-container">
+
+      <div class="input-area">
+
+        <textarea
+          placeholder="Posez votre question..."
+          [value]="message()"
+          (input)="message.set($any($event.target).value)"
+          (keydown.enter)="onEnter($event)"
+          [disabled]="isStreaming()"
+          aria-label="Votre message"
+        ></textarea>
+
+        @if (isStreaming()) {
+
+          <button
+            type="button"
+            (click)="stopStreaming()"
+          >
+            <span>⏹</span>
+            Arrêter
+          </button>
+
+        } @else {
+
+          <button
+            type="button"
+            (click)="sendStreamMessage()"
+            [disabled]="!message().trim()"
+          >
+            <span>➤</span>
+            Envoyer
+          </button>
+
+        }
+
+      </div>
+
+      <p class="input-hint">
+        Entrée pour envoyer · Shift + Entrée pour un retour à la ligne
+      </p>
+
+    </div>
   </div>
 
 </section>

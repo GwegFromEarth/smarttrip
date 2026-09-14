@@ -4,6 +4,7 @@ import { vi } from 'vitest';
 
 import { Chat } from './chat';
 import { ChatService } from './chat.service';
+import { ConversationService } from '../conversation/conversation.service';
 
 describe('Chat', () => {
 
@@ -16,12 +17,21 @@ describe('Chat', () => {
       streamChat: vi.fn()
     };
 
+    const conversationService = {
+      getConversations: vi.fn().mockReturnValue(of([])),
+      getMessages: vi.fn().mockReturnValue(of([]))
+    };
+
     await TestBed.configureTestingModule({
       imports: [Chat],
       providers: [
         {
           provide: ChatService,
           useValue: chatService
+        },
+        {
+          provide: ConversationService,
+          useValue: conversationService
         }
       ]
     }).compileComponents();

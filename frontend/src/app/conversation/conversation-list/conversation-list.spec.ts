@@ -171,4 +171,23 @@ describe('ConversationList', () => {
 
   });
 
+  it('should emit the selected conversation id', () => {
+
+    const conversationId = 42;
+
+    let emittedId: number | undefined;
+
+    component.conversationSelected.subscribe(
+        id => emittedId = id
+    );
+
+    component.selectConversation(conversationId);
+
+    expect(component.selectedConversationId())
+        .toBe(conversationId);
+
+    expect(emittedId)
+        .toBe(conversationId);
+    });
+
 });

@@ -11,6 +11,8 @@ import { Subscription } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 
 import { ChatService } from './chat.service';
+import { ConversationService } from '../conversation/conversation.service';
+import { ConversationList } from '../conversation/conversation-list/conversation-list';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -20,13 +22,17 @@ interface ChatMessage {
 
 @Component({
   selector: 'app-chat',
-  imports: [MarkdownComponent],
+  imports: [
+    MarkdownComponent,
+    ConversationList
+  ],
   templateUrl: './chat.html',
   styleUrl: './chat.css'
 })
 export class Chat {
 
   private readonly chatService = inject(ChatService);
+  private readonly conversationService = inject(ConversationService);
   private streamSubscription?: Subscription;
 
   message = signal('');
@@ -92,25 +98,25 @@ export class Chat {
 
   private formatMarkdown(content: string): string {
 
-  return content
-    // Liste collée au texte précédent :
-    // "Rome :1. **Villa Borghese**"
-    // devient :
-    // "Rome :\n\n1. **Villa Borghese**"
-    .replace(
-      /([.!?:])\s*(?=\d+\.\s+\*\*)/g,
-      '$1\n\n'
-    )
+    return content
+      // Liste collée au texte précédent :
+      // "Rome :1. **Villa Borghese**"
+      // devient :
+      // "Rome :\n\n1. **Villa Borghese**"
+      .replace(
+        /([.!?:])\s*(?=\d+\.\s+\*\*)/g,
+        '$1\n\n'
+      )
 
-    // Éléments de liste collés :
-    // "... Borghese.2. **Villa Doria Pamphili**"
-    // devient :
-    // "... Borghese.\n\n2. **Villa Doria Pamphili**"
-    .replace(
-      /([.!?])\s*(?=\d+\.\s+\*\*)/g,
-      '$1\n\n'
-    );
-}
+      // Éléments de liste collés :
+      // "... Borghese.2. **Villa Doria Pamphili**"
+      // devient :
+      // "... Borghese.\n\n2. **Villa Doria Pamphili**"
+      .replace(
+        /([.!?])\s*(?=\d+\.\s+\*\*)/g,
+        '$1\n\n'
+      );
+  }
 
   sendStreamMessage(): void {
 
@@ -302,5 +308,36 @@ stopStreaming(): void {
     keyboardEvent.preventDefault();
 
     this.sendStreamMessage();
+  }
+
+  onConversationSelected(
+    conversationId: number
+  ): void {
+
+    this.conversationId.set(conversationId);
+
+    this.conversationService
+      .getMessages(conversationId)
+      .subscribe({
+        next: messages => {
+          this.messages.set(
+            messages.map(message => ({
+              role: message.role,
+              content: message.content
+            }))
+          );
+        },
+
+        error: error => {
+          console.error(
+            'Erreur lors du chargement de la conversation :',
+            error
+          );
+
+          this.errorMessage.set(
+            'Impossible de charger cette conversation.'
+          );
+        }
+      });
   }
 }

@@ -2,6 +2,7 @@ import {
   Component,
   inject,
   OnInit,
+  output,
   signal
 } from '@angular/core';
 
@@ -30,6 +31,8 @@ export class ConversationList implements OnInit {
 
   selectedConversationId =
     signal<number | null>(null);
+
+  conversationSelected = output<number>();
 
   loading =
     signal(false);
@@ -78,6 +81,10 @@ export class ConversationList implements OnInit {
   ): void {
 
     this.selectedConversationId.set(
+      conversationId
+    );
+
+    this.conversationSelected.emit(
       conversationId
     );
   }
