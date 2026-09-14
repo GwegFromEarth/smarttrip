@@ -34,6 +34,8 @@ export class ConversationList implements OnInit {
 
   conversationSelected = output<number>();
 
+  newConversation = output<void>();
+
   loading =
     signal(false);
 
@@ -87,5 +89,9 @@ export class ConversationList implements OnInit {
     this.conversationSelected.emit(
       conversationId
     );
+  }
+
+  startNewConversation(): void {
+    this.newConversation.emit();
   }
 }

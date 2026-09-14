@@ -340,4 +340,18 @@ stopStreaming(): void {
         }
       });
   }
+
+  onNewConversation(): void {
+
+    this.streamSubscription?.unsubscribe();
+    this.streamSubscription = undefined;
+
+    this.conversationId.set(null);
+    this.messages.set([]);
+    this.streamResponse.set('');
+    this.response.set('');
+    this.message.set('');
+    this.errorMessage.set(null);
+    this.isStreaming.set(false);
+  }
 }
