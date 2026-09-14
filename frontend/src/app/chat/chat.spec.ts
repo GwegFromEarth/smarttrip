@@ -81,8 +81,8 @@ describe('Chat', () => {
 
     const button =
       fixture.nativeElement.querySelector(
-        'button'
-      ) as HTMLButtonElement;
+      'button[aria-label="Envoyer le message"]'
+    ) as HTMLButtonElement;
 
     expect(button.disabled)
       .toBe(true);
