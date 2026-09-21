@@ -121,7 +121,9 @@
         }
 
 
-        <!-- Messages -->
+        <!-- =====================================================
+             MESSAGES
+             ===================================================== -->
 
         @for (message of messages(); track $index) {
 
@@ -154,6 +156,8 @@
             </div>
 
 
+            <!-- Contenu du message -->
+
             <div class="message-content">
 
               @if (message.streaming) {
@@ -176,122 +180,149 @@
 
             </div>
 
-          </div>
 
-        }
+            <!-- =================================================
+                 LIEUX ASSOCIÉS À CETTE RÉPONSE
+                 ================================================= -->
 
+            @if (
+              message.role === 'assistant' &&
+              message.places &&
+              message.places.length > 0
+            ) {
 
-        <!-- Lieux retournés par les outils -->
+              <section class="places-section">
 
-        @if (places().length > 0) {
+                <div class="places-header">
 
-          <section class="places-section">
+                  <span class="places-header-icon">
+                    📍
+                  </span>
 
-            <div class="places-header">
+                  <div>
+                    <h2>
+                      Lieux à découvrir
+                    </h2>
 
-              <span class="places-header-icon">
-                📍
-              </span>
-
-              <div>
-                <h2>Lieux à découvrir</h2>
-                <p>
-                  Sélectionnés par SmartTrip
-                </p>
-              </div>
-
-            </div>
-
-
-            <div class="places-grid">
-
-              @for (place of places(); track place.placeId) {
-
-                <article class="place-card">
-
-                  <div class="place-card-header">
-
-                    <h3>
-                      {{ place.name }}
-                    </h3>
-
-                    @if (place.rating !== null) {
-
-                      <span class="place-rating">
-                        ⭐ {{ place.rating }}
-                      </span>
-
-                    }
-
+                    <p>
+                      Sélectionnés par SmartTrip
+                    </p>
                   </div>
 
-
-                  @if (place.address) {
-
-                    <p class="place-address">
-                      📍 {{ place.address }}
-                    </p>
-
-                  }
+                </div>
 
 
-                  @if (place.categories?.length) {
+                <div class="places-grid">
 
-                    <div class="place-categories">
+                  @for (
+                    place of message.places;
+                    track place.placeId
+                  ) {
 
-                      @for (
-                        category of place.categories;
-                        track category
-                      ) {
+                    <article class="place-card">
 
-                        <span class="place-category">
-                          {{ category }}
-                        </span>
+                      <!-- En-tête -->
+
+                      <div class="place-card-header">
+
+                        <h3>
+                          {{ place.name }}
+                        </h3>
+
+                        @if (place.rating !== null) {
+
+                          <span class="place-rating">
+                            ⭐ {{ place.rating }}
+                          </span>
+
+                        }
+
+                      </div>
+
+
+                      <!-- Adresse -->
+
+                      @if (place.address) {
+
+                        <p class="place-address">
+                          📍 {{ place.address }}
+                        </p>
 
                       }
 
-                    </div>
+
+                      <!-- Catégories -->
+
+                      @if (
+                        place.categories &&
+                        place.categories.length > 0
+                      ) {
+
+                        <div class="place-categories">
+
+                          @for (
+                            category of place.categories;
+                            track category
+                          ) {
+
+                            <span class="place-category">
+                              {{ category }}
+                            </span>
+
+                          }
+
+                        </div>
+
+                      }
+
+
+                      <!-- Distance -->
+
+                      @if (place.distance !== null) {
+
+                        <p class="place-distance">
+                          À {{ place.distance }} m
+                        </p>
+
+                      }
+
+
+                      <!-- Site web -->
+
+                      @if (place.website) {
+
+                        <a
+                          class="place-link"
+                          [href]="place.website"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Voir le site
+                          <span>↗</span>
+                        </a>
+
+                      }
+
+                    </article>
 
                   }
 
+                </div>
 
-                  @if (place.distance !== null) {
+              </section>
 
-                    <p class="place-distance">
-                      À {{ place.distance }} m
-                    </p>
+            }
 
-                  }
-
-
-                  @if (place.website) {
-
-                    <a
-                      class="place-link"
-                      [href]="place.website"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Voir le site
-                      <span>↗</span>
-                    </a>
-
-                  }
-
-                </article>
-
-              }
-
-            </div>
-
-          </section>
+          </div>
 
         }
 
       </div>
 
 
-      <!-- Message d'erreur -->
+      <!-- =====================================================
+           MESSAGE D'ERREUR
+           ===================================================== -->
 
       @if (errorMessage()) {
 
@@ -321,7 +352,9 @@
       }
 
 
-      <!-- Composer -->
+      <!-- =====================================================
+           COMPOSER
+           ===================================================== -->
 
       <div class="composer">
 
@@ -363,6 +396,7 @@
           }
 
         </div>
+
 
         <p class="input-hint">
           Entrée pour envoyer · Shift + Entrée pour un retour à la ligne

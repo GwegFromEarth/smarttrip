@@ -1,26 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-export interface PlaceDto {
-  placeId: string;
-  name: string;
-  description: string | null;
-  latitude: number;
-  longitude: number;
-  category: string;
-  address: string | null;
-  distance: number | null;
-  rating: number | null;
-  popularity: number | null;
-  tel: string | null;
-  website: string | null;
-  categories: string[];
-}
-
 export interface StreamEvent {
   type: 'conversation' | 'content' | 'places';
   data: string;
-  places?: PlaceDto[];
 }
 
 export interface ChatRequest {
@@ -82,14 +65,18 @@ export class ChatService {
             );
           }
 
-          const reader = response.body.getReader();
-          const decoder = new TextDecoder('utf-8');
+          const reader =
+            response.body.getReader();
+
+          const decoder =
+            new TextDecoder('utf-8');
 
           let buffer = '';
 
           while (true) {
 
-            const { value, done } = await reader.read();
+            const { value, done } =
+              await reader.read();
 
             if (done) {
               break;
@@ -99,9 +86,13 @@ export class ChatService {
               stream: true
             });
 
-            const events = buffer.split('\n\n');
+            // Un événement SSE est séparé du suivant
+            // par une ligne vide.
+            const events =
+              buffer.split('\n\n');
 
-            buffer = events.pop() ?? '';
+            buffer =
+              events.pop() ?? '';
 
             for (const event of events) {
 
@@ -109,14 +100,46 @@ export class ChatService {
                 continue;
               }
 
-              this.processSseEvent(
-                event,
-                subscriber
-              );
+              let eventType = 'content';
+              let data = '';
+
+              const lines =
+                event.split('\n');
+
+              for (const line of lines) {
+
+                if (line.startsWith('event:')) {
+
+                  eventType =
+                    line.substring(6).trim();
+                }
+
+                if (line.startsWith('data:')) {
+
+                  const rawData =
+                    line.substring(5);
+
+                  data += rawData;
+                }
+              }
+
+              if (data) {
+
+                subscriber.next({
+                  type:
+                    eventType === 'conversation'
+                      ? 'conversation'
+                      : eventType === 'places'
+                        ? 'places'
+                        : 'content',
+                  data
+                });
+              }
             }
           }
 
-          // Dernier événement éventuel
+          // Traiter éventuellement le dernier événement
+          // si le serveur ne termine pas par \n\n.
           if (buffer.trim()) {
 
             console.log(
@@ -124,10 +147,38 @@ export class ChatService {
               JSON.stringify(buffer)
             );
 
-            this.processSseEvent(
-              buffer,
-              subscriber
-            );
+            let eventType = 'content';
+            let data = '';
+
+            for (const line of buffer.split('\n')) {
+
+              if (line.startsWith('event:')) {
+
+                eventType =
+                  line.substring(6).trim();
+              }
+
+              if (line.startsWith('data:')) {
+
+                const rawData =
+                  line.substring(5);
+
+                data += rawData;
+              }
+            }
+
+            if (data) {
+
+              subscriber.next({
+                type:
+                  eventType === 'conversation'
+                    ? 'conversation'
+                    : eventType === 'places'
+                      ? 'places'
+                      : 'content',
+                data
+              });
+            }
           }
 
           subscriber.complete();
@@ -148,86 +199,6 @@ export class ChatService {
       return () => {
         controller.abort();
       };
-    });
-  }
-
-  private processSseEvent(
-    event: string,
-    subscriber: {
-      next: (value: StreamEvent) => void;
-    }
-  ): void {
-
-    let eventType = 'content';
-    let data = '';
-
-    const lines = event.split('\n');
-
-    for (const line of lines) {
-
-      if (line.startsWith('event:')) {
-
-        eventType = line
-          .substring(6)
-          .trim();
-      }
-
-      if (line.startsWith('data:')) {
-
-        const rawData =
-          line.substring(5);
-
-        data += rawData;
-      }
-    }
-
-    if (!data) {
-      return;
-    }
-
-    if (eventType === 'conversation') {
-
-      subscriber.next({
-        type: 'conversation',
-        data
-      });
-
-      return;
-    }
-
-    if (eventType === 'places') {
-
-      try {
-
-        const places: PlaceDto[] =
-          JSON.parse(data);
-
-        console.log(
-          'Lieux reçus depuis le backend :',
-          places
-        );
-
-        subscriber.next({
-          type: 'places',
-          data,
-          places
-        });
-
-      } catch (error) {
-
-        console.error(
-          'Impossible de parser les lieux reçus :',
-          error,
-          data
-        );
-      }
-
-      return;
-    }
-
-    subscriber.next({
-      type: 'content',
-      data
     });
   }
 }

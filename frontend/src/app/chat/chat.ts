@@ -10,17 +10,31 @@ import {
 import { Subscription } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 
-import {
-  ChatService,
-  PlaceDto
-} from './chat.service';
+import { ChatService } from './chat.service';
 import { ConversationService } from '../conversation/conversation.service';
 import { ConversationList } from '../conversation/conversation-list/conversation-list';
+
+export interface PlaceDto {
+  placeId: string;
+  name: string;
+  description: string | null;
+  latitude: number;
+  longitude: number;
+  category: string;
+  address: string | null;
+  distance: number | null;
+  rating: number | null;
+  popularity: number | null;
+  tel: string | null;
+  website: string | null;
+  categories: string[];
+}
 
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   streaming?: boolean;
+  places?: PlaceDto[];
 }
 
 @Component({
@@ -36,6 +50,7 @@ export class Chat {
 
   private readonly chatService = inject(ChatService);
   private readonly conversationService = inject(ConversationService);
+
   private streamSubscription?: Subscription;
 
   message = signal('');
@@ -46,7 +61,6 @@ export class Chat {
   conversationId = signal<number | null>(null);
 
   messages = signal<ChatMessage[]>([]);
-  places = signal<PlaceDto[]>([]);
 
   isStreaming = signal(false);
   errorMessage = signal<string | null>(null);
@@ -88,21 +102,10 @@ export class Chat {
     });
   }
 
-  private scrollConversationToBottom(): void {
-
-    const element =
-      this.conversationElement()?.nativeElement;
-
-    if (!element) {
-      return;
-    }
-
-    element.scrollTop = element.scrollHeight;
-  }
-
   private formatMarkdown(content: string): string {
 
     return content
+
       // Liste collée au texte précédent :
       // "Rome :1. **Villa Borghese**"
       // devient :
@@ -120,6 +123,37 @@ export class Chat {
         /([.!?])\s*(?=\d+\.\s+\*\*)/g,
         '$1\n\n'
       );
+  }
+
+  /**
+   * Ajoute les lieux reçus du backend au dernier message assistant.
+   */
+  private addPlacesToLastAssistantMessage(
+    places: PlaceDto[]
+  ): void {
+
+    if (!places.length) {
+      return;
+    }
+
+    this.messages.update(current => {
+
+      const updated = [...current];
+
+      const lastMessage =
+        updated[updated.length - 1];
+
+      if (lastMessage?.role !== 'assistant') {
+        return updated;
+      }
+
+      updated[updated.length - 1] = {
+        ...lastMessage,
+        places
+      };
+
+      return updated;
+    });
   }
 
   sendStreamMessage(): void {
@@ -157,142 +191,166 @@ export class Chat {
 
     this.streamSubscription =
       this.chatService
-      .streamChat(this.conversationId(), message)
-      .subscribe({
+        .streamChat(
+          this.conversationId(),
+          message
+        )
+        .subscribe({
 
-        next: event => {
+          next: event => {
 
-          // =========================================================
-          // CONVERSATION
-          // =========================================================
+            // =====================================================
+            // CONVERSATION
+            // =====================================================
 
-          if (event.type === 'conversation') {
+            if (event.type === 'conversation') {
 
-            const conversationId =
-              Number(event.data);
+              const conversationId =
+                Number(event.data);
 
-            this.conversationId.set(conversationId);
+              this.conversationId.set(
+                conversationId
+              );
 
-            return;
-          }
+              return;
+            }
 
-          // =========================================================
-          // PLACES
-          // =========================================================
+            // =====================================================
+            // PLACES
+            // =====================================================
 
-          if (event.type === 'places') {
+            if (event.type === 'places') {
 
-            this.places.set(event.places ?? []);
+              try {
 
-            console.log(
-              'Places reçues dans le composant :',
-              this.places()
+                const places =
+                  JSON.parse(event.data) as PlaceDto[];
+
+                console.log(
+                  'Lieux reçus du backend :',
+                  places
+                );
+
+                this.addPlacesToLastAssistantMessage(
+                  places
+                );
+
+              } catch (error) {
+
+                console.error(
+                  'Impossible de parser les lieux reçus :',
+                  error,
+                  event.data
+                );
+              }
+
+              return;
+            }
+
+            // =====================================================
+            // CONTENT
+            // =====================================================
+
+            this.streamResponse.update(
+              current => current + event.data
             );
 
-            return;
-          }
+            // Mettre à jour le dernier message assistant.
+            this.messages.update(current => {
 
-          // =========================================================
-          // CONTENT
-          // =========================================================
+              const updated = [...current];
 
-          this.streamResponse.update(
-            current => current + event.data
-          );
+              const lastMessage =
+                updated[updated.length - 1];
 
-          this.messages.update(current => {
+              if (lastMessage?.role === 'assistant') {
 
-            const updated = [...current];
+                updated[updated.length - 1] = {
+                  ...lastMessage,
+                  content: this.streamResponse()
+                };
+              }
 
-            const lastMessage =
-              updated[updated.length - 1];
+              return updated;
+            });
+          },
 
-            if (lastMessage?.role === 'assistant') {
+          error: error => {
 
-              updated[updated.length - 1] = {
-                ...lastMessage,
-                content: this.streamResponse()
-              };
-            }
-
-            return updated;
-          });
-        },
-
-        error: error => {
-
-          console.error(
-            'Erreur lors du streaming :',
-            error
-          );
-
-          this.errorMessage.set(
-            'Une erreur est survenue pendant la réponse. Veuillez réessayer.'
-          );
-
-          this.isStreaming.set(false);
-
-          this.streamSubscription = undefined;
-
-          this.messages.update(current => {
-
-            const updated = [...current];
-
-            const lastMessage =
-              updated[updated.length - 1];
-
-            if (lastMessage?.role === 'assistant') {
-
-              updated[updated.length - 1] = {
-                ...lastMessage,
-                content: this.streamResponse(),
-                streaming: false
-              };
-            }
-
-            return updated;
-          });
-        },
-
-        complete: () => {
-
-          /*
-           * Le streaming est terminé.
-           *
-           * On normalise le Markdown uniquement maintenant.
-           * Cela évite de modifier le contenu à chaque chunk.
-           */
-          const formattedResponse =
-            this.formatMarkdown(
-              this.streamResponse()
+            console.error(
+              'Erreur lors du streaming :',
+              error
             );
 
-          this.messages.update(current => {
+            this.errorMessage.set(
+              'Une erreur est survenue pendant la réponse. Veuillez réessayer.'
+            );
 
-            const updated = [...current];
+            this.isStreaming.set(false);
 
-            const lastMessage =
-              updated[updated.length - 1];
+            this.streamSubscription = undefined;
 
-            if (lastMessage?.role === 'assistant') {
+            this.messages.update(current => {
 
-              updated[updated.length - 1] = {
-                ...lastMessage,
-                content: formattedResponse,
-                streaming: false
-              };
-            }
+              const updated = [...current];
 
-            return updated;
-          });
+              const lastMessage =
+                updated[updated.length - 1];
 
-          this.isStreaming.set(false);
-          this.message.set('');
-        }
-      });
+              if (lastMessage?.role === 'assistant') {
+
+                updated[updated.length - 1] = {
+                  ...lastMessage,
+                  content: this.streamResponse(),
+                  streaming: false
+                };
+              }
+
+              return updated;
+            });
+          },
+
+          complete: () => {
+
+            /*
+             * Le streaming est terminé.
+             *
+             * On normalise le Markdown uniquement maintenant.
+             * Cela évite de modifier le contenu à chaque chunk.
+             */
+            const formattedResponse =
+              this.formatMarkdown(
+                this.streamResponse()
+              );
+
+            this.messages.update(current => {
+
+              const updated = [...current];
+
+              const lastMessage =
+                updated[updated.length - 1];
+
+              if (lastMessage?.role === 'assistant') {
+
+                updated[updated.length - 1] = {
+                  ...lastMessage,
+                  content: formattedResponse,
+                  streaming: false
+                };
+              }
+
+              return updated;
+            });
+
+            this.isStreaming.set(false);
+            this.message.set('');
+            this.streamSubscription = undefined;
+          }
+        });
   }
 
-stopStreaming(): void {
+  stopStreaming(): void {
+
     if (!this.isStreaming()) {
       return;
     }
@@ -303,12 +361,14 @@ stopStreaming(): void {
     this.isStreaming.set(false);
 
     this.messages.update(current => {
+
       const updated = [...current];
 
       const lastMessage =
         updated[updated.length - 1];
 
       if (lastMessage?.role === 'assistant') {
+
         updated[updated.length - 1] = {
           ...lastMessage,
           content: this.streamResponse(),
@@ -338,12 +398,16 @@ stopStreaming(): void {
     conversationId: number
   ): void {
 
-    this.conversationId.set(conversationId);
+    this.conversationId.set(
+      conversationId
+    );
 
     this.conversationService
       .getMessages(conversationId)
       .subscribe({
+
         next: messages => {
+
           this.messages.set(
             messages.map(message => ({
               role: message.role,
@@ -353,6 +417,7 @@ stopStreaming(): void {
         },
 
         error: error => {
+
           console.error(
             'Erreur lors du chargement de la conversation :',
             error
@@ -371,12 +436,17 @@ stopStreaming(): void {
     this.streamSubscription = undefined;
 
     this.conversationId.set(null);
+
     this.messages.set([]);
-    this.places.set([]);
+
     this.streamResponse.set('');
+
     this.response.set('');
+
     this.message.set('');
+
     this.errorMessage.set(null);
+
     this.isStreaming.set(false);
   }
 }
