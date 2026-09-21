@@ -412,6 +412,160 @@ markdown li {
 
 
 /* =========================================================
+   PLACES
+   ========================================================= */
+
+.places-container {
+  width: min(100%, 760px);
+
+  margin-top: 0.85rem;
+}
+
+.places-title {
+  display: flex;
+  align-items: center;
+
+  gap: 0.5rem;
+
+  margin-bottom: 0.75rem;
+
+  color: #374151;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.places-list {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 0.75rem;
+}
+
+.place-card {
+  min-width: 0;
+
+  padding: 0.9rem;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04);
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.place-card:hover {
+  border-color: #bfdbfe;
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.07);
+
+  transform: translateY(-1px);
+}
+
+.place-card-header {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 0.65rem;
+}
+
+.place-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #eff6ff;
+
+  font-size: 1rem;
+}
+
+.place-info {
+  min-width: 0;
+}
+
+.place-name {
+  margin: 0;
+
+  color: #1f2937;
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
+}
+
+.place-category {
+  margin-top: 0.15rem;
+
+  color: #6b7280;
+
+  font-size: 0.7rem;
+}
+
+.place-address {
+  margin: 0.65rem 0 0;
+
+  color: #6b7280;
+
+  font-size: 0.75rem;
+
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+.place-meta {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 0.5rem;
+
+  margin-top: 0.65rem;
+}
+
+.place-meta-item {
+  color: #6b7280;
+
+  font-size: 0.7rem;
+}
+
+.place-link {
+  display: inline-block;
+
+  margin-top: 0.65rem;
+
+  color: #2563eb;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  text-decoration: none;
+}
+
+.place-link:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================================
    STREAMING
    ========================================================= */
 
@@ -632,6 +786,10 @@ markdown li {
   .suggestions {
     grid-template-columns: 1fr;
   }
+
+  .places-list {
+    grid-template-columns: 1fr;
+  }
 }
 
 
@@ -678,6 +836,14 @@ markdown li {
 
   .message {
     max-width: 92%;
+  }
+
+  .places-container {
+    width: 100%;
+  }
+
+  .places-list {
+    grid-template-columns: 1fr;
   }
 
   .composer {

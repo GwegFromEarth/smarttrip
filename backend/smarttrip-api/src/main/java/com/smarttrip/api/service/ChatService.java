@@ -12,7 +12,6 @@ import com.smarttrip.api.repository.TripRepository;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.ai.chat.messages.SystemMessage;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
@@ -302,6 +301,98 @@ public class ChatService {
                 });
     }
 
+    public AiChatService.StreamResponseWithPlaces generateResponseWithPlaces(
+            Conversation conversation
+    ) {
+
+        // =========================================================
+        // 1. HISTORIQUE
+        // =========================================================
+
+        List<org.springframework.ai.chat.messages.Message> messages =
+                buildChatHistory(conversation.getId());
+
+        Trip trip = conversation.getTrip();
+
+        String destination =
+                trip != null
+                        ? trip.getDestination()
+                        : null;
+
+        List<org.springframework.ai.chat.messages.Message> messagesWithTripContext =
+                buildMessagesWithTripContext(
+                        messages,
+                        trip,
+                        destination
+                );
+
+        // =========================================================
+        // 2. DERNIER MESSAGE UTILISATEUR
+        // =========================================================
+
+        String userQuestion =
+                messages.stream()
+                        .filter(message -> message instanceof UserMessage)
+                        .map(message -> message.getText())
+                        .reduce((first, second) -> second)
+                        .orElse("");
+
+        // =========================================================
+        // 3. RECHERCHE RAG
+        // =========================================================
+
+        String ragContext =
+                ragContextService.buildContext(
+                        userQuestion,
+                        destination
+                );
+
+        // =========================================================
+        // 4. APPEL IA AVEC COLLECTE DES PLACES
+        // =========================================================
+
+        AiChatService.StreamResponseWithPlaces response =
+                aiChatService.streamResponseWithPlaces(
+                        messagesWithTripContext,
+                        ragContext,
+                        placeTools
+                );
+
+        StringBuilder assistantResponse =
+                new StringBuilder();
+
+        Flux<String> contentStream =
+                response.content()
+                        .doOnNext(assistantResponse::append)
+                        .doOnComplete(() ->
+                                saveAssistantMessage(
+                                        conversation,
+                                        assistantResponse.toString()
+                                )
+                        )
+                        .onErrorResume(exception -> {
+
+                            if (isQuotaExceeded(exception)) {
+
+                                return Flux.just(
+                                        "Désolé, le service IA a temporairement atteint " +
+                                                "sa limite d'utilisation. " +
+                                                "Veuillez réessayer un peu plus tard."
+                                );
+                            }
+
+                            return Flux.just(
+                                    "Désolé, le service IA est temporairement indisponible. " +
+                                            "Veuillez réessayer dans quelques instants."
+                            );
+                        });
+
+        return new AiChatService.StreamResponseWithPlaces(
+                contentStream,
+                response.placeToolContext()
+        );
+    }
+
     private List<org.springframework.ai.chat.messages.Message> buildMessagesWithTripContext(
             List<org.springframework.ai.chat.messages.Message> messages,
             Trip trip,
@@ -313,32 +404,30 @@ public class ChatService {
         }
 
         List<org.springframework.ai.chat.messages.Message> enrichedMessages =
-                new ArrayList<>();
+                new ArrayList<>(messages);
 
-        enrichedMessages.add(
-                new SystemMessage(
-                        """
-                        CONTEXTE DU VOYAGE SMARTTRIP
-    
-                        Destination : %s
-                        Date de début : %s
-                        Date de fin : %s
-                        Nombre de voyageurs : %d
-                        Préférences : %s
-    
-                        Utilise ces informations pour personnaliser tes réponses
-                        lorsque cela est pertinent.
-                        """.formatted(
-                                destination,
-                                trip.getStartDate(),
-                                trip.getEndDate(),
-                                trip.getTravelers(),
-                                trip.getPreferences()
-                        )
-                )
+        String tripContext = """
+            CONTEXTE DU VOYAGE SMARTTRIP
+
+            Destination : %s
+            Date de début : %s
+            Date de fin : %s
+            Nombre de voyageurs : %d
+            Préférences : %s
+
+            Utilise ces informations pour personnaliser tes réponses
+            lorsque cela est pertinent.
+            """.formatted(
+                destination,
+                trip.getStartDate(),
+                trip.getEndDate(),
+                trip.getTravelers(),
+                trip.getPreferences()
         );
 
-        enrichedMessages.addAll(messages);
+        enrichedMessages.add(
+                new UserMessage(tripContext)
+        );
 
         return enrichedMessages;
     }

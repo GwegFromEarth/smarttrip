@@ -1,10 +1,11 @@
 package com.smarttrip.api.service;
 
+import com.smarttrip.api.ai.PlaceToolContext;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.ai.chat.messages.Message;
-import org.springframework.ai.chat.messages.SystemMessage;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.List;
 
 @Service
 public class AiChatService {
+
+    private static final String PLACE_TOOL_CONTEXT = "placeToolContext";
 
     private final ChatClient geminiChatClient;
     private final ChatClient ollamaChatClient;
@@ -87,11 +90,59 @@ public class AiChatService {
                 );
     }
 
+    public StreamResponseWithPlaces streamResponseWithPlaces(
+            List<Message> messages,
+            String ragContext,
+            Object... tools
+    ) {
+
+        List<Message> messagesWithRagContext =
+                addRagContext(
+                        messages,
+                        ragContext
+                );
+
+        PlaceToolContext placeToolContext =
+                new PlaceToolContext();
+
+        Flux<String> contentStream =
+                geminiChatClient
+                        .prompt()
+                        .messages(messagesWithRagContext)
+                        .tools(tools)
+                        .advisors(advisorSpec ->
+                                advisorSpec.param(
+                                        PLACE_TOOL_CONTEXT,
+                                        placeToolContext
+                                )
+                        )
+                        .stream()
+                        .content()
+                        .onErrorResume(
+                                error -> ollamaChatClient
+                                        .prompt()
+                                        .messages(messagesWithRagContext)
+                                        .tools(tools)
+                                        .advisors(advisorSpec ->
+                                                advisorSpec.param(
+                                                        PLACE_TOOL_CONTEXT,
+                                                        placeToolContext
+                                                )
+                                        )
+                                        .stream()
+                                        .content()
+                        );
+
+        return new StreamResponseWithPlaces(
+                contentStream,
+                placeToolContext
+        );
+    }
+
     private List<Message> addRagContext(
             List<Message> messages,
             String ragContext
     ) {
-
         if (ragContext == null || ragContext.isBlank()) {
             return messages;
         }
@@ -99,24 +150,24 @@ public class AiChatService {
         List<Message> enrichedMessages =
                 new ArrayList<>(messages);
 
-        String contextMessage = """
-                CONTEXTE RAG SMARTTRIP
+        String ragAddition = """
+            CONTEXTE RAG SMARTTRIP
 
-                Les informations suivantes proviennent de la base
-                documentaire de SmartTrip.
+            Les informations suivantes proviennent de la base
+            documentaire de SmartTrip.
 
-                Utilise-les lorsqu'elles sont pertinentes pour répondre
-                à la question de l'utilisateur.
+            Utilise-les lorsqu'elles sont pertinentes pour répondre
+            à la question de l'utilisateur.
 
-                N'invente pas d'informations qui ne sont pas présentes
-                dans le contexte lorsque celui-ci fournit une réponse.
+            N'invente pas d'informations qui ne sont pas présentes
+            dans le contexte lorsque celui-ci fournit une réponse.
 
-                Contexte :
-                %s
-                """.formatted(ragContext);
+            Contexte :
+            %s
+            """.formatted(ragContext);
 
         enrichedMessages.add(
-                new SystemMessage(contextMessage)
+                new UserMessage(ragAddition)
         );
 
         return enrichedMessages;
@@ -154,5 +205,11 @@ public class AiChatService {
                                     .validateSchema()
                     );
         }
+    }
+
+    public record StreamResponseWithPlaces(
+            Flux<String> content,
+            PlaceToolContext placeToolContext
+    ) {
     }
 }

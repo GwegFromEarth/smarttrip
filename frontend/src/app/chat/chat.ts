@@ -10,7 +10,10 @@ import {
 import { Subscription } from 'rxjs';
 import { MarkdownComponent } from 'ngx-markdown';
 
-import { ChatService } from './chat.service';
+import {
+  ChatService,
+  PlaceDto
+} from './chat.service';
 import { ConversationService } from '../conversation/conversation.service';
 import { ConversationList } from '../conversation/conversation-list/conversation-list';
 
@@ -43,6 +46,7 @@ export class Chat {
   conversationId = signal<number | null>(null);
 
   messages = signal<ChatMessage[]>([]);
+  places = signal<PlaceDto[]>([]);
 
   isStreaming = signal(false);
   errorMessage = signal<string | null>(null);
@@ -158,8 +162,10 @@ export class Chat {
 
         next: event => {
 
-          // Premier événement envoyé par le backend :
-          // récupération de l'identifiant de conversation.
+          // =========================================================
+          // CONVERSATION
+          // =========================================================
+
           if (event.type === 'conversation') {
 
             const conversationId =
@@ -170,12 +176,30 @@ export class Chat {
             return;
           }
 
-          // Ajouter le chunk reçu à la réponse complète.
+          // =========================================================
+          // PLACES
+          // =========================================================
+
+          if (event.type === 'places') {
+
+            this.places.set(event.places ?? []);
+
+            console.log(
+              'Places reçues dans le composant :',
+              this.places()
+            );
+
+            return;
+          }
+
+          // =========================================================
+          // CONTENT
+          // =========================================================
+
           this.streamResponse.update(
             current => current + event.data
           );
 
-          // Mettre à jour le dernier message assistant.
           this.messages.update(current => {
 
             const updated = [...current];
@@ -348,6 +372,7 @@ stopStreaming(): void {
 
     this.conversationId.set(null);
     this.messages.set([]);
+    this.places.set([]);
     this.streamResponse.set('');
     this.response.set('');
     this.message.set('');

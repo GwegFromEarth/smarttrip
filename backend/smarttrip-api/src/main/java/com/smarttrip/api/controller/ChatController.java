@@ -1,5 +1,6 @@
 package com.smarttrip.api.controller;
 
+import tools.jackson.databind.ObjectMapper;
 import com.smarttrip.api.dto.ChatRequest;
 import com.smarttrip.api.model.Conversation;
 import com.smarttrip.api.service.AiChatService;
@@ -18,18 +19,28 @@ import org.springframework.web.bind.annotation.*;
 
 import reactor.core.publisher.Flux;
 
-@Tag(name = "Chat", description = "Interaction avec l'assistant IA SmartTrip")
+@Tag(
+        name = "Chat",
+        description = "Interaction avec l'assistant IA SmartTrip"
+)
 @RestController
 public class ChatController {
 
     private final ChatClient chatClient;
     private final ChatService chatService;
     private final AiChatService aiChatService;
+    private final ObjectMapper objectMapper;
 
-    public ChatController(ChatClient chatClient, ChatService chatService, AiChatService aiChatService) {
+    public ChatController(
+            ChatClient chatClient,
+            ChatService chatService,
+            AiChatService aiChatService,
+            ObjectMapper objectMapper
+    ) {
         this.chatClient = chatClient;
         this.chatService = chatService;
         this.aiChatService = aiChatService;
+        this.objectMapper = objectMapper;
     }
 
     @Operation(
@@ -48,7 +59,8 @@ public class ChatController {
                     description = "Message envoyé à l'assistant",
                     example = "Propose-moi trois lieux historiques à Rome"
             )
-            @RequestParam String message) {
+            @RequestParam String message
+    ) {
 
         return aiChatService.generateResponse(
                 message,
@@ -93,18 +105,45 @@ public class ChatController {
                                 .build()
                 );
 
-        Flux<ServerSentEvent<String>> responseStream =
-                chatService
-                        .generateResponse(conversation)
+        AiChatService.StreamResponseWithPlaces response =
+                chatService.generateResponseWithPlaces(conversation);
+
+        Flux<ServerSentEvent<String>> contentStream =
+                response.content()
                         .map(chunk ->
                                 ServerSentEvent.<String>builder()
+                                        .event("content")
                                         .data(chunk)
                                         .build()
                         );
 
+        Flux<ServerSentEvent<String>> placesEvent =
+                Flux.defer(() -> {
+
+                    try {
+
+                        String placesJson =
+                                objectMapper.writeValueAsString(
+                                        response.placeToolContext().getPlaces()
+                                );
+
+                        return Flux.just(
+                                ServerSentEvent.<String>builder()
+                                        .event("places")
+                                        .data(placesJson)
+                                        .build()
+                        );
+
+                    } catch (Exception exception) {
+
+                        return Flux.error(exception);
+                    }
+                });
+
         return Flux.concat(
                 conversationEvent,
-                responseStream
+                contentStream,
+                placesEvent
         );
     }
 }

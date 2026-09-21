@@ -121,6 +121,8 @@
         }
 
 
+        <!-- Messages -->
+
         @for (message of messages(); track $index) {
 
           <div
@@ -178,8 +180,118 @@
 
         }
 
+
+        <!-- Lieux retournés par les outils -->
+
+        @if (places().length > 0) {
+
+          <section class="places-section">
+
+            <div class="places-header">
+
+              <span class="places-header-icon">
+                📍
+              </span>
+
+              <div>
+                <h2>Lieux à découvrir</h2>
+                <p>
+                  Sélectionnés par SmartTrip
+                </p>
+              </div>
+
+            </div>
+
+
+            <div class="places-grid">
+
+              @for (place of places(); track place.placeId) {
+
+                <article class="place-card">
+
+                  <div class="place-card-header">
+
+                    <h3>
+                      {{ place.name }}
+                    </h3>
+
+                    @if (place.rating !== null) {
+
+                      <span class="place-rating">
+                        ⭐ {{ place.rating }}
+                      </span>
+
+                    }
+
+                  </div>
+
+
+                  @if (place.address) {
+
+                    <p class="place-address">
+                      📍 {{ place.address }}
+                    </p>
+
+                  }
+
+
+                  @if (place.categories?.length) {
+
+                    <div class="place-categories">
+
+                      @for (
+                        category of place.categories;
+                        track category
+                      ) {
+
+                        <span class="place-category">
+                          {{ category }}
+                        </span>
+
+                      }
+
+                    </div>
+
+                  }
+
+
+                  @if (place.distance !== null) {
+
+                    <p class="place-distance">
+                      À {{ place.distance }} m
+                    </p>
+
+                  }
+
+
+                  @if (place.website) {
+
+                    <a
+                      class="place-link"
+                      [href]="place.website"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Voir le site
+                      <span>↗</span>
+                    </a>
+
+                  }
+
+                </article>
+
+              }
+
+            </div>
+
+          </section>
+
+        }
+
       </div>
 
+
+      <!-- Message d'erreur -->
 
       @if (errorMessage()) {
 

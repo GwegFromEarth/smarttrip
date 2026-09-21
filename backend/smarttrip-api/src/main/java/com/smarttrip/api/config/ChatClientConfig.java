@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.vectorstore.VectorStore;
 
+import com.smarttrip.api.ai.PlaceToolObserver;
+
 @Configuration
 public class ChatClientConfig {
 
@@ -45,11 +47,13 @@ public class ChatClientConfig {
     @Bean
     @Primary
     public ChatClient geminiChatClient(
-            GoogleGenAiChatModel googleGenAiChatModel
+            GoogleGenAiChatModel googleGenAiChatModel,
+            PlaceToolObserver placeToolObserver
     ) {
         return ChatClient
                 .builder(googleGenAiChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
+                .defaultAdvisors(placeToolObserver)
                 .build();
     }
 

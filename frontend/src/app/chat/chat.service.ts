@@ -1,9 +1,26 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
+export interface PlaceDto {
+  placeId: string;
+  name: string;
+  description: string | null;
+  latitude: number;
+  longitude: number;
+  category: string;
+  address: string | null;
+  distance: number | null;
+  rating: number | null;
+  popularity: number | null;
+  tel: string | null;
+  website: string | null;
+  categories: string[];
+}
+
 export interface StreamEvent {
-  type: 'conversation' | 'content';
+  type: 'conversation' | 'content' | 'places';
   data: string;
+  places?: PlaceDto[];
 }
 
 export interface ChatRequest {
@@ -32,7 +49,10 @@ export class ChatService {
         message
       };
 
-      console.log('Requête envoyée au backend :', request);
+      console.log(
+        'Requête envoyée au backend :',
+        request
+      );
 
       fetch(`${this.apiUrl}/stream`, {
         method: 'POST',
@@ -79,8 +99,6 @@ export class ChatService {
               stream: true
             });
 
-            // Un événement SSE est séparé du suivant
-            // par une ligne vide.
             const events = buffer.split('\n\n');
 
             buffer = events.pop() ?? '';
@@ -91,40 +109,14 @@ export class ChatService {
                 continue;
               }
 
-              let eventType = 'content';
-              let data = '';
-
-              const lines = event.split('\n');
-
-              for (const line of lines) {
-
-                if (line.startsWith('event:')) {
-                  eventType = line
-                    .substring(6)
-                    .trim();
-                }
-
-                if (line.startsWith('data:')) {
-                  const rawData = line.substring(5);
-
-                  data += rawData;
-                }
-              }
-
-              if (data) {
-
-                subscriber.next({
-                  type: eventType === 'conversation'
-                    ? 'conversation'
-                    : 'content',
-                  data
-                });
-              }
+              this.processSseEvent(
+                event,
+                subscriber
+              );
             }
           }
 
-          // Traiter éventuellement le dernier événement
-          // si le serveur ne termine pas par \n\n.
+          // Dernier événement éventuel
           if (buffer.trim()) {
 
             console.log(
@@ -132,33 +124,10 @@ export class ChatService {
               JSON.stringify(buffer)
             );
 
-            let eventType = 'content';
-            let data = '';
-
-            for (const line of buffer.split('\n')) {
-
-              if (line.startsWith('event:')) {
-                eventType = line
-                  .substring(6)
-                  .trim();
-              }
-
-              if (line.startsWith('data:')) {
-                const rawData = line.substring(5);
-
-                data += rawData;
-              }
-            }
-
-            if (data) {
-
-              subscriber.next({
-                type: eventType === 'conversation'
-                  ? 'conversation'
-                  : 'content',
-                data
-              });
-            }
+            this.processSseEvent(
+              buffer,
+              subscriber
+            );
           }
 
           subscriber.complete();
@@ -166,6 +135,7 @@ export class ChatService {
         .catch(error => {
 
           if (error.name !== 'AbortError') {
+
             console.error(
               'Erreur SSE :',
               error
@@ -178,6 +148,86 @@ export class ChatService {
       return () => {
         controller.abort();
       };
+    });
+  }
+
+  private processSseEvent(
+    event: string,
+    subscriber: {
+      next: (value: StreamEvent) => void;
+    }
+  ): void {
+
+    let eventType = 'content';
+    let data = '';
+
+    const lines = event.split('\n');
+
+    for (const line of lines) {
+
+      if (line.startsWith('event:')) {
+
+        eventType = line
+          .substring(6)
+          .trim();
+      }
+
+      if (line.startsWith('data:')) {
+
+        const rawData =
+          line.substring(5);
+
+        data += rawData;
+      }
+    }
+
+    if (!data) {
+      return;
+    }
+
+    if (eventType === 'conversation') {
+
+      subscriber.next({
+        type: 'conversation',
+        data
+      });
+
+      return;
+    }
+
+    if (eventType === 'places') {
+
+      try {
+
+        const places: PlaceDto[] =
+          JSON.parse(data);
+
+        console.log(
+          'Lieux reçus depuis le backend :',
+          places
+        );
+
+        subscriber.next({
+          type: 'places',
+          data,
+          places
+        });
+
+      } catch (error) {
+
+        console.error(
+          'Impossible de parser les lieux reçus :',
+          error,
+          data
+        );
+      }
+
+      return;
+    }
+
+    subscriber.next({
+      type: 'content',
+      data
     });
   }
 }
